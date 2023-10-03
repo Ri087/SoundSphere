@@ -1,6 +1,12 @@
+import 'package:SoundSphere/utils/firebase.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -56,6 +62,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  final Future<String> testData = AppFirebase.getTestData();
 
   void _incrementCounter() {
     setState(() {
@@ -105,8 +112,21 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            FutureBuilder(
+              future: testData,
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                Text textWidget;
+                if (snapshot.hasData) {
+                  textWidget = Text('Result: ${snapshot.data}');
+                } else if (snapshot.hasError) {
+                  textWidget = const Text('Result: No data');
+                } else {
+                  textWidget = const Text('Awaiting result...');
+                }
+                return Center(
+                  child: textWidget,
+                );
+              },
             ),
             Text(
               '$_counter',
