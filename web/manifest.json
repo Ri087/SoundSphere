@@ -1,6 +1,6 @@
 {
-    "name": "nom_du_projet",
-    "short_name": "nom_du_projet",
+    "name": "SoundSphere",
+    "short_name": "SoundSphere",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

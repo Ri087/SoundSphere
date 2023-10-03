@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "nom_du_projet" "\0"
+            VALUE "FileDescription", "SoundSphere" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "nom_du_projet" "\0"
+            VALUE "InternalName", "SoundSphere" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "nom_du_projet.exe" "\0"
-            VALUE "ProductName", "nom_du_projet" "\0"
+            VALUE "OriginalFilename", "SoundSphere.exe" "\0"
+            VALUE "ProductName", "SoundSphere" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

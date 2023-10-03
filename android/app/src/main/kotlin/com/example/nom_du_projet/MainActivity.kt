@@ -1,4 +1,4 @@
-package com.example.nom_du_projet
+package com.example.SoundSphere
 
 import io.flutter.embedding.android.FlutterActivity
 

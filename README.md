@@ -1,4 +1,4 @@
-# nom_du_projet
+# SoundSphere
 
 A new Flutter project.
 
