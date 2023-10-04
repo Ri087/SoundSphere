@@ -1,11 +1,15 @@
 import 'package:SoundSphere/main.dart';
 import 'package:SoundSphere/screens/login_email/email_button.dart';
 import 'package:SoundSphere/screens/login_email/email_input.dart';
+import 'package:SoundSphere/screens/login_password/password_button.dart';
+import 'package:SoundSphere/screens/login_password/password_input.dart';
+import 'package:SoundSphere/screens/register_password/register_button.dart';
+import 'package:SoundSphere/screens/register_password/register_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-class LoginEmail extends StatelessWidget {
-  const LoginEmail({Key? key}) : super(key: key);
+class RegisterPassword extends StatelessWidget {
+  const RegisterPassword({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,15 +40,15 @@ class LoginEmail extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Text(
-                    'Hello ! Type your email',
+                    'Glad to see you back !',
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
                 const Padding(
                   padding: EdgeInsets.only(top: 10),
-                  child: LoginInput(),
+                  child: RegisterInput(),
                 ),
-                const LoginButton(),
+                const RegisterButton(),
               ],
             ),
           ),

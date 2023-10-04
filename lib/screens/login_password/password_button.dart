@@ -1,9 +1,9 @@
+import 'package:SoundSphere/screens/login_email/login_email.dart';
 import 'package:SoundSphere/screens/login_password/login_password.dart';
-import 'package:SoundSphere/screens/register_password/register_password.dart';
 import 'package:flutter/material.dart';
 
-class LoginButton extends StatelessWidget {
-  const LoginButton({super.key});
+class PasswordButton extends StatelessWidget {
+  const PasswordButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +12,8 @@ class LoginButton extends StatelessWidget {
         children: [
           TextButton(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const RegisterPassword()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const LoginEmail()));
             },
             style: ButtonStyle(
               fixedSize: MaterialStateProperty.resolveWith(
@@ -33,7 +31,7 @@ class LoginButton extends StatelessWidget {
               ),
             ),
             child: const Text(
-              "Confirm",
+              "Login",
               style: TextStyle(color: Colors.white),
             ),
           )
