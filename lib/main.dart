@@ -1,3 +1,4 @@
+import 'package:SoundSphere/screens/login_email/login_email.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'dart:math';
@@ -20,7 +21,7 @@ class SoundSphere extends StatelessWidget {
     return const MaterialApp(
       title: "SoundSphere",
       debugShowCheckedModeBanner: false,
-      home: Scaffold(),
+      home: LoginEmail(),
     );
   }
 }
