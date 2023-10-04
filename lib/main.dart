@@ -1,4 +1,4 @@
-import 'package:SoundSphere/utils/firebase.dart';
+import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
