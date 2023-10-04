@@ -23,15 +23,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -61,9 +55,27 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDYjqk2HfLh4sDLsD0-S5u1vfcGjl3Hhhs',
-    appId: '1:487897094521:android:49e214804d7d0b91ae37a8',
+    appId: '1:487897094521:android:886c9e80e8a6bf20ae37a8',
     messagingSenderId: '487897094521',
     projectId: 'soundsphere-2023',
     storageBucket: 'soundsphere-2023.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyBDAD92wsX08aBF_DALLWWWfVB7yIX8axE',
+    appId: '1:487897094521:ios:4d07a1f67b8c13aeae37a8',
+    messagingSenderId: '487897094521',
+    projectId: 'soundsphere-2023',
+    storageBucket: 'soundsphere-2023.appspot.com',
+    iosBundleId: 'com.example.SoundSphere',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyBDAD92wsX08aBF_DALLWWWfVB7yIX8axE',
+    appId: '1:487897094521:ios:d40cf4278d3ea363ae37a8',
+    messagingSenderId: '487897094521',
+    projectId: 'soundsphere-2023',
+    storageBucket: 'soundsphere-2023.appspot.com',
+    iosBundleId: 'com.example.SoundSphere.RunnerTests',
   );
 }
