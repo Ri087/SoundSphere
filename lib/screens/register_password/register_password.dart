@@ -1,12 +1,6 @@
-import 'package:SoundSphere/main.dart';
-import 'package:SoundSphere/screens/login_email/email_button.dart';
-import 'package:SoundSphere/screens/login_email/email_input.dart';
-import 'package:SoundSphere/screens/login_password/password_button.dart';
-import 'package:SoundSphere/screens/login_password/password_input.dart';
 import 'package:SoundSphere/screens/register_password/register_button.dart';
 import 'package:SoundSphere/screens/register_password/register_input.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 class RegisterPassword extends StatelessWidget {
   const RegisterPassword({Key? key}) : super(key: key);
@@ -14,44 +8,34 @@ class RegisterPassword extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(
-        255,
-        2,
-        32,
-        58,
-      ),
-      body: Stack(
+      backgroundColor: const Color.fromARGB(255, 2, 32, 58,),
+      body: Column(
         children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 30),
-                  child: Center(
-                      child: Image.asset(
-                    'assets/images/image_transparent.png',
-                    height: 300,
-                  )),
-                ),
-                const Text(
-                  'SoundSphere',
-                  style: TextStyle(color: Colors.white, fontSize: 42),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Text(
-                    'Glad to see you back !',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: RegisterInput(),
-                ),
-                const RegisterButton(),
-              ],
+          Padding(
+            padding: const EdgeInsets.only(top: 30),
+            child: Center(
+                child: Image.asset(
+              'assets/images/image_transparent.png',
+              height: 280, width: 280,
+            )),
+          ),
+          const Text(
+            'SoundSphere',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 42,
+                fontFamily: "ZenDots"
             ),
           ),
+          const Padding(
+            padding: EdgeInsets.only(top: 10, bottom: 30),
+            child: Text(
+              'Type a password to join us !',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ),
+          const RegisterInput(),
+          const RegisterButton(),
         ],
       ),
     );

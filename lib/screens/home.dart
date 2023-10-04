@@ -22,12 +22,12 @@ class _Home extends State<Home> {
   @override
   void initState() {
     super.initState();
-    if (FirebaseAuth.instance.currentUser == null) {
-      Navigator.push(context, MaterialPageRoute(
-          builder: (context) => const LoginEmail()));
-    } else {
-      publicRoomWidgetList = addPublicRoomToList(context);
-    }
+    /* if (FirebaseAuth.instance.currentUser == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) =>
+          Navigator.push(context, MaterialPageRoute(
+              builder: (context) => const LoginEmail())));
+    } */
+    publicRoomWidgetList = addPublicRoomToList(context);
   }
 
   void reloadData() {
@@ -50,6 +50,7 @@ class _Home extends State<Home> {
             onPressed: () {index++;}, icon: const Icon(Icons.person_rounded, color: Color(0xffffffff),),)
         ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
         child: Column(
