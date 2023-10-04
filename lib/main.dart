@@ -1,7 +1,8 @@
-import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'dart:math';
 
+// import 'package:SoundSphere/utils/firebase.dart'
 
 import 'firebase_options.dart';
 
@@ -16,6 +17,10 @@ class SoundSphere extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Material();
+    return const MaterialApp(
+      title: "SoundSphere",
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(),
+    );
   }
 }
