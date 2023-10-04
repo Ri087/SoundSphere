@@ -1,9 +1,6 @@
-import 'package:SoundSphere/screens/login_email/login_email.dart';
+import 'package:SoundSphere/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'dart:math';
-
-// import 'package:SoundSphere/utils/firebase.dart'
 
 import 'firebase_options.dart';
 
@@ -20,8 +17,9 @@ class SoundSphere extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: "SoundSphere",
+      color: Color(0xFF02203A),
       debugShowCheckedModeBanner: false,
-      home: LoginEmail(),
+      home: Home(),
     );
   }
 }

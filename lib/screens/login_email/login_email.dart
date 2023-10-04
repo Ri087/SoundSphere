@@ -1,4 +1,3 @@
-import 'package:SoundSphere/main.dart';
 import 'package:SoundSphere/screens/login_email/email_button.dart';
 import 'package:SoundSphere/screens/login_email/email_input.dart';
 import 'package:flutter/material.dart';

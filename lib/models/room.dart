@@ -1,15 +1,17 @@
 import 'package:SoundSphere/models/user.dart';
+import 'package:SoundSphere/widgets/room.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Room {
   final String? title;
   final String? description;
   final int? maxMembers;
   final List<String>? members;
+  final bool? isPrivate;
 
-  Room({this.title, this.description, this.maxMembers, this.members});
+  Room({this.title, this.description, this.maxMembers, this.members, this.isPrivate});
 
   Widget? getWidget() {
     return null;
@@ -31,13 +33,12 @@ class Room {
     }
   }
 
-  static Future<List<Room>?> getRooms(String docId) async {
+  static Future<List<Room>?> getPublicRooms() async {
     final collectionRef = await AppFirebase.db.collection("room").withConverter(
       fromFirestore: Room.fromFirestore,
       toFirestore: (Room room, _) => room.toFirestore(),
-    ).get();
-    final docs = collectionRef.docs;
-    final rooms = docs.map((e) => e.data()).toList();
+    ).where("state", isEqualTo: false).get();
+    final rooms = collectionRef.docs.map((e) => e.data()).toList();
     if (rooms .isEmpty) {
       print(rooms);
       return rooms;
@@ -65,6 +66,17 @@ class Room {
     return true;
   }
 
+  static Future<List<Widget>> getRoomWidgets(context) async {
+    List<Widget> widgets = [];
+    List<Room>? rooms = await Room.getPublicRooms();
+    if (rooms != null) {
+      for (var room in rooms) {
+        widgets.add(RoomWidget(room: room).getWidget(context));
+      }
+    }
+    return widgets;
+  }
+
   factory Room.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options,
@@ -73,8 +85,9 @@ class Room {
     return Room(
       title: data?["title"],
       description: data?["description"],
-      maxMembers: data?["maxMembers"],
+      maxMembers: data?["max_members"],
       members: data?["members"],
+      isPrivate: data?["is_private"],
     );
   }
 
@@ -82,8 +95,9 @@ class Room {
     return {
       if (title != null) "title": title,
       if (description != null) "description": description,
-      if (maxMembers != null) "maxMembers": maxMembers,
+      if (maxMembers != null) "max_members": maxMembers,
       if (members != null) "members": members,
+      if (isPrivate != null) "is_private": isPrivate,
     };
   }
 }
