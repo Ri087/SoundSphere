@@ -23,7 +23,7 @@ class LoginEmail extends StatelessWidget {
             'SoundSphere',
             style: TextStyle(
                 color: Colors.white,
-                fontSize: 42,
+                fontSize: 36,
                 fontFamily: "ZenDots"
             ),
           ),

@@ -7,34 +7,37 @@ class LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder:
-            (context) => const RegisterPassword()));
-      },
-      style: ButtonStyle(
-        fixedSize: MaterialStateProperty.resolveWith(
-          (states) => const Size(350, 50)),
-        backgroundColor: MaterialStateProperty.resolveWith(
-            (states) => const Color.fromARGB(255, 14, 230, 241)),
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(7),
-            side: const BorderSide(width: 2.0),
+    return Padding(
+      padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
+      child: TextButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder:
+              (context) => const RegisterPassword()));
+        },
+        style: ButtonStyle(
+          fixedSize: MaterialStateProperty.resolveWith(
+            (states) => const Size(350, 50)),
+          backgroundColor: MaterialStateProperty.resolveWith(
+              (states) => const Color.fromARGB(255, 14, 230, 241)),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(7),
+              side: const BorderSide(width: 2.0),
+            ),
           ),
         ),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("NEXT", style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 5),
-            child: Icon(Icons.arrow_forward, color: Colors.white,),
-          )
-        ],
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("NEXT", style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 5),
+              child: Icon(Icons.arrow_forward, color: Colors.white,),
+            )
+          ],
+        ),
       ),
     );
   }
