@@ -1,6 +1,4 @@
 import 'package:SoundSphere/models/room.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:SoundSphere/screens/login_email/login_email.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -16,6 +14,7 @@ class _Home extends State<Home> {
 
   Future<List<Widget>> addPublicRoomToList(context) async {
     List<Widget> publicRoomWidgets = await Room.getRoomWidgets(context);
+    print("get done");
     return publicRoomWidgets;
   }
 
@@ -56,7 +55,7 @@ class _Home extends State<Home> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 10.0, left: 8, right: 8),
               child: SizedBox(
                 height: 45,
                 child: TextField(
@@ -82,36 +81,51 @@ class _Home extends State<Home> {
                 ),
               ),
             ),
-            FutureBuilder(
-              future: publicRoomWidgetList,
-              builder: (context, snapshot) {
-                List<Widget> children;
-                if(snapshot.hasData) {
-                  children = snapshot.data!;
-                } else if(snapshot.hasError) {
-                  children = [Text("Result : ${snapshot.error}")];
-                } else {
-                  children = [
-                    const SizedBox(
-                      height: 500,
-                      // ignore: prefer_const_constructors
-                      child: Center(
-                        child: SizedBox(
-                          width: 75,
-                          height: 75,
-                          child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: RefreshIndicator(
+                triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                backgroundColor: const Color(0xFF0EE6F1),
+                color: Colors.white,
+                onRefresh: () async {
+                  reloadData();
+                },
+                child: FutureBuilder(
+                  future: publicRoomWidgetList,
+                  builder: (context, snapshot) {
+                    List<Widget> children;
+                    if(snapshot.hasData) {
+                      children = snapshot.data!;
+                    } else if(snapshot.hasError) {
+                      children = [Text("Result : ${snapshot.error}")];
+                    } else {
+                      children = [
+                        const SizedBox(
+                          height: 500,
+                          // ignore: prefer_const_constructors
+                          child: Center(
+                            child: SizedBox(
+                              width: 75,
+                              height: 75,
+                              child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                            ),
+                          ),
+                        )
+                      ];
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height - 200,
+                        child: ListView.builder(
+                          itemCount: children.length,
+                          itemBuilder: (ctxt/*context*/, ind) {return children[ind];},
                         ),
                       ),
-                    )
-                  ];
-                }
-                return Flexible(
-                  child: ListView.builder(
-                    itemCount: children.length,
-                    itemBuilder: (ctxt/*context*/, ind) {return children[ind];},
-                  ),
-                );
-              }
+                    );
+                  }
+                ),
+              ),
             )
           ],
         ),
