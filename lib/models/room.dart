@@ -5,13 +5,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Room {
+  final String id;
   final String? title;
   final String? description;
   final int? maxMembers;
-  final List<String>? members;
+  final List<dynamic>? members;
   final bool? isPrivate;
+  final String? actualMusic;
+  final List<dynamic> musicQueue;
 
-  Room({this.title, this.description, this.maxMembers, this.members, this.isPrivate});
+  Room({required this.id, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
 
   Widget? getWidget() {
     return null;
@@ -37,10 +40,9 @@ class Room {
     final collectionRef = await AppFirebase.db.collection("room").withConverter(
       fromFirestore: Room.fromFirestore,
       toFirestore: (Room room, _) => room.toFirestore(),
-    ).where("state", isEqualTo: false).get();
+    ).where("is_private", isEqualTo: false).get();
     final rooms = collectionRef.docs.map((e) => e.data()).toList();
-    if (rooms .isEmpty) {
-      print(rooms);
+    if (rooms.isNotEmpty) {
       return rooms;
     } else {
       print("No such document.");
@@ -83,11 +85,13 @@ class Room {
       ) {
     final data = snapshot.data();
     return Room(
+      id: snapshot.id,
       title: data?["title"],
       description: data?["description"],
       maxMembers: data?["max_members"],
       members: data?["members"],
       isPrivate: data?["is_private"],
+      musicQueue: data?["music_queue"],
     );
   }
 

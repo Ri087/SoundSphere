@@ -33,11 +33,8 @@ class RegisterButton extends StatelessWidget {
               (states) => const Color.fromARGB(255, 14, 230, 241)),
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                  7), // Ajustez la valeur pour le rayon de bord
-              side: const BorderSide(
-                  width:
-                      2.0), // Ajustez la couleur et la largeur pour les bordures
+              borderRadius: BorderRadius.circular(7),
+              side: const BorderSide(width: 2.0),
             ),
           ),
         ),
