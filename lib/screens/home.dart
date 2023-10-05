@@ -39,26 +39,38 @@ class _Home extends State<Home> {
     context: context,
     builder:(context)=> AlertDialog(
       backgroundColor: const Color(0xFF02203A),
-
+      alignment: Alignment.topCenter,
       content: SizedBox(
         height: 150,
+        width: MediaQuery.of(context).size.width,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.access_alarm,
-                    color: Colors.white,
+                Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.lightBlue),
+                      borderRadius: BorderRadius.circular(10)
                   ),
-                  onPressed: () {
-                  },
+                  child: IconButton(
+                    icon: const Icon(
+                    Icons.person,
+                    color: Colors.lightBlue,
+                  ),
+                    onPressed: () {
+                      openPopUpUsername();
+                    },
+                ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: EdgeInsets.only(top : 25),
                   child: Text(
-                    'Username',
-                    textHeightBehavior: TextHeightBehavior(),
+                    ' Username',
+                    textDirection: TextDirection.ltr,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -71,41 +83,254 @@ class _Home extends State<Home> {
 
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  top: 20
-              ),
-              child: Column(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                    },
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'Log out',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w400,
-                        height: 0,
+              Padding(
+                padding: const EdgeInsets.only(left:40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.pink),
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.logout,
+                          color: Colors.pink,
+                          size: 26,
+                        ),
+                        onPressed: () {
+                        },
                       ),
                     ),
-                  ),
-                ],
+
+                    const Padding(
+                      padding: EdgeInsets.only(top :25),
+                      child: Text(
+                        'Log out',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          height: 0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
     ),
   );
+
+  Future openPopUpUsername() => showDialog(
+    context: context,
+    builder:(context)=> AlertDialog(
+      backgroundColor: const Color(0xFF02203A),
+      alignment: Alignment.center,
+      title: const Text(
+          'Change your username',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      content: SizedBox(
+        height: 120,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'New username',
+                filled: true,
+                fillColor: const Color(0xFF02203A),
+                hintStyle: const TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
+              ),
+              style: const TextStyle(color: Colors.white),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top:20),
+              child: TextButton(
+                onPressed: () {
+                },
+                style: ButtonStyle(
+                  fixedSize: MaterialStateProperty.resolveWith(
+                          (states) => const Size(350, 50)),
+                  backgroundColor: MaterialStateProperty.resolveWith(
+                          (states) => const Color.fromARGB(255, 14, 230, 241)),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7),
+                      side: const BorderSide(width: 2.0),
+                    ),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("CONFIRM", style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 5),
+                      child: Icon(Icons.check, color: Colors.white,),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
+
+
+
+      ),
+    ),
+  );
+
+  Future openPopUpCreateSphere() => showDialog(
+    context: context,
+    builder:(context)=> AlertDialog(
+      backgroundColor: const Color(0xFF02203A),
+      alignment: Alignment.center,
+      content: SizedBox(
+          height: 400,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                ' Create Sphere',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontFamily: "ZenDots",
+                  fontWeight: FontWeight.w400,
+                  height: 0,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top:20),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Name of the sphere',
+                    filled: true,
+                    fillColor: const Color(0xFF02203A),
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top:20),
+                child: TextField(
+                  minLines: 5,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    hintText: 'Description',
+                    contentPadding: const EdgeInsets.all(15),
+                    filled: true,
+                    fillColor: const Color(0xFF02203A),
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top:20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Private",
+                      style: TextStyle(
+                        color:Colors.white
+                      ),
+                    ),
+                    Switch(
+                      activeColor: Colors.pink,
+                        value: false,
+                        onChanged: (test){
+                    }
+                    ),
+                    const Text(
+                      "Public",
+                      style: TextStyle(
+                          color:Colors.white
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:30),
+                      child: IconButton(onPressed: (){}, icon: const Icon(Icons.remove, color: Colors.white )),
+                    ),
+                     Text(
+                      "0",
+                      style: TextStyle(
+                          color:Colors.white
+                      ),
+                    ),
+                    IconButton(onPressed: (){}, icon: const Icon(Icons.add, color: Colors.white )),
+
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top:20),
+                child: TextButton(
+                  onPressed: () {
+                  },
+                  style: ButtonStyle(
+                    fixedSize: MaterialStateProperty.resolveWith(
+                            (states) => const Size(350, 50)),
+                    backgroundColor: MaterialStateProperty.resolveWith(
+                            (states) => const Color.fromARGB(255, 14, 230, 241)),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7),
+                        side: const BorderSide(width: 2.0),
+                      ),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("CREATE", style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 5),
+                        child: Icon(Icons.music_note, color: Colors.white,),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )
+
+
+
+      ),
+    ),
+  );
+
 
 
   @override
@@ -212,6 +437,7 @@ class _Home extends State<Home> {
         foregroundColor: const Color(0xFF02203A),
         onPressed: () {
           index++;
+          openPopUpCreateSphere();
         },
         child: const Icon(Icons.add, size: 30,),
       ),
