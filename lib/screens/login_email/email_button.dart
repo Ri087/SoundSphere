@@ -44,8 +44,8 @@ class LoginButton extends StatelessWidget {
           final bool isOk = await User().userExist(emailController.text);
           print(isOk);
           // ignore: use_build_context_synchronously
-          // Navigate(context, isOk, emailController.text.toLowerCase(),
-          //     passwordController, confirmPasswordController);
+          Navigate(context, isOk, emailController.text.toLowerCase(),
+              passwordController, confirmPasswordController);
         },
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.resolveWith(

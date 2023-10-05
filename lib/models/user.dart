@@ -51,21 +51,16 @@ class User {
 
   Future<bool> userExist(String email) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: "jeremy.12@gmail.com", password: "azertyuiop&é\"'(§è!ç)");
-      // L'utilisateur a été créé avec succès
-      return false;
-    } catch (error) {
-      if (error is FirebaseAuthException) {
-        print(error.code);
-        if (error.code == 'user-not-found') {
-          return true;
+      final method =
           // L'adresse e-mail est déjà utilisée
-        }
-        // Vous pouvez également gérer d'autres types d'erreurs ici si nécessaire
-      }
+          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+      return method.isNotEmpty;
+    } catch (error) {
+      print("compte inexistant");
+      return false;
+
+      // Vous pouvez également gérer d'autres types d'erreurs ici si nécessaire
     }
-    return false;
   }
 
   Future<bool> signOut() async {
