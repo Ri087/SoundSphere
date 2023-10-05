@@ -35,6 +35,79 @@ class _Home extends State<Home> {
     });
   }
 
+  Future openPopUpProfile() => showDialog(
+    context: context,
+    builder:(context)=> AlertDialog(
+      backgroundColor: const Color(0xFF02203A),
+
+      content: SizedBox(
+        height: 150,
+        child: Row(
+          children: [
+            Column(
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.access_alarm,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                  },
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Username',
+                    textHeightBehavior: TextHeightBehavior(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w400,
+                      height: 0,
+                    ),
+                  ),
+                ),
+
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                  top: 20
+              ),
+              child: Column(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                    },
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Log out',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w400,
+                        height: 0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +119,10 @@ class _Home extends State<Home> {
         title: const Text("SoundSphere", style: TextStyle(color: Colors.white, fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
-            onPressed: () {index++;}, icon: const Icon(Icons.person_rounded, color: Color(0xffffffff),),)
+            onPressed: () {
+              openPopUpProfile();
+              index++;
+            }, icon: const Icon(Icons.person_rounded, color: Color(0xffffffff),),)
         ],
       ),
 
@@ -91,39 +167,39 @@ class _Home extends State<Home> {
                   reloadData();
                 },
                 child: FutureBuilder(
-                  future: publicRoomWidgetList,
-                  builder: (context, snapshot) {
-                    List<Widget> children;
-                    if(snapshot.hasData) {
-                      children = snapshot.data!;
-                    } else if(snapshot.hasError) {
-                      children = [Text("Result : ${snapshot.error}")];
-                    } else {
-                      children = [
-                        const SizedBox(
-                          height: 500,
-                          // ignore: prefer_const_constructors
-                          child: Center(
-                            child: SizedBox(
-                              width: 75,
-                              height: 75,
-                              child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                    future: publicRoomWidgetList,
+                    builder: (context, snapshot) {
+                      List<Widget> children;
+                      if(snapshot.hasData) {
+                        children = snapshot.data!;
+                      } else if(snapshot.hasError) {
+                        children = [Text("Result : ${snapshot.error}")];
+                      } else {
+                        children = [
+                          const SizedBox(
+                            height: 500,
+                            // ignore: prefer_const_constructors
+                            child: Center(
+                              child: SizedBox(
+                                width: 75,
+                                height: 75,
+                                child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                              ),
                             ),
+                          )
+                        ];
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height - 200,
+                          child: ListView.builder(
+                            itemCount: children.length,
+                            itemBuilder: (ctxt/*context*/, ind) {return children[ind];},
                           ),
-                        )
-                      ];
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height - 200,
-                        child: ListView.builder(
-                          itemCount: children.length,
-                          itemBuilder: (ctxt/*context*/, ind) {return children[ind];},
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    }
                 ),
               ),
             )
