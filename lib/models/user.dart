@@ -8,16 +8,13 @@ class User {
 
   // A modifier niveau gestion des erreurs
   Future<dynamic> register(String emailAddress, String password) async {
-
     if (!checkPasswordFormat(password)) {
       return null;
     }
-
     try {
-      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailAddress,
-          password: password
-      );
+      final credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: emailAddress, password: password);
       final user = credential.user!;
       uid = user.uid;
       mail = user.email!;
@@ -35,10 +32,8 @@ class User {
 
   Future<dynamic> login(String emailAddress, String password) async {
     try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailAddress,
-          password: password
-      );
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: emailAddress, password: password);
       final user = credential.user!;
       uid = user.uid;
       mail = user.email!;
@@ -52,6 +47,25 @@ class User {
       }
       return false;
     }
+  }
+
+  Future<bool> userExist(String email) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: "jeremy.12@gmail.com", password: "azertyuiop&é\"'(§è!ç)");
+      // L'utilisateur a été créé avec succès
+      return false;
+    } catch (error) {
+      if (error is FirebaseAuthException) {
+        print(error.code);
+        if (error.code == 'user-not-found') {
+          return true;
+          // L'adresse e-mail est déjà utilisée
+        }
+        // Vous pouvez également gérer d'autres types d'erreurs ici si nécessaire
+      }
+    }
+    return false;
   }
 
   Future<bool> signOut() async {

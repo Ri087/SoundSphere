@@ -1,18 +1,30 @@
+import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/screens/home.dart';
 import 'package:SoundSphere/screens/login_password/login_password.dart';
 import 'package:flutter/material.dart';
 
 class RegisterButton extends StatelessWidget {
-  const RegisterButton({super.key});
+  const RegisterButton(
+      {super.key,
+      required this.emailController,
+      required this.passwordController,
+      required this.confirmPasswordController});
+  final String emailController;
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
-      child: TextButton(
+      child: ElevatedButton(
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const LoginPassword()));
+          print([emailController, passwordController.text]);
+          if (passwordController.value == confirmPasswordController.value) {
+            User().register(emailController, passwordController.text);
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => const Home()));
+          }
         },
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.resolveWith(
@@ -32,12 +44,17 @@ class RegisterButton extends StatelessWidget {
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("REGISTER", style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
+            Text(
+              "REGISTER",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             Padding(
               padding: EdgeInsets.only(left: 5),
-              child: Icon(Icons.login, color: Colors.white,),
+              child: Icon(
+                Icons.login,
+                color: Colors.white,
+              ),
             )
           ],
         ),

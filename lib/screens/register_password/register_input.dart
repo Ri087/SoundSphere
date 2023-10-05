@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class RegisterInput extends StatelessWidget {
-  const RegisterInput({super.key});
+  const RegisterInput(
+      {super.key,
+      required this.passwordController,
+      required this.confirmPasswordController});
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
 
   @override
   Widget build(BuildContext context) {
@@ -12,11 +17,12 @@ class RegisterInput extends StatelessWidget {
         child: Column(
           children: [
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                   hintText: "Password",
-                  hintStyle:
-                      const TextStyle(color: Color.fromARGB(100, 255, 255, 255)),
+                  hintStyle: const TextStyle(
+                      color: Color.fromARGB(100, 255, 255, 255)),
                   fillColor: Colors.transparent,
                   filled: true,
                   focusedBorder: OutlineInputBorder(
@@ -39,6 +45,7 @@ class RegisterInput extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 10),
               child: TextField(
+                controller: confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                     hintText: "Confirm password",

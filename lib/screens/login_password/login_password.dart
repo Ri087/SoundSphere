@@ -3,12 +3,19 @@ import 'package:SoundSphere/screens/login_password/password_input.dart';
 import 'package:flutter/material.dart';
 
 class LoginPassword extends StatelessWidget {
-  const LoginPassword({Key? key}) : super(key: key);
+  const LoginPassword({Key? key, required this.emailController})
+      : super(key: key);
+  final String emailController;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 2, 32, 58,),
+      backgroundColor: const Color.fromARGB(
+        255,
+        2,
+        32,
+        58,
+      ),
       body: Column(
         children: [
           Padding(
@@ -16,16 +23,14 @@ class LoginPassword extends StatelessWidget {
             child: Center(
                 child: Image.asset(
               'assets/images/image_transparent.png',
-              height: 280, width: 280,
+              height: 280,
+              width: 280,
             )),
           ),
           const Text(
             'SoundSphere',
             style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontFamily: "ZenDots"
-            ),
+                color: Colors.white, fontSize: 36, fontFamily: "ZenDots"),
           ),
           const Padding(
             padding: EdgeInsets.only(top: 10, bottom: 30),

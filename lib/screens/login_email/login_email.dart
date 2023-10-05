@@ -1,14 +1,31 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:SoundSphere/screens/login_email/email_button.dart';
 import 'package:SoundSphere/screens/login_email/email_input.dart';
 import 'package:flutter/material.dart';
 
-class LoginEmail extends StatelessWidget {
-  const LoginEmail({Key? key}) : super(key: key);
+class LoginEmail extends StatefulWidget {
+  const LoginEmail({super.key});
+
+  @override
+  _LoginEmail createState() => _LoginEmail();
+}
+
+class _LoginEmail extends State<LoginEmail> {
+  final TextEditingController controllerEmail = TextEditingController();
+  final TextEditingController controllerPassword = TextEditingController();
+  final TextEditingController controllerConfirmePassword =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 2, 32, 58,),
+      backgroundColor: const Color.fromARGB(
+        255,
+        2,
+        32,
+        58,
+      ),
       body: Column(
         children: [
           Padding(
@@ -16,16 +33,14 @@ class LoginEmail extends StatelessWidget {
             child: Center(
                 child: Image.asset(
               'assets/images/image_transparent.png',
-              height: 280, width: 280,
+              height: 280,
+              width: 280,
             )),
           ),
           const Text(
             'SoundSphere',
             style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontFamily: "ZenDots"
-            ),
+                color: Colors.white, fontSize: 36, fontFamily: "ZenDots"),
           ),
           const Padding(
             padding: EdgeInsets.only(top: 10, bottom: 30),
@@ -34,8 +49,11 @@ class LoginEmail extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
-          const LoginInput(),
-          const LoginButton(),
+          LoginInput(controller: controllerEmail),
+          LoginButton(
+              emailController: controllerEmail,
+              passwordController: controllerPassword,
+              confirmPasswordController: controllerConfirmePassword),
         ],
       ),
     );

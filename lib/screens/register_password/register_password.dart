@@ -3,12 +3,26 @@ import 'package:SoundSphere/screens/register_password/register_input.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPassword extends StatelessWidget {
-  const RegisterPassword({Key? key}) : super(key: key);
+  const RegisterPassword(
+      {Key? key,
+      required this.controllerEmail,
+      required this.passwordController,
+      required this.confirmPasswordController})
+      : super(key: key);
+  final String controllerEmail;
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
 
   @override
   Widget build(BuildContext context) {
+    print([passwordController.text, confirmPasswordController.text]);
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 2, 32, 58,),
+      backgroundColor: const Color.fromARGB(
+        255,
+        2,
+        32,
+        58,
+      ),
       body: Column(
         children: [
           Padding(
@@ -16,16 +30,14 @@ class RegisterPassword extends StatelessWidget {
             child: Center(
                 child: Image.asset(
               'assets/images/image_transparent.png',
-              height: 280, width: 280,
+              height: 280,
+              width: 280,
             )),
           ),
           const Text(
             'SoundSphere',
             style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontFamily: "ZenDots"
-            ),
+                color: Colors.white, fontSize: 36, fontFamily: "ZenDots"),
           ),
           const Padding(
             padding: EdgeInsets.only(top: 10, bottom: 30),
@@ -34,8 +46,15 @@ class RegisterPassword extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
-          const RegisterInput(),
-          const RegisterButton(),
+          RegisterInput(
+            passwordController: passwordController,
+            confirmPasswordController: confirmPasswordController,
+          ),
+          RegisterButton(
+            emailController: controllerEmail,
+            passwordController: passwordController,
+            confirmPasswordController: confirmPasswordController,
+          ),
         ],
       ),
     );
