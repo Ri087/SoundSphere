@@ -243,7 +243,7 @@ class _Home extends State<Home> {
       backgroundColor: const Color(0xFF02203A),
       alignment: Alignment.center,
       content: SizedBox(
-          height: 400,
+          height: 450,
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -304,7 +304,7 @@ class _Home extends State<Home> {
                   direction: Axis.horizontal,
                   children: [
                     SizedBox(
-                      width:150,
+                      width:250,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -329,7 +329,7 @@ class _Home extends State<Home> {
                       ),
                     ),
                     SizedBox(
-                      width:150,
+                      width:250,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
