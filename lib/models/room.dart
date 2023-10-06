@@ -53,7 +53,7 @@ class Room {
 
   static Future<bool> createSphere(String _title, String _description, bool _isPrivate, int _maxMembers) async {
     String usr = FirebaseAuth.instance.currentUser!.uid;
-    final room = Room(code: "S-${getRandomString(3)}", host: usr, musicQueue: [], actualMusic: "", description: _description, title: _title, isPrivate: _isPrivate, members: [], maxMembers: _maxMembers);
+    final room = Room(code: "S-${getRandomString(3)}", host: usr, musicQueue: [], actualMusic: "", description: _description, title: _title, isPrivate: _isPrivate, members: [usr], maxMembers: _maxMembers);
     await collectionRef.doc().set(room);
     return true;
   }
