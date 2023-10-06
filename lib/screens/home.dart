@@ -249,6 +249,11 @@ class _Home extends State<Home> {
         ),
       );
 
+  final TextEditingController controllerTitle = TextEditingController();
+  final TextEditingController controllerDescription = TextEditingController();
+  bool stateSwitch = false;
+  int countMaxMembers = 5;
+
   Future openPopUpCreateSphere() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -282,6 +287,7 @@ class _Home extends State<Home> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextField(
+                      controller: controllerTitle,
                       decoration: InputDecoration(
                         hintText: 'Name of the sphere',
                         filled: true,
@@ -308,6 +314,7 @@ class _Home extends State<Home> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextField(
+                      controller:controllerDescription,
                       minLines: 5,
                       maxLines: 5,
                       decoration: InputDecoration(
@@ -349,7 +356,9 @@ class _Home extends State<Home> {
                               Switch(
                                   activeColor: const Color(0xFFFF86C9),
                                   value: false,
-                                  onChanged: (test) {}),
+                                  onChanged: (test) {
+                                    stateSwitch != stateSwitch;
+                                  }),
                               const Text(
                                 "Public",
                                 style: TextStyle(color: Colors.white),
@@ -363,7 +372,10 @@ class _Home extends State<Home> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    if(countMaxMembers > 1)
+                                      { countMaxMembers--; }
+                                  },
                                   icon: const Icon(Icons.remove,
                                       color: Colors.white)),
                               const Text(
@@ -371,7 +383,9 @@ class _Home extends State<Home> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    countMaxMembers++;
+                                  },
                                   icon: const Icon(Icons.add,
                                       color: Colors.white)),
                             ],
@@ -383,7 +397,9 @@ class _Home extends State<Home> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
+                      },
                       style: ButtonStyle(
                         fixedSize: MaterialStateProperty.resolveWith(
                             (states) => const Size(350, 50)),

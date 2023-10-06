@@ -1,6 +1,7 @@
 import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Room {
@@ -45,6 +46,22 @@ class Room {
       print("No such document.");
       return null;
     }
+  }
+
+  static Future<bool> createSphere(String _title, String _description, bool _isPrivate, int _maxMembers) async {
+    String usr = FirebaseAuth.instance.currentUser!.uid;
+    await collectionRef.doc().set({
+      "actual_music":"",
+      "code": "S-12A",
+      "description":_description,
+      "host" : usr,
+      "is_private":_isPrivate,
+      "max_members":[_maxMembers],
+      "music_queue":"",
+      "title":_title,
+      "members":usr,
+    } as Room);
+    return true;
   }
 
   Future<bool> addMember(String uid) async {
