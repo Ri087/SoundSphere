@@ -17,12 +17,11 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   final Room room;
   late Future<Music?> actualMusic;
-  double _sliderValue = 0;
   late final AudioPlayer audioPlayer;
   IconData playerButtonState = Icons.play_arrow_outlined;
   bool _isPlaying  = false;
   Duration _duration = const Duration(minutes: 0, seconds: 0);
-  Duration _postion = const Duration(minutes: 0, seconds: 0);
+  Duration _position = const Duration(minutes: 0, seconds: 0);
 
   _RoomPage({required this.room});
 
@@ -38,12 +37,16 @@ class _RoomPage extends State<RoomPage> {
     audioPlayer.setVolume(1.0);
 
     audioPlayer.onDurationChanged.listen((Duration duration) {
-      
+      setState(() {
+        _duration = duration;
+      });
     });
 
     // Event pour mettre à jour une progress bar par exemple
     audioPlayer.onPositionChanged.listen((Duration duration) {
-
+      setState(() {
+        _position = duration;
+      });
     });
 
     // Event quand la musique est mis en pause ou resume etc...
@@ -92,6 +95,108 @@ class _RoomPage extends State<RoomPage> {
     return output;
   }
 
+  Future openPopUpSettings() => showDialog(
+    context: context,
+    builder:(context)=> AlertDialog(
+      backgroundColor: const Color(0xFF02203A),
+      alignment: Alignment.topCenter,
+      content: SizedBox(
+        height: 150,
+        width: MediaQuery.of(context).size.width,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFFF86C9)),
+                      borderRadius: BorderRadius.circular(10)
+                  ),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.settings,
+                      color: Color(0xFFFF86C9),
+                    ),
+                    onPressed: () {
+                      // ADD CODE
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top : 25),
+                  child: Text(
+                    ' Username',
+                    textDirection: TextDirection.ltr,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w400,
+                      height: 0,
+                    ),
+                  ),
+                ),
+
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left:40),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 80,
+                    width: 80,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFFF86C9)),
+                        borderRadius: BorderRadius.circular(10)
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.lock_open,
+                        color: Color(0xFFFF86C9),
+                        size: 26,
+                      ),
+                      onPressed: () {
+                        // ADD CODE
+                      },
+                    ),
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.only(top :25),
+                    child: Text(
+                      'Log out',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w400,
+                        height: 0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  formatedTime({required int timeInSecond}) {
+    int sec = timeInSecond % 60;
+    int min = (timeInSecond / 60).floor();
+    String minute = min.toString().length <= 1 ? "0$min" : "$min";
+    String second = sec.toString().length <= 1 ? "0$sec" : "$sec";
+    return "$minute : $second";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,7 +210,7 @@ class _RoomPage extends State<RoomPage> {
         title: Text(room.title!, style: const TextStyle(color: Colors.white, fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
-            onPressed: () {}, icon: const Icon(Icons.settings, color: Color(0xffffffff),),)
+            onPressed: () {openPopUpSettings();}, icon: const Icon(Icons.settings, color: Color(0xffffffff),),)
         ],
       ),
 
@@ -165,18 +270,20 @@ class _RoomPage extends State<RoomPage> {
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text("0", style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
+                      Text(formatedTime(timeInSecond: _position.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
                       Expanded(
                         child: Slider(
-                          value: _sliderValue,
+                          min: 0,
+                          max: _duration.inSeconds.toDouble(),
+                          value: _position.inSeconds.toDouble(),
                           onChanged: (value) {
                             setState(() {
-                              _sliderValue = value;
+                              audioPlayer.seek(Duration(seconds: value.toInt()));
                             });
                           }
                         ),
                       ),
-                      Text("0", style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
+                      Text(formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
                     ],
                   ),
                   Padding(

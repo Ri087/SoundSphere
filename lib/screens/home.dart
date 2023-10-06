@@ -1,5 +1,8 @@
 import 'package:SoundSphere/models/room.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'login_email/login_email.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -20,11 +23,11 @@ class _Home extends State<Home> {
   @override
   void initState() {
     super.initState();
-    /* if (FirebaseAuth.instance.currentUser == null) {
+    if (FirebaseAuth.instance.currentUser == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) =>
           Navigator.push(context, MaterialPageRoute(
               builder: (context) => const LoginEmail())));
-    } */
+    }
     publicRoomWidgetList = addPublicRoomToList(context);
   }
 
