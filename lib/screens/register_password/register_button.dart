@@ -9,7 +9,7 @@ class RegisterButton extends StatelessWidget {
       required this.emailController,
       required this.passwordController,
       required this.confirmPasswordController});
-  final String emailController;
+  final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
 
@@ -19,9 +19,10 @@ class RegisterButton extends StatelessWidget {
       padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
       child: ElevatedButton(
         onPressed: () {
-          print([emailController, passwordController.text]);
           if (passwordController.value == confirmPasswordController.value) {
-            User().register(emailController, passwordController.text);
+            User().register(
+                emailController.text.toLowerCase(), passwordController.text);
+
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => const Home()));
           }
