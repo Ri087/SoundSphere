@@ -9,7 +9,7 @@ class RegisterPassword extends StatelessWidget {
       required this.passwordController,
       required this.confirmPasswordController})
       : super(key: key);
-  final String controllerEmail;
+  final TextEditingController controllerEmail;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
 

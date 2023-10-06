@@ -3,9 +3,13 @@ import 'package:SoundSphere/screens/login_password/password_input.dart';
 import 'package:flutter/material.dart';
 
 class LoginPassword extends StatelessWidget {
-  const LoginPassword({Key? key, required this.emailController})
+  const LoginPassword(
+      {Key? key,
+      required this.emailController,
+      required this.passwordController})
       : super(key: key);
-  final String emailController;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +43,11 @@ class LoginPassword extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
-          const PasswordInput(),
-          const PasswordButton(),
+          PasswordInput(passwordController: passwordController),
+          PasswordButton(
+            emailController: emailController,
+            passwordController: passwordController,
+          ),
         ],
       ),
     );

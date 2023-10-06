@@ -1,6 +1,7 @@
 import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/screens/login_password/login_password.dart';
 import 'package:SoundSphere/screens/register_password/register_password.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
@@ -14,7 +15,7 @@ class LoginButton extends StatelessWidget {
   final TextEditingController confirmPasswordController;
 
   // ignore: non_constant_identifier_names
-  void Navigate(BuildContext context, bool isOk, String email,
+  void Navigate(BuildContext context, bool isOk, TextEditingController email,
       TextEditingController password, TextEditingController confirmPassword) {
     if (isOk) {
       Navigator.push(
@@ -22,6 +23,7 @@ class LoginButton extends StatelessWidget {
           MaterialPageRoute(
               builder: (context) => LoginPassword(
                     emailController: email,
+                    passwordController: password,
                   )));
       return;
     }
@@ -41,11 +43,16 @@ class LoginButton extends StatelessWidget {
       padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
       child: ElevatedButton(
         onPressed: () async {
-          final bool isOk = await User().userExist(emailController.text);
-          print(isOk);
-          // ignore: use_build_context_synchronously
-          Navigate(context, isOk, emailController.text.toLowerCase(),
-              passwordController, confirmPasswordController);
+          try {
+            final bool isOk =
+                await User.userExist(emailController.text.toLowerCase());
+            print(isOk);
+            // ignore: use_build_context_synchronously
+            Navigate(context, isOk, emailController, passwordController,
+                confirmPasswordController);
+          } catch (e) {
+            print(e);
+          }
         },
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.resolveWith(

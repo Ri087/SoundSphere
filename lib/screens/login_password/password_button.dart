@@ -1,19 +1,40 @@
+import 'dart:io';
+
 import 'package:SoundSphere/screens/home.dart';
 import 'package:SoundSphere/screens/login_email/login_email.dart';
 import 'package:SoundSphere/screens/login_password/login_password.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class PasswordButton extends StatelessWidget {
-  const PasswordButton({super.key});
+  const PasswordButton({
+    super.key,
+    required this.emailController,
+    required this.passwordController,
+  });
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const Home()));
+      child: ElevatedButton(
+        onPressed: () async {
+          try {
+            final UserCredential signIn = await FirebaseAuth.instance
+                .signInWithEmailAndPassword(
+                    email: emailController.text.toLowerCase(),
+                    password: passwordController.text);
+            // ignore: use_build_context_synchronously
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => const Home()));
+          } catch (e) {
+            print(e);
+
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const LoginEmail()));
+          }
         },
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.resolveWith(
@@ -30,12 +51,17 @@ class PasswordButton extends StatelessWidget {
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("LOGIN", style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
+            Text(
+              "LOGIN",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             Padding(
               padding: EdgeInsets.only(left: 5),
-              child: Icon(Icons.login, color: Colors.white,),
+              child: Icon(
+                Icons.login,
+                color: Colors.white,
+              ),
             )
           ],
         ),
