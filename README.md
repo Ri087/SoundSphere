@@ -1,16 +1,25 @@
 # SoundSphere
 
-A new Flutter project.
+SoundSphere is a mobile application that give users the possibility to hear music simultaneously the other users in the sphere. 
 
-## Getting Started
+### Sphere
 
-This project is a starting point for a Flutter application.
+A Sphere is a room that you can create and join to hear music with the other person inside of it. When you’re inside of a Sphere you have de possibility to add a music to the queue and it will be applied for everyone.
 
-A few resources to get you started if this is your first Flutter project:
+### Installation
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+To install SoundSphere you have to go on [our website](http://soundsphere.gcristini.fr) and click on the download button. Then the app will be on your phone.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Team
+
+[@Ri087](https://github.com/Ri087)
+
+[@AlexNbl27](https://github.com/AlexNbl27)
+
+[@nnaova](https://github.com/nnaova)
+
+[@barbetsacha](https://github.com/barbetsacha)
+
+[@guicrstn](https://github.com/guicrstn)
+
+[@f4senna](https://github.com/f4senna)
