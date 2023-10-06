@@ -13,7 +13,7 @@ class RoomWidget {
 
   Color genColor = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
 
-  Future<void> navigateToRoom(context) async {
+  Future<void> navigateToRoom(BuildContext context) async {
     room.addMember(FirebaseAuth.instance.currentUser!.uid);
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => RoomPage(room: room,)));
