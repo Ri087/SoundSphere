@@ -346,7 +346,7 @@ class _Home extends State<Home> {
                       direction: Axis.horizontal,
                       children: [
                         SizedBox(
-                          width: 150,
+                          width: 250,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -368,7 +368,7 @@ class _Home extends State<Home> {
                           ),
                         ),
                         SizedBox(
-                          width: 150,
+                          width: 250,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
