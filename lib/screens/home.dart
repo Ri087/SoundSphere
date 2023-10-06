@@ -75,7 +75,7 @@ class _Home extends State<Home> {
                     const Padding(
                       padding: EdgeInsets.only(top: 25),
                       child: Text(
-                        'username',
+                        'Username',
                         textDirection: TextDirection.ltr,
                         style: TextStyle(
                           color: Colors.white,
