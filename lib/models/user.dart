@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:SoundSphere/utils/app_firebase.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class User {
@@ -18,7 +22,11 @@ class User {
       final user = credential.user!;
       uid = user.uid;
       mail = user.email!;
-      displayName = user.displayName!;
+      displayName = 'user_${getRandomString(10)}';
+      await AppFirebase.db.collection("users").doc(uid).set({
+        "email": user.email,
+        "username": displayName,
+      }).onError((e, _) => print(e));
       return this;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -49,18 +57,32 @@ class User {
     }
   }
 
-  Future<bool> userExist(String email) async {
-    try {
-      final method =
-          // L'adresse e-mail est déjà utilisée
-          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
-      return method.isNotEmpty;
-    } catch (error) {
-      print("compte inexistant");
-      return false;
+  static Future<bool> userExist(String email) async {
+    // try {
+    //   final method =
+    //       // L'adresse e-mail est déjà utilisée
+    //       await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+    //   return method.isNotEmpty;
+    // } catch (error) {
+    //   print("compte inexistant");
+    //   return false;
 
-      // Vous pouvez également gérer d'autres types d'erreurs ici si nécessaire
+    //   // Vous pouvez également gérer d'autres types d'erreurs ici si nécessaire
+    // }
+    try {
+      final snapshot = await AppFirebase.db
+          .collection("users")
+          .where("email", isEqualTo: email)
+          .get();
+      if (snapshot.docs.isEmpty) {
+        return false;
+      }
+    } catch (e) {
+      print(e);
+      return false;
     }
+    ;
+    return true;
   }
 
   Future<bool> signOut() async {
@@ -73,4 +95,12 @@ class User {
   bool checkPasswordFormat(String password) {
     return true;
   }
+}
+
+String getRandomString(int length) {
+  const characters =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random random = Random();
+  return String.fromCharCodes(Iterable.generate(
+      length, (_) => characters.codeUnitAt(random.nextInt(characters.length))));
 }
