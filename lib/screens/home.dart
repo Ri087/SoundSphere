@@ -52,13 +52,13 @@ class _Home extends State<Home> {
                   height: 80,
                   width: 80,
                   decoration: BoxDecoration(
-                      border: Border.all(color: Colors.lightBlue),
+                      border: Border.all(color: const Color(0xFFFF86C9)),
                       borderRadius: BorderRadius.circular(10)
                   ),
                   child: IconButton(
                     icon: const Icon(
                     Icons.person,
-                    color: Colors.lightBlue,
+                    color: Color(0xFFFF86C9),
                   ),
                     onPressed: () {
                       openPopUpUsername();
@@ -91,13 +91,13 @@ class _Home extends State<Home> {
                       height: 80,
                       width: 80,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.pink),
+                        border: Border.all(color: const Color(0xFFFF86C9)),
                         borderRadius: BorderRadius.circular(10)
                       ),
                       child: IconButton(
                         icon: const Icon(
                           Icons.logout,
-                          color: Colors.pink,
+                          color: Color(0xFFFF86C9),
                           size: 26,
                         ),
                         onPressed: () {
@@ -132,8 +132,7 @@ class _Home extends State<Home> {
     builder:(context)=> AlertDialog(
       backgroundColor: const Color(0xFF02203A),
       alignment: Alignment.center,
-      title: const Text(
-          'Change your username',
+      title: const Text('Change your username',
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Colors.white,
@@ -226,9 +225,9 @@ class _Home extends State<Home> {
                     filled: true,
                     fillColor: const Color(0xFF02203A),
                     hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
                   ),
                   style: const TextStyle(color: Colors.white),
@@ -245,9 +244,9 @@ class _Home extends State<Home> {
                     filled: true,
                     fillColor: const Color(0xFF02203A),
                     hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Colors.pink)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -264,10 +263,9 @@ class _Home extends State<Home> {
                       ),
                     ),
                     Switch(
-                      activeColor: Colors.pink,
+                      activeColor: Color(0xFFFF86C9),
                         value: false,
-                        onChanged: (test){
-                    }
+                        onChanged: (test){}
                     ),
                     const Text(
                       "Public",
@@ -329,8 +327,6 @@ class _Home extends State<Home> {
       ),
     ),
   );
-
-
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:SoundSphere/models/music.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +53,12 @@ class _RoomPage extends State<RoomPage> {
     });
   }
 
-  _pause(){}
-  _play(){}
+  _pause(){
+    audioPlayer.pause();
+  }
+  _play(){
+    if (audioPlayer.state == PlayerState.stopped) {}
+  }
 
   void leaveRoom() {
     audioPlayer.dispose();
@@ -177,7 +179,7 @@ class _RoomPage extends State<RoomPage> {
                           radius: 30,
                           child: IconButton(
                             iconSize: 30,
-                            icon: const Icon(Icons.pause_outlined, color: Color(0xFF02203A),),
+                            icon: Icon(_isPlaying ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
                             onPressed: _isPlaying ? () => _pause() : () => _play(),
                           ),
                         ),
