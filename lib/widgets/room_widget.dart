@@ -73,10 +73,6 @@ class RoomWidget {
 
   Widget getWidget(context) {
     Future<Widget> musicRow = getMusicRow();
-    IconData publicIcon = Icons.public;
-    if (room.isPrivate!) {
-      publicIcon = Icons.public_off;
-    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
@@ -135,7 +131,7 @@ class RoomWidget {
                             Text(room.members!.length.toString(), style: const TextStyle(color: Colors.white),),
                             const Icon(Icons.person_rounded, color: Colors.white, size: 16),
                             const Text(" - ", style: TextStyle(color: Colors.white)),
-                            Icon(publicIcon, color: Colors.white, size: 16,),
+                            Icon(room.isPrivate! ? Icons.public_off : Icons.public, color: Colors.white, size: 16,),
                           ],
                         )
                       ],

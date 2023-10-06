@@ -18,8 +18,7 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   final Room room;
   late Future<Music?> actualMusic;
-  late final AudioPlayer audioPlayer;
-  IconData playerButtonState = Icons.play_arrow_outlined;
+  late final AudioPlayer audioPlayer = AudioPlayer(playerId: room.id);
   bool _isPlaying  = false;
   Duration _duration = const Duration(minutes: 0, seconds: 0);
   Duration _position = const Duration(minutes: 0, seconds: 0);
@@ -34,7 +33,6 @@ class _RoomPage extends State<RoomPage> {
   }
 
   void initPlayer() {
-    audioPlayer = AudioPlayer(playerId: room.id);
     audioPlayer.setVolume(1.0);
 
     audioPlayer.onDurationChanged.listen((Duration duration) {
@@ -63,9 +61,11 @@ class _RoomPage extends State<RoomPage> {
 
     // Event quand la musique se termine (hors pause ou stop par user)
     audioPlayer.onPlayerComplete.listen((_) {
-      _isPlaying = false;
-      _position = const Duration(seconds: 0);
-      room.nextMusic();
+      setState(() {
+        _isPlaying = false;
+        _position = const Duration(seconds: 0);
+        room.nextMusic(audioPlayer);
+      });
     });
   }
 
@@ -76,7 +76,7 @@ class _RoomPage extends State<RoomPage> {
   void _play(Music? music){
     if (audioPlayer.state == PlayerState.stopped) {
       if (music != null) {
-        audioPlayer.play(UrlSource(music!.url!));
+        audioPlayer.play(UrlSource(music.url!));
       }
     } else {
       audioPlayer.resume();
@@ -223,8 +223,26 @@ class _RoomPage extends State<RoomPage> {
         future: actualMusic,
         builder: (context, snapshot) {
           Music? music;
+          String title = "Loading music...", artists = "Loading artists...";
+          Widget cover = Container(
+            height: 200, width: 200,
+            decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
+            child: const Icon(Icons.music_note, size: 60, color: Colors.white,),
+          );
           if (snapshot.hasData) {
-            music = snapshot.data!;
+            music = snapshot.data;
+            if (music == null) {
+              print(audioPlayer);
+              title = "No music in queue";
+              artists = "";
+            } else {
+              cover = Container(
+                  height: 200, width: 200,
+                  decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(7.0))),
+                  child: Image.network(music.cover!));
+              title = music.title!;
+              artists = getArtists(music.artists!);
+            }
           } else if (snapshot.hasError) {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -234,24 +252,6 @@ class _RoomPage extends State<RoomPage> {
               ],
             );
           }
-
-          String title = "Loading music...", artists = "Loading artists...";
-          Widget cover = Container(
-            height: 200, width: 200,
-            decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-            child: const Icon(Icons.music_note, size: 60, color: Colors.white,),
-          );
-
-          if (music != null) {
-            cover = Container(
-                height: 200, width: 200,
-                decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                child: Image.network(music.cover!));
-
-            title = music.title!;
-            artists = getArtists(music.artists!);
-          }
-
           return Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -260,7 +260,7 @@ class _RoomPage extends State<RoomPage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text("Hosted by Jeremy", style: TextStyle(color: Colors.white, fontSize: 16),),
+                    child: Text("Hosted by Jeremy", style: const TextStyle(color: Colors.white, fontSize: 16),),
                   ),
                   Text("code: ${room.code}", style: const TextStyle(color: Colors.white)),
                   Padding(
@@ -300,7 +300,11 @@ class _RoomPage extends State<RoomPage> {
                         IconButton(
                           iconSize: 30,
                           icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              audioPlayer.seek(const Duration(seconds: 0));
+                            });
+                          },
                         ),
                         CircleAvatar(
                           backgroundColor: const Color(0xFFFF86C9),
@@ -314,7 +318,9 @@ class _RoomPage extends State<RoomPage> {
                         IconButton(
                           iconSize: 30,
                           icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
-                          onPressed: () {},
+                          onPressed: () {
+                            room.nextMusic(audioPlayer);
+                          },
                         )
                       ],
                     ),
@@ -346,7 +352,7 @@ class _RoomPage extends State<RoomPage> {
         foregroundColor: const Color(0xFF02203A),
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const SearchMusic()));
+              MaterialPageRoute(builder: (context) => SearchMusic(room: room,)));
         },
         child: const Icon(Icons.add, size: 30,),
       ),

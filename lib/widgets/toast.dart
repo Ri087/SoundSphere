@@ -21,7 +21,7 @@ class ToastUtil {
         gravity: ToastGravity.BOTTOM,
         webShowClose: true,
         timeInSecForIosWeb: 3,
-        backgroundColor: Color(0xFF33D627),
+        backgroundColor: const Color(0xFF33D627),
         textColor: Colors.white,
         fontSize: 16.0);
   }
@@ -33,7 +33,7 @@ class ToastUtil {
         gravity: ToastGravity.BOTTOM,
         webShowClose: true,
         timeInSecForIosWeb: 3,
-        backgroundColor: Color(0xFF2787D6),
+        backgroundColor: const Color(0xFF2787D6),
         textColor: Colors.white,
         fontSize: 16.0);
   }

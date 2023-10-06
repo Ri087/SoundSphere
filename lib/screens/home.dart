@@ -1,5 +1,4 @@
 import 'package:SoundSphere/models/room.dart';
-import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/screens/login_email/login_email.dart';
 
 import 'package:SoundSphere/widgets/pop_up_createSphere.dart';
@@ -7,8 +6,6 @@ import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import 'login_email/login_email.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

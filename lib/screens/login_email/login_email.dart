@@ -14,8 +14,7 @@ class LoginEmail extends StatefulWidget {
 class _LoginEmail extends State<LoginEmail> {
   final TextEditingController controllerEmail = TextEditingController();
   final TextEditingController controllerPassword = TextEditingController();
-  final TextEditingController controllerConfirmePassword =
-      TextEditingController();
+  final TextEditingController controllerConfirmePassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

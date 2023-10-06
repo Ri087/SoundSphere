@@ -1,5 +1,7 @@
 import 'package:SoundSphere/models/room.dart';
+import 'package:SoundSphere/widgets/music_search_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../utils/app_firebase.dart';
 
@@ -22,18 +24,40 @@ class Music {
     required this.cover
   });
 
+  static final collectionRef = AppFirebase.db.collection("musics").withConverter(
+    fromFirestore: Music.fromFirestore,
+    toFirestore: (Music music, _) => music.toFirestore(),);
+
   static Future<Music?> getActualMusic(Room room) async {
-    final ref = AppFirebase.db.collection("musics").doc(room.actualMusic).withConverter(
-      fromFirestore: Music.fromFirestore,
-      toFirestore: (Music music, _) => music.toFirestore(),
-    );
-    final docSnap = await ref.get();
-    print(docSnap.id);
+    if (room.actualMusic!.isEmpty) {
+      return null;
+    }
+    final docSnap = await collectionRef.doc(room.actualMusic).get();
     final music = docSnap.data();
     if (music != null) {
       return music;
     } else {
-      print("No such document.");
+      return null;
+    }
+  }
+  
+  static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room) async {
+    List<Widget> widgets = [];
+    List<Music?>? musics = await Music.getDbMusics(search);
+    if (musics != null) {
+      for (var music in musics) {
+        widgets.add(MusicSearchWidget(music: music!, room: room).getWidget(context));
+      }
+    }
+    return widgets;
+  }
+  
+  static Future<List<Music?>?> getDbMusics(String search) async {
+    final snap = await collectionRef.get();
+    final musics = snap.docs.map((e) {Music data = e.data(); if (data.title!.startsWith(search)) return data;}).toList();
+    if (musics.isNotEmpty) {
+      return musics;
+    } else {
       return null;
     }
   }
