@@ -240,10 +240,13 @@ class _Home extends State<Home> {
   Future openPopUpCreateSphere() => showDialog(
     context: context,
     builder:(context)=> AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
       backgroundColor: const Color(0xFF02203A),
       alignment: Alignment.center,
       content: SizedBox(
-          height: 450,
+          height: 400,
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
