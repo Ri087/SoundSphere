@@ -1,6 +1,6 @@
 # SoundSphere
 
-![4.png](https://github.com/Ri087/SoundSphere/assets/images/4.png)
+![4.png](/assets/images/4.png)
 
 ![2.png](https://github.com/Ri087/SoundSphere/assets/images/2.png)
 
