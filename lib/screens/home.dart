@@ -44,6 +44,9 @@ class _Home extends State<Home> {
   Future openPopUpProfile() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: const Color(0xFF02203A),
           alignment: Alignment.topCenter,
           content: SizedBox(
@@ -145,6 +148,9 @@ class _Home extends State<Home> {
   Future openPopUpUsername() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: const Color(0xFF02203A),
           alignment: Alignment.center,
           title: const Text(
