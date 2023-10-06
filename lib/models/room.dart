@@ -51,6 +51,7 @@ class Room {
     }
   }
 
+
   static Future<Room> createSphere(String _title, String _description, bool _isPrivate, int _maxMembers) async {
     String usr = FirebaseAuth.instance.currentUser!.uid;
     final room = Room(code: "S-${getRandomString(3)}", host: usr, musicQueue: [], actualMusic: "", description: _description, title: _title, isPrivate: _isPrivate, members: [], maxMembers: _maxMembers);

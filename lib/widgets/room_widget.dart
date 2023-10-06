@@ -13,7 +13,7 @@ class RoomWidget {
 
   Color genColor = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
 
-  static Future<void> navigateToRoom(BuildContext context, Room room) async {
+  Future<void> navigateToRoom(BuildContext context) async {
     room.addMember(FirebaseAuth.instance.currentUser!.uid);
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => RoomPage(room: room,)));
@@ -83,7 +83,7 @@ class RoomWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => navigateToRoom(context, room),
+          onTap: () => navigateToRoom(context),
           child: Container(
             decoration: BoxDecoration(
                 color: const Color(0xFF02203A),
