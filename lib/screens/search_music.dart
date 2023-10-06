@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Search_music extends StatefulWidget {
-  const Search_music({super.key});
+class SearchMusic extends StatefulWidget {
+  const SearchMusic({super.key});
 
   @override
-  State<StatefulWidget> createState() => _Search_music();
+  State<StatefulWidget> createState() => _SearchMusic();
 }
 
-class _Search_music extends State<Search_music> {
+class _SearchMusic extends State<SearchMusic> {
   late Future<List<Widget>> publicRoomWidgetList;
   int index = 1;
 
@@ -20,6 +20,10 @@ class _Search_music extends State<Search_music> {
           Navigator.push(context, MaterialPageRoute(
               builder: (context) => const LoginEmail())));
     } */
+  }
+
+  void leavePage() {
+    Navigator.pop(context);
   }
 
 

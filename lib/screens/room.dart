@@ -1,4 +1,5 @@
 import 'package:SoundSphere/models/music.dart';
+import 'package:SoundSphere/screens/search_music.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
@@ -42,22 +43,30 @@ class _RoomPage extends State<RoomPage> {
 
     // Event pour mettre à jour une progress bar par exemple
     audioPlayer.onPositionChanged.listen((Duration duration) {
-
     });
 
     // Event quand la musique est mis en pause ou resume etc...
-    audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) => print('Current player state:'));
+    audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
+      print(playerState);
+    });
 
     // Event quand la musique se termine (hors pause ou stop par user)
     audioPlayer.onPlayerComplete.listen((_) {
     });
   }
 
-  _pause(){
+  void _pause(){
     audioPlayer.pause();
   }
-  _play(){
-    if (audioPlayer.state == PlayerState.stopped) {}
+
+  void _play(Music? music){
+    if (audioPlayer.state == PlayerState.stopped) {
+      if (music != null) {
+        audioPlayer.play(UrlSource(music.url!));
+      } else {
+        audioPlayer.resume();
+      }
+    }
   }
 
   void leaveRoom() {
@@ -180,7 +189,7 @@ class _RoomPage extends State<RoomPage> {
                           child: IconButton(
                             iconSize: 30,
                             icon: Icon(_isPlaying ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
-                            onPressed: _isPlaying ? () => _pause() : () => _play(),
+                            onPressed: _isPlaying ? () => _pause() : () => _play(music),
                           ),
                         ),
                         IconButton(
@@ -217,6 +226,8 @@ class _RoomPage extends State<RoomPage> {
         backgroundColor: const Color(0xFFFF86C9),
         foregroundColor: const Color(0xFF02203A),
         onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const SearchMusic()));
         },
         child: const Icon(Icons.add, size: 30,),
       ),
