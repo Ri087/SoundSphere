@@ -1,9 +1,6 @@
 import 'package:SoundSphere/models/room.dart';
-<<<<<<< HEAD
-=======
 import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/screens/login_email/login_email.dart';
->>>>>>> 78a8073 (:sparkles: function singOut et change Username)
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
