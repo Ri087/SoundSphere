@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Room {
-  final String id;
+  final String? id;
   final String? code;
   final String? title;
   final String? description;
@@ -20,7 +20,7 @@ class Room {
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);
 
-  Room({required this.id, required this.code, required this.host, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
+  Room({this.id, required this.code, required this.host, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
 
   Future<void> nextMusic() async {
 
@@ -50,17 +50,8 @@ class Room {
 
   static Future<bool> createSphere(String _title, String _description, bool _isPrivate, int _maxMembers) async {
     String usr = FirebaseAuth.instance.currentUser!.uid;
-    await collectionRef.doc().set({
-      "actual_music":"",
-      "code": "S-12A",
-      "description":_description,
-      "host" : usr,
-      "is_private":_isPrivate,
-      "max_members":[_maxMembers],
-      "music_queue":"",
-      "title":_title,
-      "members":usr,
-    } as Room);
+    final room = Room(code: "S-12A", host: usr, musicQueue: [], actualMusic: "", description: _description, title: _title, isPrivate: _isPrivate, members: [], maxMembers: _maxMembers);
+    await collectionRef.doc().set(room);
     return true;
   }
 
