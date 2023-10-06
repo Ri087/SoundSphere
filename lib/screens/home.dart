@@ -1,6 +1,7 @@
 import 'package:SoundSphere/models/room.dart';
 import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/screens/login_email/login_email.dart';
+import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -397,8 +398,13 @@ class _Home extends State<Home> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextButton(
-                      onPressed: () {
-                        Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
+                      onPressed: () async {
+                        try {
+                          final _room = await Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
+                          RoomWidget.navigateToRoom(context, _room);
+                        } on Exception catch (e) {
+                          print (e);
+                        }
                       },
                       style: ButtonStyle(
                         fixedSize: MaterialStateProperty.resolveWith(
