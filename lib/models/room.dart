@@ -21,6 +21,10 @@ class Room {
 
   Room({required this.id, required this.code, required this.host, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
 
+  Future<void> nextMusic() async {
+
+  }
+
   static Future<Room?> getRoom(String docId) async {
     final docSnap = await collectionRef.doc(docId).get();
     final room = docSnap.data();

@@ -1,6 +1,7 @@
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/room.dart';
@@ -64,6 +65,7 @@ class _RoomPage extends State<RoomPage> {
     audioPlayer.onPlayerComplete.listen((_) {
       _isPlaying = false;
       _position = const Duration(seconds: 0);
+      room.nextMusic();
     });
   }
 
@@ -83,6 +85,7 @@ class _RoomPage extends State<RoomPage> {
 
   void leaveRoom() {
     audioPlayer.dispose();
+    room.removeMember(FirebaseAuth.instance.currentUser!.uid);
     Navigator.pop(context);
   }
 
