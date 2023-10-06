@@ -1,10 +1,6 @@
 # SoundSphere
 
-![4.png](/assets/images/4.png)
-
-![2.png](/assets/images/2.png)
-
-![6.png](/assets/images/6.png)
+![4.png](/assets/images/mockup_images.png)
 
 SoundSphere is a mobile application that give users the possibility to hear music simultaneously the other users in the sphere. 
 
@@ -14,11 +10,7 @@ A sphere is a room that you can create and join to hear music with the other per
 
 ### Features
 
-![f1.png](/assets/images/f1.png)
-
-![f2.png](/assets/images/f2.png)
-
-![f3.png](/assets/images/f3.png)
+![f1.png](/assets/images/features_image.png)
 
 - Find/create a sphere for a mood, an artist or a music style, you’re the one to choose
 - hear music with the people in the sphere
