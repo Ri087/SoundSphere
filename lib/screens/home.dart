@@ -14,7 +14,6 @@ class _Home extends State<Home> {
 
   Future<List<Widget>> addPublicRoomToList(context) async {
     List<Widget> publicRoomWidgets = await Room.getRoomWidgets(context);
-    print("get done");
     return publicRoomWidgets;
   }
 
@@ -356,7 +355,7 @@ class _Home extends State<Home> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 10.0, left: 8, right: 8),
+              padding: const EdgeInsets.all(8.0),
               child: SizedBox(
                 height: 45,
                 child: TextField(
@@ -395,32 +394,34 @@ class _Home extends State<Home> {
                     future: publicRoomWidgetList,
                     builder: (context, snapshot) {
                       List<Widget> children;
-                      if(snapshot.hasData) {
+                      if (snapshot.hasData) {
                         children = snapshot.data!;
-                      } else if(snapshot.hasError) {
+                      } else if (snapshot.hasError) {
                         children = [Text("Result : ${snapshot.error}")];
                       } else {
                         children = [
                           const SizedBox(
                             height: 500,
-                            // ignore: prefer_const_constructors
                             child: Center(
                               child: SizedBox(
                                 width: 75,
                                 height: 75,
-                                child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                                child: CircularProgressIndicator(
+                                    color: Color(0xFF0EE6F1)),
                               ),
                             ),
-                          )
+                          ),
                         ];
                       }
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          height: MediaQuery.of(context).size.height - 200,
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height - 200,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
                           child: ListView.builder(
                             itemCount: children.length,
-                            itemBuilder: (ctxt/*context*/, ind) {return children[ind];},
+                            itemBuilder: (ctxt /*context*/, ind) {
+                              return children[ind];
+                            },
                           ),
                         ),
                       );

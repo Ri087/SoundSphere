@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
 	<key>API_KEY</key>
 	<string>AIzaSyBDAD92wsX08aBF_DALLWWWfVB7yIX8axE</string>
 	<key>GCM_SENDER_ID</key>

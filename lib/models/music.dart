@@ -28,6 +28,7 @@ class Music {
       toFirestore: (Music music, _) => music.toFirestore(),
     );
     final docSnap = await ref.get();
+    print(docSnap.id);
     final music = docSnap.data();
     if (music != null) {
       return music;

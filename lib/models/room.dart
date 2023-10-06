@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 class Room {
   final String id;
+  final String? code;
   final String? title;
   final String? description;
   final int? maxMembers;
@@ -14,7 +15,7 @@ class Room {
   final String? actualMusic;
   final List<dynamic> musicQueue;
 
-  Room({required this.id, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
+  Room({required this.id, required this.code, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
 
   Widget? getWidget() {
     return null;
@@ -86,22 +87,27 @@ class Room {
     final data = snapshot.data();
     return Room(
       id: snapshot.id,
+      code: data?["code"],
       title: data?["title"],
       description: data?["description"],
       maxMembers: data?["max_members"],
       members: data?["members"],
       isPrivate: data?["is_private"],
+      actualMusic: data?["actual_music"],
       musicQueue: data?["music_queue"],
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
+      if (code != null) "code": code,
       if (title != null) "title": title,
       if (description != null) "description": description,
       if (maxMembers != null) "max_members": maxMembers,
       if (members != null) "members": members,
       if (isPrivate != null) "is_private": isPrivate,
+      if (actualMusic != null) "actual_music": actualMusic,
+      if (musicQueue.isNotEmpty) "music_queue": musicQueue,
     };
   }
 }
