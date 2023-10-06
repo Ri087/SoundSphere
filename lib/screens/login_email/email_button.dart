@@ -46,7 +46,6 @@ class LoginButton extends StatelessWidget {
           try {
             final bool isOk =
                 await User.userExist(emailController.text.toLowerCase());
-            print(isOk);
             // ignore: use_build_context_synchronously
             Navigate(context, isOk, emailController, passwordController,
                 confirmPasswordController);

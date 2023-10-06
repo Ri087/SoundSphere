@@ -31,7 +31,7 @@ class PasswordButton extends StatelessWidget {
                 context, MaterialPageRoute(builder: (context) => const Home()));
           } catch (e) {
             print(e);
-
+            // ignore: use_build_context_synchronously
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const LoginEmail()));
           }

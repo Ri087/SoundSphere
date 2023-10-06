@@ -11,6 +11,7 @@ class PasswordInput extends StatelessWidget {
       child: SizedBox(
         width: 350,
         child: TextField(
+          obscureText: true,
           controller: passwordController,
           decoration: InputDecoration(
               hintText: "Password",
