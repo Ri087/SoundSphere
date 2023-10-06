@@ -20,7 +20,7 @@ class SoundSphere extends StatelessWidget {
       title: "SoundSphere",
       color: Color(0xFF02203A),
       debugShowCheckedModeBanner: false,
-      home: LoginEmail(),
+      home: Home(),
     );
   }
 }
