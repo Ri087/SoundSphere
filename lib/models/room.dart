@@ -40,13 +40,18 @@ class Room {
     return false;
   }
 
-  static Future<bool> addMusic(Music musicToAdd, Room room) async {
-    if (room.musicQueue!.isNotEmpty || room.actualMusic!.isNotEmpty) {
-      room.musicQueue!.add(musicToAdd.id);
-    } else {
+  static Future<bool> addMusic(Music musicToAdd, Room room, AudioPlayer audioPlayer) async {
+    bool playMusic = false;
+    if (room.musicQueue!.isEmpty && room.actualMusic!.isEmpty) {
       room.actualMusic = musicToAdd.id;
+      playMusic = true;
+    } else {
+      room.musicQueue!.add(musicToAdd.id);
     }
     await collectionRef.doc(room.id).set(room);
+    if (playMusic) {
+      await audioPlayer.play(UrlSource(musicToAdd.url!));
+    }
     return true;
   }
 

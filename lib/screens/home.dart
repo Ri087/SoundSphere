@@ -290,7 +290,7 @@ class _Home extends State<Home> {
                 height: 45,
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Search a room',
+                    hintText: 'Search a sphere',
                     filled: true,
                     fillColor: const Color(0xFF02203A),
                     hintStyle: const TextStyle(color: Colors.grey),

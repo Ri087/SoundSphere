@@ -1,12 +1,14 @@
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/models/room.dart';
 import 'package:SoundSphere/widgets/toast.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 class MusicSearchWidget {
-  MusicSearchWidget({required this.music, required this.room});
+  MusicSearchWidget({required this.music, required this.room, required this.audioPlayer});
   final Music music;
   final Room room;
+  final AudioPlayer audioPlayer;
 
   String getArtists(List<dynamic> artists) {
     String output = "";
@@ -19,7 +21,7 @@ class MusicSearchWidget {
     return output;
   }
 
-  Widget getWidget(context) {
+  Widget getWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: Row(
@@ -43,7 +45,7 @@ class MusicSearchWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Container(child: Text(music.album!, style: const TextStyle(color: Colors.white), softWrap: true, overflow: TextOverflow.clip)),
+                      Container(child: Text(music.album!, style: const TextStyle(color: Colors.white), softWrap: true, overflow: TextOverflow.clip, maxLines: 1,)),
                     ],
                   ),
                 ],
@@ -55,7 +57,7 @@ class MusicSearchWidget {
             child: InkWell(
               onTap: () {
                 ToastUtil.showInfoToast(context, "Music added to the queue");
-                Room.addMusic(music, room);
+                Room.addMusic(music, room, audioPlayer);
               },
               child: const Icon(Icons.add, color: Color(0xFF0EE6F1), size: 30,),
             ),

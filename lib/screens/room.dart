@@ -18,10 +18,13 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   final Room room;
   late Future<Music?> actualMusic;
+  Music? music;
   late final AudioPlayer audioPlayer = AudioPlayer(playerId: room.id);
   bool _isPlaying  = false;
   Duration _duration = const Duration(minutes: 0, seconds: 0);
   Duration _position = const Duration(minutes: 0, seconds: 0);
+  String _title = "No music in queue...", _artists = "No music in queue...";
+  Widget _cover = const Icon(Icons.music_note, size: 60, color: Colors.white,);
 
   _RoomPage({required this.room});
 
@@ -38,6 +41,7 @@ class _RoomPage extends State<RoomPage> {
     audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
         _duration = duration;
+        reloadMusic();
       });
     });
 
@@ -66,6 +70,12 @@ class _RoomPage extends State<RoomPage> {
         _position = const Duration(seconds: 0);
         room.nextMusic(audioPlayer);
       });
+    });
+  }
+
+  void reloadMusic() {
+    setState(() {
+      actualMusic = Music.getActualMusic(room);
     });
   }
 
@@ -134,7 +144,7 @@ class _RoomPage extends State<RoomPage> {
                 const Padding(
                   padding: EdgeInsets.only(top : 25),
                   child: Text(
-                    ' Username',
+                    'Settings',
                     textDirection: TextDirection.ltr,
                     style: TextStyle(
                       color: Colors.white,
@@ -175,7 +185,7 @@ class _RoomPage extends State<RoomPage> {
                   const Padding(
                     padding: EdgeInsets.only(top :25),
                     child: Text(
-                      'Log out',
+                      'Delete Sphere',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 22,
@@ -218,30 +228,19 @@ class _RoomPage extends State<RoomPage> {
             onPressed: () {openPopUpSettings();}, icon: const Icon(Icons.settings, color: Color(0xffffffff),),)
         ],
       ),
-
       body: FutureBuilder(
         future: actualMusic,
         builder: (context, snapshot) {
           Music? music;
-          String title = "Loading music...", artists = "Loading artists...";
-          Widget cover = Container(
-            height: 200, width: 200,
-            decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-            child: const Icon(Icons.music_note, size: 60, color: Colors.white,),
-          );
           if (snapshot.hasData) {
             music = snapshot.data;
-            if (music == null) {
-              print(audioPlayer);
-              title = "No music in queue";
-              artists = "";
+            if (music == null || music.url == null || music.url!.isEmpty) {
+              _title = "No music in queue";
+              _artists = "";
             } else {
-              cover = Container(
-                  height: 200, width: 200,
-                  decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                  child: Image.network(music.cover!));
-              title = music.title!;
-              artists = getArtists(music.artists!);
+              _cover = Image.network(music.cover!);
+              _title = music.title!;
+              _artists = getArtists(music.artists!);
             }
           } else if (snapshot.hasError) {
             return Column(
@@ -251,6 +250,9 @@ class _RoomPage extends State<RoomPage> {
                 Text("An error as occured : ${snapshot.error}")
               ],
             );
+          } else {
+            _title = "Loading music...";
+            _artists = "Loading music...";
           }
           return Center(
             child: Padding(
@@ -265,13 +267,16 @@ class _RoomPage extends State<RoomPage> {
                   Text("code: ${room.code}", style: const TextStyle(color: Colors.white)),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: cover,
+                    child: Container(
+                      height: 200, width: 200,
+                      decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
+                      child: _cover),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text(title, style: const TextStyle(fontSize: 22, color: Colors.white), ),
+                    child: Text(_title, style: const TextStyle(fontSize: 22, color: Colors.white), ),
                   ),
-                  Text(artists, style: const TextStyle(color: Colors.white)),
+                  Text(_artists, style: const TextStyle(color: Colors.white)),
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
@@ -352,7 +357,7 @@ class _RoomPage extends State<RoomPage> {
         foregroundColor: const Color(0xFF02203A),
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SearchMusic(room: room,)));
+              MaterialPageRoute(builder: (context) => SearchMusic(room: room, audioPlayer: audioPlayer,)));
         },
         child: const Icon(Icons.add, size: 30,),
       ),

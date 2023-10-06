@@ -1,5 +1,6 @@
 import 'package:SoundSphere/models/room.dart';
 import 'package:SoundSphere/widgets/music_search_widget.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -41,12 +42,12 @@ class Music {
     }
   }
   
-  static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room) async {
+  static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room, AudioPlayer audioPlayer) async {
     List<Widget> widgets = [];
     List<Music?>? musics = await Music.getDbMusics(search);
     if (musics != null) {
       for (var music in musics) {
-        widgets.add(MusicSearchWidget(music: music!, room: room).getWidget(context));
+        widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer).getWidget(context));
       }
     }
     return widgets;
