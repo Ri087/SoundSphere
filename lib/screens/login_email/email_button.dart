@@ -1,8 +1,10 @@
 import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/screens/login_password/login_password.dart';
 import 'package:SoundSphere/screens/register_password/register_password.dart';
+import 'package:SoundSphere/widgets/toast.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginButton extends StatelessWidget {
   const LoginButton(
@@ -43,9 +45,15 @@ class LoginButton extends StatelessWidget {
       padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
       child: ElevatedButton(
         onPressed: () async {
+          if (emailController.text == "") {
+            ToastUtil.showErrorToast(
+                context, "Error: Please enter a valid email");
+            return;
+          }
+
           try {
-            final bool isOk =
-                await User.userExist(emailController.text.toLowerCase());
+            final bool isOk = await User.userExist(
+                emailController.text.toLowerCase().replaceAll(" ", ""));
             // ignore: use_build_context_synchronously
             Navigate(context, isOk, emailController, passwordController,
                 confirmPasswordController);

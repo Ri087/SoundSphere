@@ -1,6 +1,7 @@
 import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/screens/home.dart';
 import 'package:SoundSphere/screens/login_password/login_password.dart';
+import 'package:SoundSphere/widgets/toast.dart';
 import 'package:flutter/material.dart';
 
 class RegisterButton extends StatelessWidget {
@@ -22,8 +23,11 @@ class RegisterButton extends StatelessWidget {
           if (passwordController.value == confirmPasswordController.value) {
             User().register(
                 emailController.text.toLowerCase(), passwordController.text);
+            ToastUtil.showSuccesToast(context, "Success: Account created");
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => const Home()));
+          } else {
+            ToastUtil.showErrorToast(context, "Error: Passwords don't match");
           }
         },
         style: ButtonStyle(

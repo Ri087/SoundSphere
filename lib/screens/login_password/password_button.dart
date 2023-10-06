@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:SoundSphere/screens/home.dart';
 import 'package:SoundSphere/screens/login_email/login_email.dart';
 import 'package:SoundSphere/screens/login_password/login_password.dart';
+import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -27,10 +28,14 @@ class PasswordButton extends StatelessWidget {
                     email: emailController.text.toLowerCase(),
                     password: passwordController.text);
             // ignore: use_build_context_synchronously
+
+            // ignore: use_build_context_synchronously
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => const Home()));
           } catch (e) {
             print(e);
+            // ignore: use_build_context_synchronously
+            ToastUtil.showErrorToast(context, "Error: Invalide password");
             // ignore: use_build_context_synchronously
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const LoginEmail()));
@@ -62,7 +67,7 @@ class PasswordButton extends StatelessWidget {
                 Icons.login,
                 color: Colors.white,
               ),
-            )
+            ),
           ],
         ),
       ),
