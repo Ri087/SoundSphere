@@ -1,4 +1,9 @@
 import 'package:SoundSphere/models/room.dart';
+<<<<<<< HEAD
+=======
+import 'package:SoundSphere/models/user.dart';
+import 'package:SoundSphere/screens/login_email/login_email.dart';
+>>>>>>> 78a8073 (:sparkles: function singOut et change Username)
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +18,8 @@ class Home extends StatefulWidget {
 
 class _Home extends State<Home> {
   late Future<List<Widget>> publicRoomWidgetList;
+  final TextEditingController newUsername = TextEditingController();
+
   int index = 1;
 
   Future<List<Widget>> addPublicRoomToList(context) async {
@@ -38,83 +45,44 @@ class _Home extends State<Home> {
   }
 
   Future openPopUpProfile() => showDialog(
-    context: context,
-    builder:(context)=> AlertDialog(
-      backgroundColor: const Color(0xFF02203A),
-      alignment: Alignment.topCenter,
-      content: SizedBox(
-        height: 150,
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF02203A),
+          alignment: Alignment.topCenter,
+          content: SizedBox(
+            height: 150,
+            width: MediaQuery.of(context).size.width,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFFF86C9)),
-                      borderRadius: BorderRadius.circular(10)
-                  ),
-                  child: IconButton(
-                    icon: const Icon(
-                    Icons.person,
-                    color: Color(0xFFFF86C9),
-                  ),
-                    onPressed: () {
-                      openPopUpUsername();
-                    },
-                ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top : 25),
-                  child: Text(
-                    ' Username',
-                    textDirection: TextDirection.ltr,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w400,
-                      height: 0,
-                    ),
-                  ),
-                ),
-
-              ],
-            ),
-              Padding(
-                padding: const EdgeInsets.only(left:40),
-                child: Column(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       height: 80,
                       width: 80,
                       decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFFF86C9)),
-                        borderRadius: BorderRadius.circular(10)
-                      ),
+                          border: Border.all(color: Color(0xFF0EE6F1)),
+                          borderRadius: BorderRadius.circular(10)),
                       child: IconButton(
                         icon: const Icon(
-                          Icons.logout,
-                          color: Color(0xFFFF86C9),
-                          size: 26,
+                          Icons.person,
+                          color: Color(0xFF0EE6F1),
+                          size: 40,
                         ),
                         onPressed: () {
+                          openPopUpUsername();
                         },
                       ),
                     ),
-
                     const Padding(
-                      padding: EdgeInsets.only(top :25),
+                      padding: EdgeInsets.only(top: 25),
                       child: Text(
-                        'Log out',
+                        'username',
+                        textDirection: TextDirection.ltr,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 22,
+                          fontSize: 18,
                           fontFamily: 'Roboto',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -123,232 +91,331 @@ class _Home extends State<Home> {
                     ),
                   ],
                 ),
-              ),
-          ],
-        ),
-      ),
-    ),
-  );
-
-  Future openPopUpUsername() => showDialog(
-    context: context,
-    builder:(context)=> AlertDialog(
-      backgroundColor: const Color(0xFF02203A),
-      alignment: Alignment.center,
-      title: const Text('Change your username',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-      content: SizedBox(
-        height: 120,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'New username',
-                filled: true,
-                fillColor: const Color(0xFF02203A),
-                hintStyle: const TextStyle(color: Colors.grey),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top:20),
-              child: TextButton(
-                onPressed: () {
-                },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.resolveWith(
-                          (states) => const Size(350, 50)),
-                  backgroundColor: MaterialStateProperty.resolveWith(
-                          (states) => const Color.fromARGB(255, 14, 230, 241)),
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7),
-                      side: const BorderSide(width: 2.0),
-                    ),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("CONFIRM", style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5),
-                      child: Icon(Icons.check, color: Colors.white,),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ],
-        )
-
-
-
-      ),
-    ),
-  );
-
-  Future openPopUpCreateSphere() => showDialog(
-    context: context,
-    builder:(context)=> AlertDialog(
-      backgroundColor: const Color(0xFF02203A),
-      alignment: Alignment.center,
-      content: SizedBox(
-          height: 400,
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                ' Create Sphere',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontFamily: "ZenDots",
-                  fontWeight: FontWeight.w400,
-                  height: 0,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top:20),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Name of the sphere',
-                    filled: true,
-                    fillColor: const Color(0xFF02203A),
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top:20),
-                child: TextField(
-                  minLines: 5,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: 'Description',
-                    contentPadding: const EdgeInsets.all(15),
-                    filled: true,
-                    fillColor: const Color(0xFF02203A),
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFF86C9))),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top:20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Private",
-                      style: TextStyle(
-                        color:Colors.white
-                      ),
-                    ),
-                    Switch(
-                      activeColor: Color(0xFFFF86C9),
-                        value: false,
-                        onChanged: (test){}
-                    ),
-                    const Text(
-                      "Public",
-                      style: TextStyle(
-                          color:Colors.white
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left:30),
-                      child: IconButton(onPressed: (){}, icon: const Icon(Icons.remove, color: Colors.white )),
-                    ),
-                     Text(
-                      "0",
-                      style: TextStyle(
-                          color:Colors.white
-                      ),
-                    ),
-                    IconButton(onPressed: (){}, icon: const Icon(Icons.add, color: Colors.white )),
-
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top:20),
-                child: TextButton(
-                  onPressed: () {
-                  },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.resolveWith(
-                            (states) => const Size(350, 50)),
-                    backgroundColor: MaterialStateProperty.resolveWith(
-                            (states) => const Color.fromARGB(255, 14, 230, 241)),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(7),
-                        side: const BorderSide(width: 2.0),
-                      ),
-                    ),
-                  ),
-                  child: const Row(
+                Padding(
+                  padding: const EdgeInsets.only(left: 40),
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("CREATE", style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                      Container(
+                        height: 80,
+                        width: 80,
+                        decoration: BoxDecoration(
+                            border: Border.all(color: const Color(0xFFFF86C9)),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.logout,
+                            color: Color(0xFFFF86C9),
+                            size: 40,
+                          ),
+                          onPressed: () async {
+                            try {
+                              await FirebaseAuth.instance.signOut();
+                              // ignore: use_build_context_synchronously
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const LoginEmail()));
+                            } catch (e) {
+                              print(e);
+                            }
+                          },
+                        ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 5),
-                        child: Icon(Icons.music_note, color: Colors.white,),
-                      )
+                      const Padding(
+                        padding: EdgeInsets.only(top: 25),
+                        child: Text(
+                          'Log out',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w400,
+                            height: 0,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          )
+              ],
+            ),
+          ),
+        ),
+      );
 
+  Future openPopUpUsername() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF02203A),
+          alignment: Alignment.center,
+          title: const Text(
+            'Change your username',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          content: SizedBox(
+              height: 120,
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                children: [
+                  TextField(
+                    controller: newUsername,
+                    decoration: InputDecoration(
+                      hintText: 'New username',
+                      filled: true,
+                      fillColor: const Color(0xFF02203A),
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(7.0),
+                          borderSide: const BorderSide(
+                              width: 2.0, color: Color(0xFFFFE681))),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(7.0),
+                          borderSide: const BorderSide(
+                              width: 2.0, color: Color(0xFFFFE681))),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(7.0),
+                          borderSide: const BorderSide(
+                              width: 2.0, color: Color(0xFFFFE681))),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 15.0),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: TextButton(
+                      onPressed: () async {
+                        try {
+                          await FirebaseAuth.instance.currentUser!
+                              .updateDisplayName(newUsername.text);
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context);
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context);
+                          newUsername.clear();
+                        } catch (e) {
+                          print(e);
+                        }
+                      },
+                      style: ButtonStyle(
+                        fixedSize: MaterialStateProperty.resolveWith(
+                            (states) => const Size(350, 50)),
+                        backgroundColor: MaterialStateProperty.resolveWith(
+                            (states) =>
+                                const Color.fromARGB(255, 14, 230, 241)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                            side: const BorderSide(width: 2.0),
+                          ),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "CONFIRM",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )),
+        ),
+      );
 
-
-      ),
-    ),
-  );
+  Future openPopUpCreateSphere() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF02203A),
+          alignment: Alignment.center,
+          content: SizedBox(
+              height: 400,
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    ' Create Sphere',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontFamily: "ZenDots",
+                      fontWeight: FontWeight.w400,
+                      height: 0,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Name of the sphere',
+                        filled: true,
+                        fillColor: const Color(0xFF02203A),
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                            borderSide: const BorderSide(
+                                width: 2.0, color: Color(0xFFFF86C9))),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                            borderSide: const BorderSide(
+                                width: 2.0, color: Color(0xFFFF86C9))),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                            borderSide: const BorderSide(
+                                width: 2.0, color: Color(0xFFFF86C9))),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 15.0),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: TextField(
+                      minLines: 5,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        hintText: 'Description',
+                        contentPadding: const EdgeInsets.all(15),
+                        filled: true,
+                        fillColor: const Color(0xFF02203A),
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                            borderSide: const BorderSide(
+                                width: 2.0, color: Color(0xFFFF86C9))),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                            borderSide: const BorderSide(
+                                width: 2.0, color: Color(0xFFFF86C9))),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(7.0),
+                            borderSide: const BorderSide(
+                                width: 2.0, color: Color(0xFFFF86C9))),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Private",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Switch(
+                            activeColor: Color(0xFFFF86C9),
+                            value: false,
+                            onChanged: (test) {}),
+                        const Text(
+                          "Public",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 30),
+                          child: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.remove,
+                                  color: Colors.white)),
+                        ),
+                        Text(
+                          "0",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.add, color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: TextButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        fixedSize: MaterialStateProperty.resolveWith(
+                            (states) => const Size(350, 50)),
+                        backgroundColor: MaterialStateProperty.resolveWith(
+                            (states) =>
+                                const Color.fromARGB(255, 14, 230, 241)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                            side: const BorderSide(width: 2.0),
+                          ),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "CREATE",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Icon(
+                              Icons.music_note,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF02203A),
       appBar: AppBar(
-        elevation: 0,
+        elevation: 10,
         backgroundColor: const Color(0xFF02203A),
         leading: Image.asset("assets/images/image_transparent.png"),
-        title: const Text("SoundSphere", style: TextStyle(color: Colors.white, fontFamily: 'ZenDots', fontSize: 18),),
+        title: const Text(
+          "SoundSphere",
+          style: TextStyle(
+              color: Colors.white, fontFamily: 'ZenDots', fontSize: 18),
+        ),
         actions: [
           IconButton(
             onPressed: () {
               openPopUpProfile();
               index++;
-            }, icon: const Icon(Icons.person_rounded, color: Color(0xffffffff),),)
+            },
+            icon: const Icon(
+              Icons.person_rounded,
+              color: Color(0xffffffff),
+            ),
+          )
         ],
       ),
-
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
         child: Column(
@@ -363,17 +430,28 @@ class _Home extends State<Home> {
                     filled: true,
                     fillColor: const Color(0xFF02203A),
                     hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(7.0),
+                        borderSide: const BorderSide(
+                            width: 2.0, color: Color(0xFFFFE681))),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(7.0),
+                        borderSide: const BorderSide(
+                            width: 2.0, color: Color(0xFFFFE681))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(7.0),
+                        borderSide: const BorderSide(
+                            width: 2.0, color: Color(0xFFFFE681))),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 15.0),
                     suffixIcon: Material(
-                      borderRadius: const BorderRadius.only(topRight: Radius.circular(5)),
+                      borderRadius:
+                          const BorderRadius.only(topRight: Radius.circular(5)),
                       color: Colors.transparent,
                       child: IconButton(
                           onPressed: () {},
-                          icon: const Icon(Icons.search, color: Color(0xFFFFE681),size: 20)
-                      ),
+                          icon: const Icon(Icons.search,
+                              color: Color(0xFFFFE681), size: 20)),
                     ),
                   ),
                   style: const TextStyle(color: Colors.white),
@@ -424,14 +502,12 @@ class _Home extends State<Home> {
                           ),
                         ),
                       );
-                    }
-                ),
+                    }),
               ),
             )
           ],
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFFF86C9),
         foregroundColor: const Color(0xFF02203A),
@@ -439,7 +515,10 @@ class _Home extends State<Home> {
           index++;
           openPopUpCreateSphere();
         },
-        child: const Icon(Icons.add, size: 30,),
+        child: const Icon(
+          Icons.add,
+          size: 30,
+        ),
       ),
     );
   }

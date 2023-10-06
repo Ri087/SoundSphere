@@ -22,7 +22,6 @@ class RegisterButton extends StatelessWidget {
           if (passwordController.value == confirmPasswordController.value) {
             User().register(
                 emailController.text.toLowerCase(), passwordController.text);
-
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => const Home()));
           }

@@ -25,7 +25,6 @@ class User {
       displayName = 'user_${getRandomString(10)}';
       await AppFirebase.db.collection("users").doc(uid).set({
         "email": user.email,
-        "username": displayName,
       }).onError((e, _) => print(e));
       return this;
     } on FirebaseAuthException catch (e) {
@@ -94,6 +93,17 @@ class User {
   // Si besoins d'ajouter des règles de vérification de mdp suplémentaires
   bool checkPasswordFormat(String password) {
     return true;
+  }
+
+  static Future<String> getCurentDisplayName() async {
+    try {
+      final String dispalyName =
+          FirebaseAuth.instance.currentUser!.displayName!;
+      return dispalyName;
+    } catch (e) {
+      print("e");
+    }
+    return "error";
   }
 }
 
