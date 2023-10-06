@@ -8,7 +8,7 @@ class Music {
   final String? title;
   final String? url;
   final int? duration;
-  final List<dynamic> artists;
+  final List<dynamic>? artists;
   final String? album;
   final String? cover;
 
@@ -59,7 +59,7 @@ class Music {
       if (title != null) "Titre": title,
       if (url != null) "Url": url,
       if (duration != null) "Duration": duration,
-      if (artists.isNotEmpty) "Artists": artists,
+      if (artists != null) "Artists": artists,
       if (album != null) "Album": album,
       if (cover != null) "Cover": cover,
     };

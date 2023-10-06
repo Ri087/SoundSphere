@@ -1,5 +1,4 @@
-import 'package:SoundSphere/models/user.dart';
-import 'package:SoundSphere/widgets/room.dart';
+import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -9,27 +8,23 @@ class Room {
   final String? code;
   final String? title;
   final String? description;
+  final String? host;
   final int? maxMembers;
   final List<dynamic>? members;
   final bool? isPrivate;
   final String? actualMusic;
-  final List<dynamic> musicQueue;
+  final List<dynamic>? musicQueue;
 
-  Room({required this.id, required this.code, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
+  static CollectionReference<Room> collectionRef = AppFirebase.db.collection("room")
+      .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
+      (Room room, _) => room.toFirestore(),);
 
-  Widget? getWidget() {
-    return null;
-  }
+  Room({required this.id, required this.code, required this.host, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
 
   static Future<Room?> getRoom(String docId) async {
-    final ref = AppFirebase.db.collection("room").doc(docId).withConverter(
-      fromFirestore: Room.fromFirestore,
-      toFirestore: (Room room, _) => room.toFirestore(),
-    );
-    final docSnap = await ref.get();
+    final docSnap = await collectionRef.doc(docId).get();
     final room = docSnap.data();
     if (room != null) {
-      print(room);
       return room;
     } else {
       print("No such document.");
@@ -38,11 +33,8 @@ class Room {
   }
 
   static Future<List<Room>?> getPublicRooms() async {
-    final collectionRef = await AppFirebase.db.collection("room").withConverter(
-      fromFirestore: Room.fromFirestore,
-      toFirestore: (Room room, _) => room.toFirestore(),
-    ).where("is_private", isEqualTo: false).get();
-    final rooms = collectionRef.docs.map((e) => e.data()).toList();
+    final snap = await collectionRef.where("is_private", isEqualTo: false).get();
+    final rooms = snap.docs.map((e) => e.data()).toList();
     if (rooms.isNotEmpty) {
       return rooms;
     } else {
@@ -51,21 +43,21 @@ class Room {
     }
   }
 
-  bool addMember(User user) {
-    if (members?.length == maxMembers || members!.indexOf(user.uid) > 0) {
+  Future<bool> addMember(String uid) async {
+    if (members?.length == maxMembers || members!.contains(uid)) {
       return false;
     }
-    
-    members?.add(user.uid);
+    members?.add(uid);
+    await collectionRef.doc(id).set(this);
     return true;
   }
 
-  bool removeMember(User user) {
-    if (!members!.contains(user.uid)) {
+  Future<bool> removeMember(String uid) async {
+    if (!members!.contains(uid)) {
       return false;
     }
-
-    members?.add(user.uid);
+    members?.remove(uid);
+    await collectionRef.doc(id).set(this);
     return true;
   }
 
@@ -95,6 +87,7 @@ class Room {
       isPrivate: data?["is_private"],
       actualMusic: data?["actual_music"],
       musicQueue: data?["music_queue"],
+      host: data?["host"],
     );
   }
 
@@ -107,7 +100,8 @@ class Room {
       if (members != null) "members": members,
       if (isPrivate != null) "is_private": isPrivate,
       if (actualMusic != null) "actual_music": actualMusic,
-      if (musicQueue.isNotEmpty) "music_queue": musicQueue,
+      if (musicQueue != null) "music_queue": musicQueue,
+      if (host != null) "host": host,
     };
   }
 }

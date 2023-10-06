@@ -57,15 +57,13 @@ class _RoomPage extends State<RoomPage> {
         } else {
           _isPlaying = false;
         }
-
-        if (playerState == PlayerState.completed) {
-          print("salut");
-        }
       });
     });
 
     // Event quand la musique se termine (hors pause ou stop par user)
     audioPlayer.onPlayerComplete.listen((_) {
+      _isPlaying = false;
+      _position = const Duration(seconds: 0);
     });
   }
 
@@ -76,7 +74,7 @@ class _RoomPage extends State<RoomPage> {
   void _play(Music? music){
     if (audioPlayer.state == PlayerState.stopped) {
       if (music != null) {
-        audioPlayer.play(AssetSource("musics/SpotifyMatecom_PartenaireParticulier_PartenaireParticulier.mp3"));
+        audioPlayer.play(UrlSource(music!.url!));
       }
     } else {
       audioPlayer.resume();
@@ -248,7 +246,7 @@ class _RoomPage extends State<RoomPage> {
                 child: Image.network(music.cover!));
 
             title = music.title!;
-            artists = getArtists(music.artists);
+            artists = getArtists(music.artists!);
           }
 
           return Center(
