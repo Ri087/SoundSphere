@@ -1,6 +1,6 @@
 # SoundSphere
 
-![4.png](/assets/images/mockup_images.png)
+![4.png](/assets/images/mockup_image.png)
 
 SoundSphere is a mobile application that give users the possibility to hear music simultaneously the other users in the sphere. 
 
