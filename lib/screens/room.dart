@@ -57,6 +57,10 @@ class _RoomPage extends State<RoomPage> {
         } else {
           _isPlaying = false;
         }
+
+        if (playerState == PlayerState.completed) {
+          print("salut")
+        }
       });
     });
 
