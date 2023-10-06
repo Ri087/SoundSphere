@@ -68,7 +68,6 @@ class _SearchMusic extends State<SearchMusic> {
                     ),
                   ),
                 ),
-
               ],
             ),
             Padding(
@@ -94,7 +93,6 @@ class _SearchMusic extends State<SearchMusic> {
                       },
                     ),
                   ),
-
                   const Padding(
                     padding: EdgeInsets.only(top :25),
                     child: Text(

@@ -21,8 +21,8 @@ class _RoomPage extends State<RoomPage> {
   late final AudioPlayer audioPlayer;
   IconData playerButtonState = Icons.play_arrow_outlined;
   bool _isPlaying  = false;
-  double musicMaxDuration = const Duration(minutes: 0, seconds: 0).inSeconds.toDouble();
-  double musicDuration = const Duration(minutes: 0, seconds: 0).inSeconds.toDouble();
+  Duration _duration = const Duration(minutes: 0, seconds: 0);
+  Duration _postion = const Duration(minutes: 0, seconds: 0);
 
   _RoomPage({required this.room});
 
@@ -38,16 +38,23 @@ class _RoomPage extends State<RoomPage> {
     audioPlayer.setVolume(1.0);
 
     audioPlayer.onDurationChanged.listen((Duration duration) {
-
+      
     });
 
     // Event pour mettre à jour une progress bar par exemple
     audioPlayer.onPositionChanged.listen((Duration duration) {
+
     });
 
     // Event quand la musique est mis en pause ou resume etc...
     audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
-      print(playerState);
+      setState(() {
+        if (playerState == PlayerState.playing) {
+          _isPlaying = true;
+        } else {
+          _isPlaying = false;
+        }
+      });
     });
 
     // Event quand la musique se termine (hors pause ou stop par user)
@@ -62,10 +69,10 @@ class _RoomPage extends State<RoomPage> {
   void _play(Music? music){
     if (audioPlayer.state == PlayerState.stopped) {
       if (music != null) {
-        audioPlayer.play(UrlSource(music.url!));
-      } else {
-        audioPlayer.resume();
+        audioPlayer.play(AssetSource("musics/SpotifyMatecom_PartenaireParticulier_PartenaireParticulier.mp3"));
       }
+    } else {
+      audioPlayer.resume();
     }
   }
 
