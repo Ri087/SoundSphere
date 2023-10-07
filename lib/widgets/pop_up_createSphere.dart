@@ -23,7 +23,7 @@ class popupCreateSphere extends StatelessWidget {
       backgroundColor: const Color(0xFF02203A),
       alignment: Alignment.center,
       content: SizedBox(
-          height: 400,
+          height: 430,
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +66,7 @@ class popupCreateSphere extends StatelessWidget {
                         borderSide: const BorderSide(
                             width: 2.0, color: Color(0xFFFF86C9))),
                     contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 15.0),
+                        const EdgeInsets.symmetric(horizontal: 15.0),
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -74,7 +74,7 @@ class popupCreateSphere extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: TextField(
-                  controller:controllerDescription,
+                  controller: controllerDescription,
                   minLines: 5,
                   maxLines: 5,
                   decoration: InputDecoration(
@@ -133,8 +133,7 @@ class popupCreateSphere extends StatelessWidget {
                         children: [
                           IconButton(
                               onPressed: () {
-                                if(countMaxMembers > 1)
-                                {
+                                if (countMaxMembers > 1) {
                                   countMaxMembers++;
                                 }
                               },
@@ -148,8 +147,7 @@ class popupCreateSphere extends StatelessWidget {
                               onPressed: () {
                                 countMaxMembers++;
                               },
-                              icon: const Icon(Icons.add,
-                                  color: Colors.white)),
+                              icon: const Icon(Icons.add, color: Colors.white)),
                         ],
                       ),
                     ),
@@ -160,16 +158,23 @@ class popupCreateSphere extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 20),
                 child: TextButton(
                   onPressed: () async {
-                    final _room = await Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => RoomPage(room: _room,)));
+                    final _room = await Room.createSphere(
+                        controllerTitle.text,
+                        controllerDescription.text,
+                        stateSwitch,
+                        countMaxMembers);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RoomPage(
+                                  room: _room,
+                                )));
                   },
                   style: ButtonStyle(
                     fixedSize: MaterialStateProperty.resolveWith(
-                            (states) => const Size(350, 50)),
+                        (states) => const Size(350, 50)),
                     backgroundColor: MaterialStateProperty.resolveWith(
-                            (states) =>
-                        const Color.fromARGB(255, 14, 230, 241)),
+                        (states) => const Color.fromARGB(255, 14, 230, 241)),
                     shape: MaterialStateProperty.all(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(7),
@@ -183,8 +188,7 @@ class popupCreateSphere extends StatelessWidget {
                       Text(
                         "CREATE",
                         style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 5),
@@ -202,8 +206,3 @@ class popupCreateSphere extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

@@ -355,7 +355,7 @@ class _Home extends State<Home> {
                         ];
                       }
                       return SizedBox(
-                        height: MediaQuery.of(context).size.height - 200,
+                        height: MediaQuery.of(context).size.height - 205,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ListView.builder(
@@ -375,7 +375,7 @@ class _Home extends State<Home> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFFF86C9),
         foregroundColor: const Color(0xFF02203A),
-        onPressed: ()  {
+        onPressed: () {
           index++;
           openPopUpCreateSphere(context);
         },
