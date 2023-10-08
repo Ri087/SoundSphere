@@ -1,7 +1,7 @@
 import 'package:SoundSphere/models/room.dart';
 import 'package:SoundSphere/screens/login/email_page.dart';
 
-import 'package:SoundSphere/widgets/popup_create_sphere.dart';
+import 'package:SoundSphere/widgets/popup/popup_create_sphere.dart';
 import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +16,6 @@ class Home extends StatefulWidget {
 class _Home extends State<Home> {
   late Future<List<Widget>> publicRoomWidgetList;
   final TextEditingController newUsername = TextEditingController();
-
-  int index = 1;
 
   Future<List<Widget>> addPublicRoomToList(context) async {
     List<Widget> publicRoomWidgets = await Room.getRoomWidgets(context);
@@ -151,7 +149,7 @@ class _Home extends State<Home> {
                           await FirebaseAuth.instance.currentUser!
                               .updateDisplayName(newUsername.text);
                           // ignore: use_build_context_synchronously
-                          ToastUtil.showSuccesToast(
+                          ToastUtil.showSuccessToast(
                               context, "Success: Username has been updated");
                           Navigator.pop(context);
                           // ignore: use_build_context_synchronously

@@ -14,7 +14,7 @@ class ToastUtil {
         fontSize: 18);
   }
 
-  static void showSuccesToast(BuildContext context, String succesMessage) {
+  static void showSuccessToast(BuildContext context, String succesMessage) {
     Fluttertoast.showToast(
         msg: succesMessage,
         toastLength: Toast.LENGTH_LONG,

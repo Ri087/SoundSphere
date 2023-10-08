@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../models/room.dart';
-import '../screens/room.dart';
+import '../../models/room.dart';
+import '../../screens/room.dart';
 
-class PopupCreateSphere extends StatelessWidget {
-  PopupCreateSphere({
-    super.key,
-  });
+class PopupCreateSphere extends StatefulWidget {
+  const PopupCreateSphere({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _PopupCreateSphere();
+}
+
+class _PopupCreateSphere extends State<PopupCreateSphere> {
   final TextEditingController controllerTitle = TextEditingController();
   final TextEditingController controllerDescription = TextEditingController();
   bool stateSwitch = false;
@@ -31,8 +34,7 @@ class PopupCreateSphere extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    ' Create Sphere',
+                  Text('Create Sphere',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -114,9 +116,11 @@ class PopupCreateSphere extends StatelessWidget {
                           ),
                           Switch(
                               activeColor: const Color(0xFFFF86C9),
-                              value: false,
-                              onChanged: (test) {
-                                stateSwitch != stateSwitch;
+                              value: stateSwitch,
+                              onChanged: (value) {
+                                setState(() {
+                                  stateSwitch = value;
+                                });
                               }),
                           const Text(
                             "Public",
@@ -132,19 +136,23 @@ class PopupCreateSphere extends StatelessWidget {
                         children: [
                           IconButton(
                               onPressed: () {
-                                if (countMaxMembers > 1) {
-                                  countMaxMembers++;
-                                }
+                                setState(() {
+                                  if (countMaxMembers > 1) {
+                                    countMaxMembers--;
+                                  }
+                                });
                               },
-                              icon: const Icon(Icons.remove,
-                                  color: Colors.white)),
+                              icon: const Icon(Icons.remove, color: Colors.white)
+                          ),
                           Text(
                             countMaxMembers.toString(),
                             style: const TextStyle(color: Colors.white),
                           ),
                           IconButton(
                               onPressed: () {
-                                countMaxMembers++;
+                                setState(() {
+                                  countMaxMembers++;
+                                });
                               },
                               icon: const Icon(Icons.add, color: Colors.white)),
                         ],
@@ -156,18 +164,11 @@ class PopupCreateSphere extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: TextButton(
-                  onPressed: () async {
-                    final _room = await Room.createSphere(
-                        controllerTitle.text,
-                        controllerDescription.text,
-                        stateSwitch,
-                        countMaxMembers);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => RoomPage(
-                                  room: _room,
-                                )));
+                  onPressed: () {
+                    Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers).then((value) {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => RoomPage(room: value,)));
+                    });
                   },
                   style: ButtonStyle(
                     fixedSize: MaterialStateProperty.resolveWith(
