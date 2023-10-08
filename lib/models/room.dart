@@ -1,5 +1,5 @@
-import 'package:SoundSphere/models/user.dart';
 import 'package:SoundSphere/models/music.dart';
+import 'package:SoundSphere/utils/app_utilities.dart';
 import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -88,9 +88,9 @@ class Room {
     return widgets;
   }
 
-  static Future<Room> createSphere(String _title, String _description, bool _isPrivate, int _maxMembers) async {
-    String usr = FirebaseAuth.instance.currentUser!.uid;
-    final room = Room(code: "S-${getRandomString(3)}", host: usr, musicQueue: [], actualMusic: "", description: _description, title: _title, isPrivate: _isPrivate, members: [], maxMembers: _maxMembers);
+  static Future<Room> createSphere(String title, String description, bool isPrivate, int maxMembers) async {
+    String hostUid = FirebaseAuth.instance.currentUser!.uid;
+    final room = Room(code: "S-${AppUtilities.getRandomString(5)}", host: hostUid, musicQueue: [], actualMusic: "", description: description, title: title, isPrivate: isPrivate, members: [], maxMembers: maxMembers);
     await collectionRef.doc().set(room);
     return room;
   }

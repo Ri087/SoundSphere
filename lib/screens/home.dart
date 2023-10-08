@@ -230,28 +230,17 @@ class _Home extends State<Home> {
                     filled: true,
                     fillColor: const Color(0xFF02203A),
                     hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(7.0),
-                        borderSide: const BorderSide(
-                            width: 2.0, color: Color(0xFFFFE681))),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(7.0),
-                        borderSide: const BorderSide(
-                            width: 2.0, color: Color(0xFFFFE681))),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(7.0),
-                        borderSide: const BorderSide(
-                            width: 2.0, color: Color(0xFFFFE681))),
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 15.0),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
                     suffixIcon: Material(
                       borderRadius:
                           const BorderRadius.only(topRight: Radius.circular(5)),
                       color: Colors.transparent,
                       child: IconButton(
                           onPressed: () {},
-                          icon: const Icon(Icons.search,
-                              color: Color(0xFFFFE681), size: 20)),
+                          icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)),
                     ),
                   ),
                 ),

@@ -1,87 +1,66 @@
-import 'dart:math';
+import 'dart:io';
 
 import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../utils/app_utilities.dart';
+
 class User {
-  late String uid;
-  late String mail;
+  late String? uid;
+  late String email;
   late String displayName;
   late bool state; // Connecté ou non
 
+  User({this.uid, required this.email, required this.displayName, this.state = false});
+
+  static CollectionReference<User> collectionRef = AppFirebase.db.collection("users").withConverter(
+    fromFirestore: User.fromFirestore,
+    toFirestore: (User user, _) => user.toFirestore(),);
+
   // A modifier niveau gestion des erreurs
-  Future<dynamic> register(String emailAddress, String password) async {
-    if (!checkPasswordFormat(password)) {
-      return null;
-    }
+  static Future<dynamic> register(String email, String password) async {
     try {
       final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-              email: emailAddress, password: password);
-      final user = credential.user!;
-      uid = user.uid;
-      mail = user.email!;
-      displayName = 'user_${getRandomString(10)}';
-      await AppFirebase.db.collection("users").doc(uid).set({
-        "email": user.email,
-      }).onError((e, _) => print(e));
-      return this;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-      }
+          .createUserWithEmailAndPassword(email: email, password: password);
+      final userCredential = credential.user!;
+      final user = User(uid: userCredential.uid, email: email, displayName: 'user_${AppUtilities.getRandomString(10)}');
+      await collectionRef.doc(user.uid).set(user);
+      return user;
+    } on FirebaseAuthException {
+      // Utilisateur existe déjà ou format du mail invalide
       return false;
     }
   }
 
-  Future<dynamic> login(String emailAddress, String password) async {
+  static Future<dynamic> login(String email, String password) async {
     try {
       final credential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: emailAddress, password: password);
-      final user = credential.user!;
-      uid = user.uid;
-      mail = user.email!;
-      displayName = user.displayName!;
-      return this;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-      }
+          .signInWithEmailAndPassword(email: email, password: password);
+      final userCredential = credential.user!;
+      final user = User(uid: userCredential.uid, email: email, displayName: userCredential.displayName!);
+      return user;
+    } on FirebaseAuthException {
+      // Erreur si utilisateur non créé ou mot de passe incorect
       return false;
     }
   }
 
-  static Future<bool> userExist(String email) async {
-    // try {
-    //   final method =
-    //       // L'adresse e-mail est déjà utilisée
-    //       await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
-    //   return method.isNotEmpty;
-    // } catch (error) {
-    //   print("compte inexistant");
-    //   return false;
-
-    //   // Vous pouvez également gérer d'autres types d'erreurs ici si nécessaire
-    // }
+  static Future<dynamic> userExist(String email) async {
+    bool connectedToInternet = false;
     try {
-      final snapshot = await AppFirebase.db
-          .collection("users")
-          .where("email", isEqualTo: email)
-          .get();
-      if (snapshot.docs.isEmpty) {
-        return false;
-      }
+      final result = await InternetAddress.lookup('google.com');
+      connectedToInternet = result.isNotEmpty&&result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {}
+    if (!connectedToInternet) {
+      return 'error';
+    }
+    try {
+      final snapshot = await collectionRef.where("email", isEqualTo: email).get();
+      return snapshot.docs.isNotEmpty;
     } catch (e) {
-      print(e);
-      return false;
+      return 'error';
     }
-    ;
-    return true;
   }
 
   Future<bool> signOut() async {
@@ -90,27 +69,29 @@ class User {
     return true;
   }
 
-  // Si besoins d'ajouter des règles de vérification de mdp suplémentaires
-  bool checkPasswordFormat(String password) {
-    return true;
-  }
-
-  static Future<String> getCurentDisplayName() async {
+  static Future<String> getCurrentDisplayName() async {
     try {
-      final String dispalyName =
-          FirebaseAuth.instance.currentUser!.displayName!;
-      return dispalyName;
+      return FirebaseAuth.instance.currentUser!.displayName!;
     } catch (e) {
-      print("e");
+      return e.toString();
     }
-    return "error";
   }
-}
 
-String getRandomString(int length) {
-  const characters =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  Random random = Random();
-  return String.fromCharCodes(Iterable.generate(
-      length, (_) => characters.codeUnitAt(random.nextInt(characters.length))));
+  factory User.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> snapshot,
+      SnapshotOptions? options,
+      ) {
+    final data = snapshot.data();
+    return User(
+      email: data?["email"],
+      displayName: data?["display_name"]
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      "email": email,
+      "display_name": displayName,
+    };
+  }
 }

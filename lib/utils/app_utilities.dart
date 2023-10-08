@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class AppUtilities {
   static String formatedTime({required int timeInSecond}) {
     int sec = timeInSecond % 60;
@@ -14,4 +16,13 @@ class AppUtilities {
     }
     return output;
   }
+
+  static String getRandomString(int length) {
+    const characters =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    Random random = Random();
+    return String.fromCharCodes(Iterable.generate(
+        length, (_) => characters.codeUnitAt(random.nextInt(characters.length))));
+  }
+
 }

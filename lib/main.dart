@@ -1,4 +1,5 @@
 import 'package:SoundSphere/screens/home.dart';
+import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
   runApp(const SoundSphere());
+  AppFirebase.closeDb();
 }
 
 class SoundSphere extends StatelessWidget {

@@ -193,8 +193,8 @@ class _RoomPage extends State<RoomPage> {
           if (snapshot.hasData) {
             music = snapshot.data;
             if (music == null || music.url == null || music.url!.isEmpty) {
-              title = "No music in queue";
-              artists = "";
+              title = "No music in queue...";
+              artists = "No music in queue...";
             } else {
               cover = Image.network(music.cover!);
               title = music.title!;

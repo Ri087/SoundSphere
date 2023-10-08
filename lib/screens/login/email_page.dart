@@ -16,17 +16,42 @@ class _LoginEmail extends State<LoginEmail> {
   final TextEditingController controllerEmail = TextEditingController();
   final TextEditingController controllerPassword = TextEditingController();
   final TextEditingController controllerConfirmPassword = TextEditingController();
+  late final String buttonText;
+  late final Icon buttonIcon;
+  late final bool Function() onPressed;
+  late List<Widget> rowChildren;
+  Color buttonColor = const Color(0xFF0EE6F1);
+  bool clicked = false;
 
-  void navigate(context, bool isOk,) {
+  void navigate(context, dynamic isEmailInDB,) {
+    if (isEmailInDB == 'error') {
+      ToastUtil.showErrorToast(context, "Error: Connection error");
+      return;
+    }
+
     Navigator.push(context, MaterialPageRoute(builder:
-        (context) => isOk ? LoginPassword(
+        (context) => isEmailInDB ? LoginPassword(
           emailController: controllerEmail,
           passwordController: controllerPassword,
         ) : RegisterPassword(
-          controllerEmail: controllerEmail,
+          emailController: controllerEmail,
           passwordController: controllerPassword,
           confirmPasswordController: controllerConfirmPassword,)
     ));
+  }
+
+  @override
+  void initState() {
+    buttonText = "NEXT";
+    buttonIcon = const Icon(Icons.arrow_forward_outlined);
+    rowChildren = [
+      Text(buttonText, style: const TextStyle(fontWeight: FontWeight.bold),),
+      Padding(
+        padding: const EdgeInsets.only(left: 5),
+        child: buttonIcon,
+      )
+    ];
+    super.initState();
   }
 
   @override
@@ -72,35 +97,48 @@ class _LoginEmail extends State<LoginEmail> {
               Padding(
                 padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (controllerEmail.text == "") {
-                      ToastUtil.showErrorToast(context, "Error: Please enter a valid email");
-                      return;
-                    }
-                    try {
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.resolveWith((states) => const Size(350, 55)),
+                      backgroundColor: MaterialStateProperty.resolveWith((states) => buttonColor),
+                      shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(7), side: BorderSide(width: 2.0, color: buttonColor))),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (clicked) {
+                          return;
+                        }
+                        clicked = true;
+                        buttonColor = Colors.blueGrey;
+                        rowChildren = [
+                          const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        ];
+                      });
+                      if (controllerEmail.text.replaceAll(" ", "") == "") {
+                        ToastUtil.showErrorToast(context, "Error: Please enter a valid email");
+                      }
                       User.userExist(controllerEmail.text.toLowerCase().replaceAll(" ", "")).then((value) {
                         controllerEmail.text = controllerEmail.text.toLowerCase().replaceAll(" ", "");
                         navigate(context, value);
+                      }).onError((error, stackTrace) {ToastUtil.showErrorToast(context, "Error: Connection error");});
+                      setState(() {
+                        buttonColor = const Color(0xFF0EE6F1);
+                        clicked = false;
+                        rowChildren = [
+                          Text(buttonText, style: const TextStyle(fontWeight: FontWeight.bold),),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 5),
+                            child: buttonIcon,
+                          )
+                        ];
                       });
-                    } catch (e) {
-                      print(e);
-                    }
-                  },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.resolveWith((states) => const Size(350, 55)),
-                    backgroundColor: MaterialStateProperty.resolveWith((states) => const Color.fromARGB(255, 14, 230, 241)),
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(7), side: const BorderSide(width: 2.0, color: Color.fromARGB(255, 14, 230, 241)))),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("NEXT",style:TextStyle(fontWeight: FontWeight.bold),),
-                      Padding(
-                        padding: EdgeInsets.only(left: 5),
-                        child: Icon(Icons.arrow_forward),
-                      )
-                    ],
-                  ),
+
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: rowChildren,
+                    )
                 ),
               ),
             ],

@@ -1,14 +1,35 @@
+import 'package:SoundSphere/widgets/app_button_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/user.dart';
 import '../../widgets/toast.dart';
 import '../home.dart';
 
-class RegisterPassword extends StatelessWidget {
-  const RegisterPassword({Key? key, required this.controllerEmail, required this.passwordController, required this.confirmPasswordController}) : super(key: key);
-  final TextEditingController controllerEmail;
+class RegisterPassword extends StatefulWidget {
+  const RegisterPassword({super.key, required this.emailController, required this.passwordController, required this.confirmPasswordController});
+  final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+
+  @override
+  State<StatefulWidget> createState() => _RegisterPassword();
+
+}
+
+class _RegisterPassword extends State<RegisterPassword> {
+  late final TextEditingController emailController;
+  late final TextEditingController passwordController;
+  late final TextEditingController confirmPasswordController;
+  bool obscureTextPassword = true;
+  bool obscureTextConfirm = true;
+
+  @override
+  void initState() {
+    emailController = widget.emailController;
+    passwordController = widget.passwordController;
+    confirmPasswordController = widget.confirmPasswordController;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +63,28 @@ class RegisterPassword extends StatelessWidget {
                     children: [
                       TextField(
                         controller: passwordController,
-                        obscureText: true,
+                        obscureText: obscureTextPassword,
                         decoration: InputDecoration(
-                          hintText: "Password",
+                          hintText: "Your password",
                           hintStyle: const TextStyle(color: Colors.grey),
                           fillColor: Colors.transparent,
                           filled: true,
+                          suffixIcon: Material(
+                            borderRadius:const BorderRadius.horizontal(right: Radius.circular(7)),
+                            color: Colors.transparent,
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  if(obscureTextPassword) {
+                                    obscureTextPassword = false;
+                                  } else {
+                                    obscureTextPassword = true;
+                                  }
+                                });
+                              },
+                              icon: Icon(obscureTextPassword ? Icons.visibility : Icons.visibility_off, color: const Color.fromARGB(255, 255, 134, 201),size: 20)
+                            ),
+                          ),
                           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7), borderSide: const BorderSide(width: 2, color: Color.fromARGB(255, 255, 134, 201), style: BorderStyle.solid,),),
                           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7), borderSide: const BorderSide(width: 2, color: Color.fromARGB(255, 255, 134, 201), style: BorderStyle.solid,))
                         ),
@@ -57,12 +94,28 @@ class RegisterPassword extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 10),
                         child: TextField(
                           controller: confirmPasswordController,
-                          obscureText: true,
+                          obscureText: obscureTextConfirm,
                           decoration: InputDecoration(
                             hintText: "Confirm your password",
                             hintStyle: const TextStyle(color: Colors.grey),
                             fillColor: Colors.transparent,
                             filled: true,
+                              suffixIcon: Material(
+                                borderRadius:const BorderRadius.horizontal(right: Radius.circular(7)),
+                                color: Colors.transparent,
+                                child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if(obscureTextConfirm) {
+                                          obscureTextConfirm = false;
+                                        } else {
+                                          obscureTextConfirm = true;
+                                        }
+                                      });
+                                    },
+                                    icon: Icon(obscureTextConfirm ? Icons.visibility : Icons.visibility_off, color: const Color.fromARGB(255, 255, 134, 201),size: 20)
+                                ),
+                              ),
                             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7), borderSide: const BorderSide(width: 2, color: Color.fromARGB(255, 255, 134, 201), style: BorderStyle.solid,),),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7), borderSide: const BorderSide(width: 2, color: Color.fromARGB(255, 255, 134, 201), style: BorderStyle.solid,))
                           ),
@@ -75,33 +128,20 @@ class RegisterPassword extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
-                child: ElevatedButton(
+                child: AppButtonWidget(
+                  buttonText: "REGISTER",
+                  buttonIcon: const Icon(Icons.login),
                   onPressed: () {
                     if (passwordController.value == confirmPasswordController.value) {
-                      User().register(controllerEmail.text, passwordController.text);
+                      User.register(emailController.text, passwordController.text);
                       ToastUtil.showSuccesToast(context, "Success: Account created !");
                       Navigator.push(
                           context, MaterialPageRoute(builder: (context) => const Home()));
                     } else {
                       ToastUtil.showErrorToast(context, "Error: Passwords don't match !");
                     }
-                  },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.resolveWith((states) => const Size(350, 55)),
-                    backgroundColor: MaterialStateProperty.resolveWith((states) => const Color.fromARGB(255, 14, 230, 241)),
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(7), side: const BorderSide(width: 2.0, color: Color.fromARGB(255, 14, 230, 241)),),),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("REGISTER", style: TextStyle(fontWeight: FontWeight.bold),),
-                      Padding(
-                        padding: EdgeInsets.only(left: 5),
-                        child: Icon(Icons.login),
-                      ),
-                    ],
-                  ),
-                ),
+                    return true;
+                })
               ),
             ],
           ),
