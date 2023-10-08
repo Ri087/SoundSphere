@@ -34,13 +34,12 @@ class _SearchMusic extends State<SearchMusic> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF02203A),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFF86C9), //const Color(0xFF0EE6F1),
         title: typing ? TextField(
           autofocus: true,
           controller: searchController,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: const TextStyle(fontSize: 16),
           onChanged: (value) {
             setState(() {
               searchMusicWidgets = Music.getMusicsSearchWidgets(context, searchController.value.toString(), room, audioPlayer);
@@ -54,7 +53,7 @@ class _SearchMusic extends State<SearchMusic> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
           ),
-        ) : TextButton(onPressed: (){setState(() {typing = !typing;});}, child: const Text("Click here to search a music", style: TextStyle(color: Colors.white, fontSize: 16)),),
+        ) : TextButton(onPressed: (){setState(() {typing = !typing;});}, child: const Text("Click here to search a music", style: TextStyle(fontSize: 16)),),
         leading: BackButton(
           onPressed: () {
             leavePage();

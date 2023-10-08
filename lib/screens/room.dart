@@ -5,10 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/room.dart';
+import '../utils/app_utilities.dart';
 
 class RoomPage extends StatefulWidget {
   final Room room;
-
   const RoomPage({super.key, required this.room});
 
   @override
@@ -18,13 +18,11 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   final Room room;
   late Future<Music?> actualMusic;
-  Music? music;
   late final AudioPlayer audioPlayer = AudioPlayer(playerId: room.id);
+  Music? music;
   bool _isPlaying  = false;
   Duration _duration = const Duration(minutes: 0, seconds: 0);
   Duration _position = const Duration(minutes: 0, seconds: 0);
-  String _title = "No music in queue...", _artists = "No music in queue...";
-  Widget _cover = const Icon(Icons.music_note, size: 60, color: Colors.white,);
 
   _RoomPage({required this.room});
 
@@ -32,10 +30,6 @@ class _RoomPage extends State<RoomPage> {
   void initState() {
     super.initState();
     actualMusic = Music.getActualMusic(room);
-    initPlayer();
-  }
-
-  void initPlayer() {
     audioPlayer.setVolume(1.0);
 
     audioPlayer.onDurationChanged.listen((Duration duration) {
@@ -99,21 +93,9 @@ class _RoomPage extends State<RoomPage> {
     Navigator.pop(context);
   }
 
-  String getArtists(List<dynamic> artists) {
-    String output = "";
-    for (int i = 0; i < artists.length; i++) {
-      output += artists[i];
-      if (artists.last != artists[i]) {
-        output += ", ";
-      }
-    }
-    return output;
-  }
-
   Future openPopUpSettings() => showDialog(
     context: context,
     builder:(context)=> AlertDialog(
-      backgroundColor: const Color(0xFF02203A),
       alignment: Alignment.topCenter,
       content: SizedBox(
         height: 150,
@@ -127,15 +109,9 @@ class _RoomPage extends State<RoomPage> {
                 Container(
                   height: 80,
                   width: 80,
-                  decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFFF86C9)),
-                      borderRadius: BorderRadius.circular(10)
-                  ),
+                  decoration: BoxDecoration(border: Border.all(color: const Color(0xFFFF86C9)), borderRadius: BorderRadius.circular(10)),
                   child: IconButton(
-                    icon: const Icon(
-                      Icons.settings,
-                      color: Color(0xFFFF86C9),
-                    ),
+                    icon: const Icon(Icons.settings),
                     onPressed: () {
                       // ADD CODE
                     },
@@ -143,19 +119,7 @@ class _RoomPage extends State<RoomPage> {
                 ),
                 const Padding(
                   padding: EdgeInsets.only(top : 25),
-                  child: Text(
-                    'Settings',
-                    textDirection: TextDirection.ltr,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w400,
-                      height: 0,
-                    ),
-                  ),
-                ),
-
+                  child: Text('Settings', textDirection: TextDirection.ltr, style: TextStyle(fontSize: 22, fontFamily: 'Roboto', fontWeight: FontWeight.w400, height: 0,),),),
               ],
             ),
             Padding(
@@ -204,43 +168,37 @@ class _RoomPage extends State<RoomPage> {
     ),
   );
 
-  formatedTime({required int timeInSecond}) {
-    int sec = timeInSecond % 60;
-    int min = (timeInSecond / 60).floor();
-    String minute = min.toString().length <= 1 ? "0$min" : "$min";
-    String second = sec.toString().length <= 1 ? "0$sec" : "$sec";
-    return "$minute : $second";
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF02203A),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
         leading: BackButton(
           onPressed: () => leaveRoom(),
         ),
-        title: Text(room.title!, style: const TextStyle(color: Colors.white, fontFamily: 'ZenDots', fontSize: 18),),
+        title: Text(room.title!, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
-            onPressed: () {openPopUpSettings();}, icon: const Icon(Icons.settings, color: Color(0xffffffff),),)
+            onPressed: () {openPopUpSettings();}, icon: const Icon(Icons.settings),)
         ],
       ),
       body: FutureBuilder(
         future: actualMusic,
         builder: (context, snapshot) {
+          String title = "No music in queue...", artists = "No music in queue...";
+          Widget cover = const Icon(Icons.music_note, size: 60);
           Music? music;
           if (snapshot.hasData) {
             music = snapshot.data;
             if (music == null || music.url == null || music.url!.isEmpty) {
-              _title = "No music in queue";
-              _artists = "";
+              title = "No music in queue";
+              artists = "";
             } else {
-              _cover = Image.network(music.cover!);
-              _title = music.title!;
-              _artists = getArtists(music.artists!);
+              cover = Image.network(music.cover!);
+              title = music.title!;
+              artists = AppUtilities.getArtists(music.artists!);
             }
           } else if (snapshot.hasError) {
             return Column(
@@ -251,8 +209,8 @@ class _RoomPage extends State<RoomPage> {
               ],
             );
           } else {
-            _title = "Loading music...";
-            _artists = "Loading music...";
+            title = "Loading music...";
+            artists = "Loading music...";
           }
           return Center(
             child: Padding(
@@ -260,27 +218,27 @@ class _RoomPage extends State<RoomPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text("Hosted by Jeremy", style: const TextStyle(color: Colors.white, fontSize: 16),),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 4.0),
+                    child: Text("Hosted by Jeremy", style: TextStyle(fontSize: 16),),
                   ),
-                  Text("code: ${room.code}", style: const TextStyle(color: Colors.white)),
+                  Text("code: ${room.code}"),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Container(
                       height: 200, width: 200,
                       decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                      child: _cover),
+                      child: cover),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text(_title, style: const TextStyle(fontSize: 22, color: Colors.white), ),
+                    child: Text(title, style: const TextStyle(fontSize: 22), ),
                   ),
-                  Text(_artists, style: const TextStyle(color: Colors.white)),
+                  Text(artists),
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(formatedTime(timeInSecond: _position.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
+                      Text(AppUtilities.formatedTime(timeInSecond: _position.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
                       Expanded(
                         child: Slider(
                           min: 0,
@@ -293,7 +251,7 @@ class _RoomPage extends State<RoomPage> {
                           }
                         ),
                       ),
-                      Text(formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
+                      Text(AppUtilities.formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
                     ],
                   ),
                   Padding(
@@ -340,7 +298,7 @@ class _RoomPage extends State<RoomPage> {
                           decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFF0EE6F1), width: 2))),
                           child: const Padding(
                             padding: EdgeInsets.only(bottom: 8.0),
-                            child: Text("Music queue", style: TextStyle(color: Colors.white),),
+                            child: Text("Music queue",),
                           )
                         ),
                       ],
@@ -353,13 +311,11 @@ class _RoomPage extends State<RoomPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFFF86C9),
-        foregroundColor: const Color(0xFF02203A),
         onPressed: () {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => SearchMusic(room: room, audioPlayer: audioPlayer,)));
         },
-        child: const Icon(Icons.add, size: 30,),
+        child: const Icon(Icons.add),
       ),
     );
   }

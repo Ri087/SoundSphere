@@ -1,8 +1,7 @@
 import 'package:SoundSphere/models/room.dart';
-import 'package:SoundSphere/screens/login_email/login_email.dart';
+import 'package:SoundSphere/screens/login/email_page.dart';
 
-import 'package:SoundSphere/widgets/pop_up_createSphere.dart';
-import 'package:SoundSphere/widgets/room_widget.dart';
+import 'package:SoundSphere/widgets/popup_create_sphere.dart';
 import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -45,10 +44,7 @@ class _Home extends State<Home> {
   Future openPopUpProfile() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: const Color(0xFF02203A),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),),
           alignment: Alignment.topCenter,
           content: SizedBox(
             height: 150,
@@ -62,15 +58,9 @@ class _Home extends State<Home> {
                     Container(
                       height: 80,
                       width: 80,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Color(0xFF0EE6F1)),
-                          borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFF0EE6F1)), borderRadius: BorderRadius.circular(10)),
                       child: IconButton(
-                        icon: const Icon(
-                          Icons.person,
-                          color: Color(0xFF0EE6F1),
-                          size: 40,
-                        ),
+                        icon: const Icon(Icons.person, color: Color(0xFF0EE6F1), size: 40,),
                         onPressed: () {
                           openPopUpUsername();
                         },
@@ -78,16 +68,7 @@ class _Home extends State<Home> {
                     ),
                     const Padding(
                       padding: EdgeInsets.only(top: 25),
-                      child: Text(
-                        'Username',
-                        textDirection: TextDirection.ltr,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          height: 0,
-                        ),
+                      child: Text('Username', textDirection: TextDirection.ltr, style: TextStyle(color: Color(0xFF0EE6F1),fontSize: 18, fontFamily: 'Roboto', fontWeight: FontWeight.w400, height: 0,),
                       ),
                     ),
                   ],
@@ -100,24 +81,13 @@ class _Home extends State<Home> {
                       Container(
                         height: 80,
                         width: 80,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: const Color(0xFFFF86C9)),
-                            borderRadius: BorderRadius.circular(10)),
+                        decoration: BoxDecoration(border: Border.all(color: const Color(0xFFFF86C9)), borderRadius: BorderRadius.circular(10)),
                         child: IconButton(
-                          icon: const Icon(
-                            Icons.logout,
-                            color: Color(0xFFFF86C9),
-                            size: 40,
-                          ),
-                          onPressed: () async {
+                          icon: const Icon(Icons.logout, color: Color(0xFFFF86C9), size: 40,),
+                          onPressed: () {
                             try {
-                              await FirebaseAuth.instance.signOut();
-                              // ignore: use_build_context_synchronously
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LoginEmail()));
+                              FirebaseAuth.instance.signOut().then((value) =>
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginEmail())));
                             } catch (e) {
                               print(e);
                             }
@@ -126,15 +96,7 @@ class _Home extends State<Home> {
                       ),
                       const Padding(
                         padding: EdgeInsets.only(top: 25),
-                        child: Text(
-                          'Log out',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w400,
-                            height: 0,
-                          ),
+                        child: Text('Log out', style: TextStyle(color: Color(0xFFFF86C9), fontSize: 18, fontFamily: 'Roboto', fontWeight: FontWeight.w400, height: 0,),
                         ),
                       ),
                     ],
@@ -149,24 +111,16 @@ class _Home extends State<Home> {
   Future openPopUpUsername() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: const Color(0xFF02203A),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),),
           alignment: Alignment.center,
-          title: const Text(
-            'Change your username',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
+          title: const Text('Change your username', style: TextStyle(color: Color(0xFFFFE681)), textAlign: TextAlign.center,),
           content: SizedBox(
               height: 120,
               width: MediaQuery.of(context).size.width,
               child: Column(
                 children: [
                   TextField(
+                    style: const TextStyle(color: Colors.white),
                     controller: newUsername,
                     decoration: InputDecoration(
                       hintText: 'New username',
@@ -188,7 +142,6 @@ class _Home extends State<Home> {
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 15.0),
                     ),
-                    style: const TextStyle(color: Colors.white),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
@@ -215,8 +168,7 @@ class _Home extends State<Home> {
                         fixedSize: MaterialStateProperty.resolveWith(
                             (states) => const Size(350, 50)),
                         backgroundColor: MaterialStateProperty.resolveWith(
-                            (states) =>
-                                const Color.fromARGB(255, 14, 230, 241)),
+                            (states) => const Color.fromARGB(255, 14, 230, 241)),
                         shape: MaterialStateProperty.all(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(7),
@@ -227,18 +179,10 @@ class _Home extends State<Home> {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            "CONFIRM",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
+                          Text("CONFIRM", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                           Padding(
                             padding: EdgeInsets.only(left: 5),
-                            child: Icon(
-                              Icons.check,
-                              color: Colors.white,
-                            ),
+                            child: Icon(Icons.check, color: Colors.white,),
                           )
                         ],
                       ),
@@ -257,26 +201,17 @@ class _Home extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF02203A),
       appBar: AppBar(
         elevation: 10,
         backgroundColor: const Color(0xFF02203A),
         leading: Image.asset("assets/images/image_transparent.png"),
-        title: const Text(
-          "SoundSphere",
-          style: TextStyle(
-              color: Colors.white, fontFamily: 'ZenDots', fontSize: 18),
-        ),
+        title: const Text("SoundSphere", style: TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
             onPressed: () {
               openPopUpProfile();
-              index++;
             },
-            icon: const Icon(
-              Icons.person_rounded,
-              color: Color(0xffffffff),
-            ),
+            icon: const Icon(Icons.person_rounded,),
           )
         ],
       ),
@@ -289,6 +224,7 @@ class _Home extends State<Home> {
               child: SizedBox(
                 height: 45,
                 child: TextField(
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Search a sphere',
                     filled: true,
@@ -318,7 +254,6 @@ class _Home extends State<Home> {
                               color: Color(0xFFFFE681), size: 20)),
                     ),
                   ),
-                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),
@@ -373,16 +308,8 @@ class _Home extends State<Home> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFFF86C9),
-        foregroundColor: const Color(0xFF02203A),
-        onPressed: () {
-          index++;
-          openPopUpCreateSphere(context);
-        },
-        child: const Icon(
-          Icons.add,
-          size: 30,
-        ),
+        onPressed: () {openPopUpCreateSphere(context);},
+        child: const Icon(Icons.add,),
       ),
     );
   }
@@ -391,7 +318,7 @@ class _Home extends State<Home> {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return popupCreateSphere();
+        return PopupCreateSphere();
       },
     );
   }

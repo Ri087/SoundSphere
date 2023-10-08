@@ -1,5 +1,4 @@
 import 'package:SoundSphere/screens/home.dart';
-import 'package:SoundSphere/screens/login_email/login_email.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -20,11 +19,34 @@ class SoundSphere extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: "SoundSphere",
-      color: Color(0xFF02203A),
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFF02203A),
+        iconButtonTheme: IconButtonThemeData(
+          style: ButtonStyle(
+            iconColor: MaterialStateColor.resolveWith((states) => Colors.white)
+          )
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xFFFF86C9),
+          foregroundColor: Color(0xFF02203A),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+          size: 30,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
+          bodySmall: TextStyle(color: Colors.white),
+        ),
+        dialogTheme: const DialogTheme(
+          backgroundColor: Color(0xFF02203A)
+        )
+      ),
       debugShowCheckedModeBanner: false,
-      home: Home(),
+      home: const Home(),
     );
   }
 }

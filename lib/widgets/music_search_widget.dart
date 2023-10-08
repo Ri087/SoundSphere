@@ -39,13 +39,13 @@ class MusicSearchWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 3.0),
-                    child: Text(music.title!, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
+                    child: Text(music.title!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Container(child: Text(music.album!, style: const TextStyle(color: Colors.white), softWrap: true, overflow: TextOverflow.clip, maxLines: 1,)),
+                      Text(music.album!),
                     ],
                   ),
                 ],

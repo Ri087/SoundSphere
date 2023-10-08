@@ -8,7 +8,7 @@ class MusicQueueWidget {
 
 
   Widget getWidget(context) {
-    Widget cover = const Icon(Icons.music_note, color: Colors.white,);
+    Widget cover = const Icon(Icons.music_note);
 
     if (music.cover != null) {
       cover = Image.network(music.cover!);
@@ -30,7 +30,7 @@ class MusicQueueWidget {
               child: cover,
             ),
           ),
-          Text(music.title!, style: const TextStyle(color: Colors.white))
+          Text(music.title!)
         ],
       ),
     );

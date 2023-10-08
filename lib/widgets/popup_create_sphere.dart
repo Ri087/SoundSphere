@@ -1,11 +1,10 @@
-import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../models/room.dart';
 import '../screens/room.dart';
 
-class popupCreateSphere extends StatelessWidget {
-  popupCreateSphere({
+class PopupCreateSphere extends StatelessWidget {
+  PopupCreateSphere({
     super.key,
   });
 

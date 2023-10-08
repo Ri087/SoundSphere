@@ -35,15 +35,15 @@ class RoomWidget {
                 width: 25,
                 height: 25,
                 decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                child: const Icon(Icons.music_note, color: Colors.white, size:17,),
+                child: const Icon(Icons.music_note, size:17,),
               ),
             ),
-            const Text("No music", style: TextStyle(color: Colors.white),)
+            const Text("No music")
           ],
         ),
       );
     } else {
-      Widget cover = const Icon(Icons.music_note, color: Colors.white,);
+      Widget cover = const Icon(Icons.music_note);
 
       if (actualMusic.cover != null) {
         cover = Image.network(actualMusic.cover!);
@@ -64,7 +64,7 @@ class RoomWidget {
                 child: cover,
               ),
             ),
-            Text(actualMusic.title!, style: const TextStyle(color: Colors.white))
+            Text(actualMusic.title!)
           ],
         ),
       );
@@ -108,7 +108,7 @@ class RoomWidget {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 3.0),
-                          child: Text(room.title!, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
+                          child: Text(room.title!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                         ),
                         FutureBuilder(
                             future: musicRow,
@@ -128,10 +128,10 @@ class RoomWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(room.members!.length.toString(), style: const TextStyle(color: Colors.white),),
-                            const Icon(Icons.person_rounded, color: Colors.white, size: 16),
-                            const Text(" - ", style: TextStyle(color: Colors.white)),
-                            Icon(room.isPrivate! ? Icons.public_off : Icons.public, color: Colors.white, size: 16,),
+                            Text(room.members!.length.toString()),
+                            const Icon(Icons.person_rounded, size: 16),
+                            const Text(" - "),
+                            Icon(room.isPrivate! ? Icons.public_off : Icons.public, size: 16,),
                           ],
                         )
                       ],
