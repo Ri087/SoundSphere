@@ -13,26 +13,19 @@ class Home extends StatefulWidget {
   State<StatefulWidget> createState() => _Home();
 }
 
-class _Home extends State<Home> with WidgetsBindingObserver {
+class _Home extends State<Home> {
   late Future<List<Widget>> publicRoomWidgetList;
   late double _widgetSize;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     if (FirebaseAuth.instance.currentUser == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const LoginEmail())));
     }
     publicRoomWidgetList = Room.getPublicRoomWidgets(context);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   void reloadData() {
@@ -85,6 +78,11 @@ class _Home extends State<Home> with WidgetsBindingObserver {
               child: SizedBox(
                 height: 45,
                 child: TextField(
+                  onTap: () {
+                    setState(() {
+                      _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom;
+                    });
+                  },
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Search a sphere',
@@ -100,9 +98,6 @@ class _Home extends State<Home> with WidgetsBindingObserver {
                       color: Colors.transparent,
                       child: IconButton(
                           onPressed: () {
-                            setState(() {
-                              _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom;
-                            });
                           },
                           icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)),
                     ),
