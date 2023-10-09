@@ -26,8 +26,7 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
       elevation: 5,
       title: const Center(child: Text("Create a Sphere", style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: "ZenDots", height: 0,),)),
       content: SizedBox(
-        height: math.max(MediaQuery.of(context).size.height * 0.5, 500),
-        width: MediaQuery.of(context).size.width,
+        height: 380,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

@@ -13,18 +13,26 @@ class Home extends StatefulWidget {
   State<StatefulWidget> createState() => _Home();
 }
 
-class _Home extends State<Home> {
+class _Home extends State<Home> with WidgetsBindingObserver {
   late Future<List<Widget>> publicRoomWidgetList;
+  late double _widgetSize;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (FirebaseAuth.instance.currentUser == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const LoginEmail())));
     }
     publicRoomWidgetList = Room.getPublicRoomWidgets(context);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void reloadData() {
@@ -49,11 +57,15 @@ class _Home extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       appBar: AppBar(
         elevation: 10,
         backgroundColor: const Color(0xFF02203A),
-        leading: Image.asset("assets/images/image_transparent_fit.png"),
+        leading: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Image.asset("assets/images/image_transparent_fit.png"),
+        ),
         title: const Text("SoundSphere", style: TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
@@ -87,7 +99,11 @@ class _Home extends State<Home> {
                       borderRadius: const BorderRadius.only(topRight: Radius.circular(7)),
                       color: Colors.transparent,
                       child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom;
+                            });
+                          },
                           icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)),
                     ),
                   ),
@@ -96,49 +112,53 @@ class _Home extends State<Home> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: RefreshIndicator(
-                triggerMode: RefreshIndicatorTriggerMode.anywhere,
-                backgroundColor: const Color(0xFF0EE6F1),
-                color: Colors.white,
-                onRefresh: () async {
-                  reloadData();
-                },
-                child: FutureBuilder(
-                    future: publicRoomWidgetList,
-                    builder: (context, snapshot) {
-                      List<Widget> children;
-                      if (snapshot.hasData) {
-                        children = snapshot.data!;
-                      } else if (snapshot.hasError) {
-                        children = [Text("Result : ${snapshot.error}")];
-                      } else {
-                        children = [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
-                            child: const Center(
-                              child: SizedBox(
-                                width: 75,
-                                height: 75,
-                                child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+              child: Column(
+                children: [
+                  RefreshIndicator(
+                    triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                    backgroundColor: const Color(0xFF0EE6F1),
+                    color: Colors.white,
+                    onRefresh: () async {
+                      reloadData();
+                    },
+                    child: FutureBuilder(
+                      future: publicRoomWidgetList,
+                      builder: (context, snapshot) {
+                        List<Widget> children;
+                        if (snapshot.hasData) {
+                          children = snapshot.data!;
+                        } else if (snapshot.hasError) {
+                          children = [Text("Result : ${snapshot.error}")];
+                        } else {
+                          children = [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
+                              child: const Center(
+                                child: SizedBox(
+                                  width: 75,
+                                  height: 75,
+                                  child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                                ),
                               ),
                             ),
+                          ];
+                        }
+                        return SizedBox(
+                          height: _widgetSize,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListView.builder(
+                              itemCount: children.length,
+                              itemBuilder: (ctxt /*context*/, ind) {
+                                return children[ind];
+                              },
+                            ),
                           ),
-                        ];
+                        );
                       }
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListView.builder(
-                            itemCount: children.length,
-                            itemBuilder: (ctxt /*context*/, ind) {
-                              return children[ind];
-                            },
-                          ),
-                        ),
-                      );
-                    }
+                    ),
                   ),
+                ],
               ),
             )
           ],

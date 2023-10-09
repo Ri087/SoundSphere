@@ -42,7 +42,6 @@ class User {
       final user = User(uid: userCredential.uid, email: email, displayName: userCredential.displayName!);
       return user;
     } on FirebaseAuthException {
-      // Erreur si utilisateur non créé ou mot de passe incorect
       return false;
     }
   }

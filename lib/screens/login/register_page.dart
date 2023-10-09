@@ -136,8 +136,7 @@ class _RegisterPassword extends State<RegisterPassword> {
                       if (passwordController.value == confirmPasswordController.value) {
                         User.register(emailController.text, passwordController.text);
                         ToastUtil.showSuccessToast(context, "Success: Account created !");
-                        Navigator.push(
-                            context, MaterialPageRoute(builder: (context) => const Home()));
+                        Navigator.pop(context);
                       } else {
                         ToastUtil.showErrorToast(context, "Error: Passwords don't match !");
                       }
