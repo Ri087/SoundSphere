@@ -77,7 +77,7 @@ class Room {
     }
   }
 
-  static Future<List<Widget>> getRoomWidgets(context) async {
+  static Future<List<Widget>> getPublicRoomWidgets(context) async {
     List<Widget> widgets = [];
     List<Room>? rooms = await Room.getPublicRooms();
     if (rooms != null) {

@@ -13,7 +13,6 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
   runApp(const SoundSphere());
-  AppFirebase.closeDb();
 }
 
 class SoundSphere extends StatelessWidget {

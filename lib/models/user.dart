@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import '../utils/app_utilities.dart';
 
@@ -46,27 +47,27 @@ class User {
     }
   }
 
-  static Future<dynamic> userExist(String email) async {
+  static Future<bool> userExist(String email) async {
     bool connectedToInternet = false;
     try {
-      final result = await InternetAddress.lookup('google.com');
+      DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+      await deviceInfoPlugin.webBrowserInfo;
+      connectedToInternet = true;
+    } catch (e) {
+      final result = await InternetAddress.lookup('8.8.8.8');
       connectedToInternet = result.isNotEmpty&&result[0].rawAddress.isNotEmpty;
-    } on SocketException catch (_) {}
-    if (!connectedToInternet) {
-      return 'error';
     }
+
+    if (!connectedToInternet) {
+      throw Exception();
+    }
+
     try {
       final snapshot = await collectionRef.where("email", isEqualTo: email).get();
       return snapshot.docs.isNotEmpty;
-    } catch (e) {
-      return 'error';
+    } catch (_) {
+      throw Exception();
     }
-  }
-
-  Future<bool> signOut() async {
-    await FirebaseAuth.instance.signOut();
-    state = false;
-    return true;
   }
 
   static Future<String> getCurrentDisplayName() async {
