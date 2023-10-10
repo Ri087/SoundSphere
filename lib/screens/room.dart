@@ -1,5 +1,6 @@
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
+import 'package:SoundSphere/widgets/popup/popup_room_settings.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,23 +13,23 @@ class RoomPage extends StatefulWidget {
   const RoomPage({super.key, required this.room});
 
   @override
-  State<StatefulWidget> createState() => _RoomPage(room: room);
+  State<StatefulWidget> createState() => _RoomPage();
 }
 
-class _RoomPage extends State<RoomPage> {
-  final Room room;
+class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
+  late final Room room;
   late Future<Music?> actualMusic;
   late final AudioPlayer audioPlayer = AudioPlayer(playerId: room.id);
   Music? music;
   bool _isPlaying  = false;
-  Duration _duration = const Duration(minutes: 0, seconds: 0);
-  Duration _position = const Duration(minutes: 0, seconds: 0);
-
-  _RoomPage({required this.room});
+  Duration _duration = const Duration(seconds: 0);
+  Duration _position = const Duration(seconds: 0);
 
   @override
   void initState() {
     super.initState();
+    room = widget.room;
+
     actualMusic = Music.getActualMusic(room);
     audioPlayer.setVolume(1.0);
 
@@ -39,7 +40,7 @@ class _RoomPage extends State<RoomPage> {
       });
     });
 
-    // Event pour mettre à jour une progress bar par exemple
+    // mise à jour progress bar
     audioPlayer.onPositionChanged.listen((Duration duration) {
       setState(() {
         _position = duration;
@@ -93,79 +94,9 @@ class _RoomPage extends State<RoomPage> {
     Navigator.pop(context);
   }
 
-  Future openPopUpSettings() => showDialog(
+  Future openPopupSettings() => showDialog(
     context: context,
-    builder:(context)=> AlertDialog(
-      alignment: Alignment.topCenter,
-      content: SizedBox(
-        height: 150,
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(border: Border.all(color: const Color(0xFFFF86C9)), borderRadius: BorderRadius.circular(10)),
-                  child: IconButton(
-                    icon: const Icon(Icons.settings),
-                    onPressed: () {
-                      // ADD CODE
-                    },
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top : 25),
-                  child: Text('Settings', textDirection: TextDirection.ltr, style: TextStyle(fontSize: 22, fontFamily: 'Roboto', fontWeight: FontWeight.w400, height: 0,),),),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left:40),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFFF86C9)),
-                        borderRadius: BorderRadius.circular(10)
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.lock_open,
-                        color: Color(0xFFFF86C9),
-                        size: 26,
-                      ),
-                      onPressed: () {
-                        // ADD CODE
-                      },
-                    ),
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.only(top :25),
-                    child: Text(
-                      'Delete Sphere',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w400,
-                        height: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
+    builder:(context)=> const PopupRoomSettings(),
   );
 
 
@@ -181,7 +112,7 @@ class _RoomPage extends State<RoomPage> {
         title: Text(room.title!, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
-            onPressed: () {openPopUpSettings();}, icon: const Icon(Icons.settings),)
+            onPressed: () {openPopupSettings();}, icon: const Icon(Icons.settings),)
         ],
       ),
       body: FutureBuilder(

@@ -10,13 +10,12 @@ class SearchMusic extends StatefulWidget {
   final AudioPlayer audioPlayer;
 
   @override
-  State<StatefulWidget> createState() => _SearchMusic(room: room, audioPlayer: audioPlayer);
+  State<StatefulWidget> createState() => _SearchMusic();
 }
 
 class _SearchMusic extends State<SearchMusic> {
-  _SearchMusic({required this.room, required this.audioPlayer});
-  final AudioPlayer audioPlayer;
-  final Room room;
+  late final AudioPlayer audioPlayer;
+  late final Room room;
   late Future<List<Widget>> searchMusicWidgets;
   TextEditingController searchController = TextEditingController();
   bool typing = false;
@@ -24,6 +23,8 @@ class _SearchMusic extends State<SearchMusic> {
   @override
   void initState() {
     super.initState();
+    room = widget.room;
+    audioPlayer = widget.audioPlayer;
     searchMusicWidgets = Music.getMusicsSearchWidgets(context, "", room, audioPlayer);
   }
 
