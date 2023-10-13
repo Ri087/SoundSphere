@@ -16,14 +16,14 @@ class LoginPassword extends StatefulWidget {
 }
 
 class _LoginPassword extends State<LoginPassword> {
-  late final TextEditingController emailController;
-  late final TextEditingController passwordController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
   bool obscureText = true;
 
   @override
   void initState() {
-    emailController = widget.emailController;
-    passwordController = widget.passwordController;
+    _emailController = widget.emailController;
+    _passwordController = widget.passwordController;
     super.initState();
   }
 
@@ -58,7 +58,7 @@ class _LoginPassword extends State<LoginPassword> {
                     width: 350,
                     child: TextField(
                       obscureText: obscureText,
-                      controller: passwordController,
+                      controller: _passwordController,
                       decoration: InputDecoration(
                         hintText: "Password",
                         hintStyle: const TextStyle(color: Colors.grey),
@@ -70,11 +70,7 @@ class _LoginPassword extends State<LoginPassword> {
                           child: IconButton(
                           onPressed: () {
                             setState(() {
-                              if(obscureText) {
-                                obscureText = false;
-                              } else {
-                                obscureText = true;
-                              }
+                              obscureText = !obscureText;
                             });
                           },
                           icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off, color: const Color.fromARGB(255, 255, 134, 201),size: 20)),
@@ -93,8 +89,8 @@ class _LoginPassword extends State<LoginPassword> {
                     buttonIcon: const Icon(Icons.login),
                     onPressed: () {
                       try {
-                        FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text.toLowerCase(), password: passwordController.text).then(
-                                (value) => Navigator.push(context, MaterialPageRoute(builder: (context) => const Home())));
+                        FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailController.text.toLowerCase(), password: _passwordController.text).then(
+                            (value) => Navigator.push(context, MaterialPageRoute(builder: (context) => const Home())));
                       } catch (e) {
                         ToastUtil.showErrorToast(context, "Error: Invalid password");
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginEmail()));

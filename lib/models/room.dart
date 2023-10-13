@@ -1,7 +1,8 @@
 import 'package:SoundSphere/models/music.dart';
+import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/utils/app_utilities.dart';
-import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
+import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,83 +10,78 @@ import 'package:flutter/material.dart';
 
 class Room {
   final String? id;
-  final String? code;
-  final String? title;
+  final String code;
+  final String title;
   final String? description;
-  final String? host;
-  final int? maxMembers;
-  final List<dynamic>? members;
-  final bool? isPrivate;
+  final String host;
+  final int maxMembers;
+  final List<dynamic> members;
+  final bool isPrivate;
   String? actualMusic;
-  final List<dynamic>? musicQueue;
+  final List<dynamic> musicQueue;
 
   static CollectionReference<Room> collectionRef = AppFirebase.db.collection("room")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);
 
-  Room({this.id, required this.code, required this.host, required this.musicQueue, this.actualMusic, this.title, this.description, this.maxMembers, this.members, this.isPrivate});
+  Room({this.id, required this.code, required this.host, required this.musicQueue, this.actualMusic, required this.title, this.description, required this.maxMembers, required this.members, required this.isPrivate});
 
   Future<bool> nextMusic(AudioPlayer player) async {
-    if (musicQueue!.isNotEmpty) {
-      actualMusic = musicQueue!.first;
-      musicQueue!.removeAt(0);
+    if (musicQueue.isNotEmpty) {
+      actualMusic = musicQueue.first;
+      musicQueue.removeAt(0);
       Music? music = await Music.getActualMusic(this);
       await collectionRef.doc(id).set(this);
       if (player.state == PlayerState.playing) {
         await player.stop();
       }
-      await player.play(UrlSource(music!.url!));
+      await player.play(UrlSource(music!.url));
       return true;
     }
     return false;
   }
 
-  static Future<bool> addMusic(Music musicToAdd, Room room, AudioPlayer audioPlayer) async {
+  Future<bool> addMusic(Music musicToAdd, AudioPlayer audioPlayer) async {
     bool playMusic = false;
-    if (room.musicQueue!.isEmpty && room.actualMusic!.isEmpty) {
-      room.actualMusic = musicToAdd.id;
+    if (musicQueue.isEmpty && actualMusic!.isEmpty) {
+      actualMusic = musicToAdd.id;
       playMusic = true;
     } else {
-      room.musicQueue!.add(musicToAdd.id);
+      musicQueue.add(musicToAdd.id);
     }
-    await collectionRef.doc(room.id).set(room);
+    await collectionRef.doc(id).set(this);
     if (playMusic) {
-      await audioPlayer.play(UrlSource(musicToAdd.url!));
+      await audioPlayer.play(UrlSource(musicToAdd.url));
     }
     return true;
   }
 
   static Future<Room?> getRoom(String docId) async {
     final docSnap = await collectionRef.doc(docId).get();
-    final room = docSnap.data();
-    if (room != null) {
-      return room;
-    } else {
-      print("No such document.");
-      return null;
-    }
+    return docSnap.data();
   }
 
   static Future<List<Room>?> getPublicRooms() async {
     final snap = await collectionRef.where("is_private", isEqualTo: false).get();
     final rooms = snap.docs.map((e) => e.data()).toList();
-    if (rooms.isNotEmpty) {
-      return rooms;
-    } else {
-      print("No such document.");
-      return null;
-    }
+    return rooms;
   }
 
-  static Future<List<Widget>> getPublicRoomWidgets(context) async {
+  static Future<List<Widget>> getPublicRoomWidgets() async {
     List<Widget> widgets = [];
     List<Room>? rooms = await Room.getPublicRooms();
     if (rooms != null) {
       for (var room in rooms) {
-        widgets.add(RoomWidget(room: room).getWidget(context));
+        widgets.add(RoomWidget(room: room));
       }
     }
     return widgets;
+  }
+
+  Future<AppUser> getHost() async {
+    final user = await AppUser.collectionRef.doc(host).get();
+    final userData = user.data()!;
+    return AppUser(email: userData.email, displayName: userData.displayName);
   }
 
   static Future<Room> createSphere(String title, String description, bool isPrivate, int maxMembers) async {
@@ -96,19 +92,19 @@ class Room {
   }
 
   Future<bool> addMember(String uid) async {
-    if (members?.length == maxMembers || members!.contains(uid)) {
+    if (members.length == maxMembers || members.contains(uid)) {
       return false;
     }
-    members?.add(uid);
+    members.add(uid);
     await collectionRef.doc(id).set(this);
     return true;
   }
 
   Future<bool> removeMember(String uid) async {
-    if (!members!.contains(uid)) {
+    if (!members.contains(uid)) {
       return false;
     }
-    members?.remove(uid);
+    members.remove(uid);
     await collectionRef.doc(id).set(this);
     return true;
   }
@@ -134,15 +130,15 @@ class Room {
 
   Map<String, dynamic> toFirestore() {
     return {
-      if (code != null) "code": code,
-      if (title != null) "title": title,
+      "code": code,
+      "title": title,
       if (description != null) "description": description,
-      if (maxMembers != null) "max_members": maxMembers,
-      if (members != null) "members": members,
-      if (isPrivate != null) "is_private": isPrivate,
-      if (actualMusic != null) "actual_music": actualMusic,
-      if (musicQueue != null) "music_queue": musicQueue,
-      if (host != null) "host": host,
+      "max_members": maxMembers,
+      "members": members,
+      "is_private": isPrivate,
+      "actual_music": actualMusic,
+      "music_queue": musicQueue,
+      "host": host,
     };
   }
 }

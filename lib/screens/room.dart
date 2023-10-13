@@ -17,10 +17,10 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
-  late final Room room;
-  late Future<Music?> actualMusic;
-  late final AudioPlayer audioPlayer = AudioPlayer(playerId: room.id);
-  Music? music;
+  late final Room _room;
+  late Future<Music?> _actualMusic;
+  late final AudioPlayer _audioPlayer = AudioPlayer(playerId: _room.id);
+  Music? _music;
   bool _isPlaying  = false;
   Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
@@ -28,12 +28,12 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    room = widget.room;
+    _room = widget.room;
 
-    actualMusic = Music.getActualMusic(room);
-    audioPlayer.setVolume(1.0);
+    _actualMusic = Music.getActualMusic(_room);
+    _audioPlayer.setVolume(1.0);
 
-    audioPlayer.onDurationChanged.listen((Duration duration) {
+    _audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
         _duration = duration;
         reloadMusic();
@@ -41,14 +41,14 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
     });
 
     // mise à jour progress bar
-    audioPlayer.onPositionChanged.listen((Duration duration) {
+    _audioPlayer.onPositionChanged.listen((Duration duration) {
       setState(() {
         _position = duration;
       });
     });
 
     // Event quand la musique est mis en pause ou resume etc...
-    audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
+    _audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
       setState(() {
         if (playerState == PlayerState.playing) {
           _isPlaying = true;
@@ -59,38 +59,38 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
     });
 
     // Event quand la musique se termine (hors pause ou stop par user)
-    audioPlayer.onPlayerComplete.listen((_) {
+    _audioPlayer.onPlayerComplete.listen((_) {
       setState(() {
         _isPlaying = false;
         _position = const Duration(seconds: 0);
-        room.nextMusic(audioPlayer);
+        _room.nextMusic(_audioPlayer);
       });
     });
   }
 
   void reloadMusic() {
     setState(() {
-      actualMusic = Music.getActualMusic(room);
+      _actualMusic = Music.getActualMusic(_room);
     });
   }
 
   void _pause(){
-    audioPlayer.pause();
+    _audioPlayer.pause();
   }
 
   void _play(Music? music){
-    if (audioPlayer.state == PlayerState.stopped) {
+    if (_audioPlayer.state == PlayerState.stopped) {
       if (music != null) {
-        audioPlayer.play(UrlSource(music.url!));
+        _audioPlayer.play(UrlSource(music.url));
       }
     } else {
-      audioPlayer.resume();
+      _audioPlayer.resume();
     }
   }
 
   void leaveRoom() {
-    audioPlayer.dispose();
-    room.removeMember(FirebaseAuth.instance.currentUser!.uid);
+    _audioPlayer.dispose();
+    _room.removeMember(FirebaseAuth.instance.currentUser!.uid);
     Navigator.pop(context);
   }
 
@@ -99,37 +99,34 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
     builder:(context)=> const PopupRoomSettings(),
   );
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
-        leading: BackButton(
-          onPressed: () => leaveRoom(),
-        ),
-        title: Text(room.title!, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
+        leading: BackButton(onPressed: () => leaveRoom(),),
+        title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
             onPressed: () {openPopupSettings();}, icon: const Icon(Icons.settings),)
         ],
       ),
       body: FutureBuilder(
-        future: actualMusic,
+        future: _actualMusic,
         builder: (context, snapshot) {
           String title = "No music in queue...", artists = "No music in queue...";
           Widget cover = const Icon(Icons.music_note, size: 60);
           Music? music;
           if (snapshot.hasData) {
             music = snapshot.data;
-            if (music == null || music.url == null || music.url!.isEmpty) {
+            if (music == null || music.url.isEmpty) {
               title = "No music in queue...";
               artists = "No music in queue...";
             } else {
               cover = Image.network(music.cover!);
-              title = music.title!;
-              artists = AppUtilities.getArtists(music.artists!);
+              title = music.title;
+              artists = music.artists!.join(", ");
             }
           } else if (snapshot.hasError) {
             return Column(
@@ -140,6 +137,7 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
               ],
             );
           } else {
+            print(snapshot.toString());
             title = "Loading music...";
             artists = "Loading music...";
           }
@@ -151,13 +149,13 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(bottom: 4.0),
-                    child: Text("Hosted by Jeremy", style: TextStyle(fontSize: 16),),
+                    child: Text("Hosted by ", style: TextStyle(fontSize: 16),),
                   ),
-                  Text("code: ${room.code}"),
+                  Text("code: ${_room.code}"),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Container(
-                      height: 200, width: 200,
+                      height: 180, width: 180,
                       decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
                       child: cover),
                   ),
@@ -177,7 +175,7 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
                           value: _position.inSeconds.toDouble(),
                           onChanged: (value) {
                             setState(() {
-                              audioPlayer.seek(Duration(seconds: value.toInt()));
+                              _audioPlayer.seek(Duration(seconds: value.toInt()));
                             });
                           }
                         ),
@@ -187,7 +185,7 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
+                    child: Row( 
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -196,7 +194,7 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
                           icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
                           onPressed: () {
                             setState(() {
-                              audioPlayer.seek(const Duration(seconds: 0));
+                              _audioPlayer.seek(const Duration(seconds: 0));
                             });
                           },
                         ),
@@ -206,14 +204,14 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
                           child: IconButton(
                             iconSize: 30,
                             icon: Icon(_isPlaying ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
-                            onPressed: _isPlaying ? () => _pause() : () => _play(music),
+                            onPressed: _isPlaying ? () => _pause() : () => _play(_music),
                           ),
                         ),
                         IconButton(
                           iconSize: 30,
                           icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
                           onPressed: () {
-                            room.nextMusic(audioPlayer);
+                            _room.nextMusic(_audioPlayer);
                           },
                         )
                       ],
@@ -244,7 +242,7 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SearchMusic(room: room, audioPlayer: audioPlayer,)));
+              MaterialPageRoute(builder: (context) => SearchMusic(room: _room, audioPlayer: _audioPlayer,)));
         },
         child: const Icon(Icons.add),
       ),

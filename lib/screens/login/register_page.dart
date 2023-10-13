@@ -1,9 +1,8 @@
 import 'package:SoundSphere/widgets/app_button_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/user.dart';
+import '../../models/app_user.dart';
 import '../../widgets/toast.dart';
-import '../home.dart';
 
 class RegisterPassword extends StatefulWidget {
   const RegisterPassword({super.key, required this.emailController, required this.passwordController, required this.confirmPasswordController});
@@ -13,21 +12,20 @@ class RegisterPassword extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _RegisterPassword();
-
 }
 
 class _RegisterPassword extends State<RegisterPassword> {
-  late final TextEditingController emailController;
-  late final TextEditingController passwordController;
-  late final TextEditingController confirmPasswordController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
   bool obscureTextPassword = true;
   bool obscureTextConfirm = true;
 
   @override
   void initState() {
-    emailController = widget.emailController;
-    passwordController = widget.passwordController;
-    confirmPasswordController = widget.confirmPasswordController;
+    _emailController = widget.emailController;
+    _passwordController = widget.passwordController;
+    _confirmPasswordController = widget.confirmPasswordController;
     super.initState();
   }
 
@@ -63,7 +61,7 @@ class _RegisterPassword extends State<RegisterPassword> {
                     child: Column(
                       children: [
                         TextField(
-                          controller: passwordController,
+                          controller: _passwordController,
                           obscureText: obscureTextPassword,
                           decoration: InputDecoration(
                             hintText: "Your password",
@@ -76,11 +74,7 @@ class _RegisterPassword extends State<RegisterPassword> {
                               child: IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    if(obscureTextPassword) {
-                                      obscureTextPassword = false;
-                                    } else {
-                                      obscureTextPassword = true;
-                                    }
+                                    obscureTextPassword = !obscureTextPassword;
                                   });
                                 },
                                 icon: Icon(obscureTextPassword ? Icons.visibility : Icons.visibility_off, color: const Color.fromARGB(255, 255, 134, 201),size: 20)
@@ -94,7 +88,7 @@ class _RegisterPassword extends State<RegisterPassword> {
                         Padding(
                           padding: const EdgeInsets.only(top: 10),
                           child: TextField(
-                            controller: confirmPasswordController,
+                            controller: _confirmPasswordController,
                             obscureText: obscureTextConfirm,
                             decoration: InputDecoration(
                               hintText: "Confirm your password",
@@ -107,11 +101,7 @@ class _RegisterPassword extends State<RegisterPassword> {
                                   child: IconButton(
                                       onPressed: () {
                                         setState(() {
-                                          if(obscureTextConfirm) {
-                                            obscureTextConfirm = false;
-                                          } else {
-                                            obscureTextConfirm = true;
-                                          }
+                                          obscureTextConfirm = !obscureTextConfirm;
                                         });
                                       },
                                       icon: Icon(obscureTextConfirm ? Icons.visibility : Icons.visibility_off, color: const Color.fromARGB(255, 255, 134, 201),size: 20)
@@ -133,8 +123,8 @@ class _RegisterPassword extends State<RegisterPassword> {
                     buttonText: "REGISTER",
                     buttonIcon: const Icon(Icons.login),
                     onPressed: () {
-                      if (passwordController.value == confirmPasswordController.value) {
-                        User.register(emailController.text, passwordController.text);
+                      if (_passwordController.value == _confirmPasswordController.value) {
+                        AppUser.register(_emailController.text, _passwordController.text);
                         ToastUtil.showSuccessToast(context, "Success: Account created !");
                         Navigator.pop(context);
                       } else {

@@ -42,7 +42,7 @@ class SoundSphere extends StatelessWidget {
           bodySmall: TextStyle(color: Colors.white),
         ),
         dialogTheme: const DialogTheme(
-          backgroundColor: Color(0xFF02203A)
+          backgroundColor: Color(0xFF02203A),
         )
       ),
       debugShowCheckedModeBanner: false,

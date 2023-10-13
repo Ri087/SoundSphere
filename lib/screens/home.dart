@@ -25,12 +25,12 @@ class _Home extends State<Home> {
           context,
           MaterialPageRoute(builder: (context) => const LoginEmail())));
     }
-    publicRoomWidgetList = Room.getPublicRoomWidgets(context);
+    publicRoomWidgetList = Room.getPublicRoomWidgets();
   }
 
   void reloadData() {
     setState(() {
-      publicRoomWidgetList = Room.getPublicRoomWidgets(context);
+      publicRoomWidgetList = Room.getPublicRoomWidgets();
     });
   }
 
@@ -62,9 +62,7 @@ class _Home extends State<Home> {
         title: const Text("SoundSphere", style: TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
-            onPressed: () {
-              openPopupProfile(context);
-            },
+            onPressed: () {openPopupProfile(context);},
             icon: const Icon(Icons.person_rounded,),
           )
         ],
@@ -80,7 +78,7 @@ class _Home extends State<Home> {
                 child: TextField(
                   onTap: () {
                     setState(() {
-                      _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom;
+                      _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 140 - MediaQuery.of(context).viewInsets.bottom;
                     });
                   },
                   style: const TextStyle(color: Colors.white),
@@ -97,9 +95,10 @@ class _Home extends State<Home> {
                       borderRadius: const BorderRadius.only(topRight: Radius.circular(7)),
                       color: Colors.transparent,
                       child: IconButton(
-                          onPressed: () {
-                          },
-                          icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)),
+                        onPressed: () {
+                        },
+                        icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)
+                      ),
                     ),
                   ),
                 ),
@@ -115,23 +114,24 @@ class _Home extends State<Home> {
                     color: Colors.white,
                     onRefresh: () async {
                       reloadData();
+                      Future.delayed(const Duration(milliseconds: 200));
                     },
                     child: FutureBuilder(
                       future: publicRoomWidgetList,
                       builder: (context, snapshot) {
-                        List<Widget> children;
+                        List<Widget> listItems;
                         if (snapshot.hasData) {
-                          children = snapshot.data!;
+                          listItems = snapshot.data!;
                         } else if (snapshot.hasError) {
-                          children = [Text("Result : ${snapshot.error}")];
+                          listItems = [Text("Result : ${snapshot.error}")];
                         } else {
-                          children = [
+                          listItems = [
                             SizedBox(
                               height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
                               child: const Center(
                                 child: SizedBox(
-                                  width: 75,
-                                  height: 75,
+                                  width: 60,
+                                  height: 60,
                                   child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
                                 ),
                               ),
@@ -143,9 +143,9 @@ class _Home extends State<Home> {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListView.builder(
-                              itemCount: children.length,
+                              itemCount: listItems.length,
                               itemBuilder: (ctxt /*context*/, ind) {
-                                return children[ind];
+                                return listItems[ind];
                               },
                             ),
                           ),

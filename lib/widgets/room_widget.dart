@@ -1,17 +1,23 @@
 import 'package:SoundSphere/screens/room.dart';
-import 'package:SoundSphere/utils/app_firebase.dart';
+import 'package:SoundSphere/utils/app_utilities.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 import '../models/music.dart';
 import '../models/room.dart';
 
-class RoomWidget {
-  RoomWidget({required this.room});
+class RoomWidget extends StatefulWidget {
   final Room room;
+  const RoomWidget({super.key, required this.room});
 
-  Color genColor = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+  @override
+  State<StatefulWidget> createState() => _RoomWidget();
+
+}
+
+class _RoomWidget extends State<RoomWidget>{
+  late final Room room;
+  late Future<Widget> musicRow;
 
   Future<void> navigateToRoom(BuildContext context) async {
     room.addMember(FirebaseAuth.instance.currentUser!.uid);
@@ -64,16 +70,22 @@ class RoomWidget {
                 child: cover,
               ),
             ),
-            Text(actualMusic.title!)
+            Text(actualMusic.title)
           ],
         ),
       );
     }
   }
 
-  Widget getWidget(context) {
-    Future<Widget> musicRow = getMusicRow();
+  @override
+  void initState() {
+    super.initState();
+    room = widget.room;
+    musicRow = getMusicRow();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Material(
@@ -94,7 +106,7 @@ class RoomWidget {
                     width: 70,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: genColor,
+                        color: AppUtilities.getRandomColor(),
                         borderRadius: const BorderRadius.all(Radius.circular(7.0)
                         )
                     ),
@@ -108,7 +120,7 @@ class RoomWidget {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 3.0),
-                          child: Text(room.title!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                          child: Text(room.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                         ),
                         FutureBuilder(
                             future: musicRow,
@@ -128,10 +140,10 @@ class RoomWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(room.members!.length.toString()),
+                            Text(room.members.length.toString()),
                             const Icon(Icons.person_rounded, size: 16),
                             const Text(" - "),
-                            Icon(room.isPrivate! ? Icons.public_off : Icons.public, size: 16,),
+                            Icon(room.isPrivate ? Icons.public_off : Icons.public, size: 16,),
                           ],
                         )
                       ],

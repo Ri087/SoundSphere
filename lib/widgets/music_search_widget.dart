@@ -39,7 +39,7 @@ class MusicSearchWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 3.0),
-                    child: Text(music.title!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                    child: Text(music.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -57,7 +57,7 @@ class MusicSearchWidget {
             child: InkWell(
               onTap: () {
                 ToastUtil.showInfoToast(context, "Music added to the queue");
-                Room.addMusic(music, room, audioPlayer);
+                room.addMusic(music, audioPlayer);
               },
               child: const Icon(Icons.add, color: Color(0xFF0EE6F1), size: 30,),
             ),

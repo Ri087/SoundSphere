@@ -1,6 +1,7 @@
+import 'package:SoundSphere/widgets/app_button_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/user.dart';
+import '../../models/app_user.dart';
 import '../../widgets/toast.dart';
 import 'login_page.dart';
 import 'register_page.dart';
@@ -13,39 +14,26 @@ class LoginEmail extends StatefulWidget {
 }
 
 class _LoginEmail extends State<LoginEmail> {
-  final TextEditingController controllerEmail = TextEditingController();
-  final TextEditingController controllerPassword = TextEditingController();
-  final TextEditingController controllerConfirmPassword = TextEditingController();
-  late final String buttonText;
-  late final Icon buttonIcon;
-  late final bool Function() onPressed;
-  late List<Widget> rowChildren;
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerPassword = TextEditingController();
+  final TextEditingController _controllerConfirmPassword = TextEditingController();
   Color buttonColor = const Color(0xFF0EE6F1);
   bool clicked = false;
 
   void navigate(context, dynamic isEmailInDB,) {
     Navigator.push(context, MaterialPageRoute(builder:
         (context) => isEmailInDB ? LoginPassword(
-          emailController: controllerEmail,
-          passwordController: controllerPassword,
+          emailController: _controllerEmail,
+          passwordController: _controllerPassword,
         ) : RegisterPassword(
-          emailController: controllerEmail,
-          passwordController: controllerPassword,
-          confirmPasswordController: controllerConfirmPassword,)
+          emailController: _controllerEmail,
+          passwordController: _controllerPassword,
+          confirmPasswordController: _controllerConfirmPassword,)
     ));
   }
 
   @override
   void initState() {
-    buttonText = "NEXT";
-    buttonIcon = const Icon(Icons.arrow_forward_outlined);
-    rowChildren = [
-      Text(buttonText, style: const TextStyle(fontWeight: FontWeight.bold),),
-      Padding(
-        padding: const EdgeInsets.only(left: 5),
-        child: buttonIcon,
-      )
-    ];
     super.initState();
   }
 
@@ -77,7 +65,7 @@ class _LoginEmail extends State<LoginEmail> {
                   child: SizedBox(
                     width: 350,
                     child: TextField(
-                      controller: controllerEmail,
+                      controller: _controllerEmail,
                       decoration: InputDecoration(
                           hintText: "Email",
                           hintStyle: const TextStyle(color: Colors.grey),
@@ -92,50 +80,22 @@ class _LoginEmail extends State<LoginEmail> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 25, right: 25, bottom: 15),
-                  child: ElevatedButton(
-                      style: ButtonStyle(
-                        fixedSize: MaterialStateProperty.resolveWith((states) => const Size(350, 55)),
-                        backgroundColor: MaterialStateProperty.resolveWith((states) => buttonColor),
-                        shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(7), side: BorderSide(width: 2.0, color: buttonColor))),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          if (clicked) {
-                            return;
-                          }
-                          clicked = true;
-                          buttonColor = Colors.blueGrey;
-                          rowChildren = [
-                            const CircularProgressIndicator(
-                              color: Colors.white,
-                            )
-                          ];
-                        });
-                        if (controllerEmail.text.replaceAll(" ", "") == "") {
-                          ToastUtil.showErrorToast(context, "Error: Please enter a valid email");
-                        } else {
-                          User.userExist(controllerEmail.text.toLowerCase().replaceAll(" ", "")).then((value) {
-                            controllerEmail.text = controllerEmail.text.toLowerCase().replaceAll(" ", "");
-                            navigate(context, value);
-                          }).onError((error, stackTrace) {print(stackTrace);ToastUtil.showErrorToast(context, "Error: Connection error");});
-                        }
-                        setState(() {
-                          buttonColor = const Color(0xFF0EE6F1);
-                          clicked = false;
-                          rowChildren = [
-                            Text(buttonText, style: const TextStyle(fontWeight: FontWeight.bold),),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: buttonIcon,
-                            )
-                          ];
-                        });
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: rowChildren,
-                      )
-                  ),
+                  child: AppButtonWidget(
+                    buttonText: "NEXT",
+                    buttonIcon: const Icon(Icons.arrow_forward_outlined, color: Colors.white,),
+                    onPressed: () {
+                      if (_controllerEmail.text.replaceAll(" ", "") == "") {
+                        ToastUtil.showErrorToast(context, "Error: Please enter a valid email");
+                      } else {
+                        String mail = _controllerEmail.text.toLowerCase().replaceAll(" ", "");
+                        AppUser.userExist(mail).then((value) {
+                          _controllerEmail.text = mail;
+                          navigate(context, value);
+                        }).onError((error, stackTrace) {ToastUtil.showErrorToast(context, "Error: Connection error");});
+                      }
+                      return true;
+                    }
+                  )
                 ),
               ],
             ),

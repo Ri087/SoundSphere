@@ -8,9 +8,9 @@ import '../utils/app_firebase.dart';
 
 class Music {
   final String? id;
-  final String? title;
-  final String? url;
-  final int? duration;
+  final String title;
+  final String url;
+  final int duration;
   final List<dynamic>? artists;
   final String? album;
   final String? cover;
@@ -44,29 +44,20 @@ class Music {
   
   static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room, AudioPlayer audioPlayer) async {
     List<Widget> widgets = [];
-    List<Music?>? musics = await Music.getDbMusics(search);
-    if (musics != null) {
-      for (var music in musics) {
-        widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer).getWidget(context));
-      }
+    List<Music?> musics = await Music.getDbMusics(search);
+    for (var music in musics) {
+      widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer).getWidget(context));
     }
     return widgets;
   }
   
-  static Future<List<Music?>?> getDbMusics(String search) async {
+  static Future<List<Music?>> getDbMusics(String search) async {
     final snap = await collectionRef.get();
-    final musics = snap.docs.map((e) {Music data = e.data(); if (data.title!.startsWith(search)) return data;}).toList();
-    if (musics.isNotEmpty) {
-      return musics;
-    } else {
-      return null;
-    }
+    final musics = snap.docs.map((e) {Music data = e.data(); if (data.title.startsWith(search)) return data;}).toList();
+    return musics;
   }
 
-  factory Music.fromFirestore(
-      DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options,
-      ) {
+  factory Music.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot, SnapshotOptions? options,) {
     final data = snapshot.data();
     return Music(
       id: snapshot.id,
@@ -81,9 +72,9 @@ class Music {
 
   Map<String, dynamic> toFirestore() {
     return {
-      if (title != null) "Titre": title,
-      if (url != null) "Url": url,
-      if (duration != null) "Duration": duration,
+      "Titre": title,
+      "Url": url,
+      "Duration": duration,
       if (artists != null) "Artists": artists,
       if (album != null) "Album": album,
       if (cover != null) "Cover": cover,

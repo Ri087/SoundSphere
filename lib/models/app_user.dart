@@ -7,17 +7,17 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 import '../utils/app_utilities.dart';
 
-class User {
+class AppUser {
   late String? uid;
   late String email;
   late String displayName;
   late bool state; // Connecté ou non
 
-  User({this.uid, required this.email, required this.displayName, this.state = false});
+  AppUser({this.uid, required this.email, required this.displayName, this.state = false});
 
-  static CollectionReference<User> collectionRef = AppFirebase.db.collection("users").withConverter(
-    fromFirestore: User.fromFirestore,
-    toFirestore: (User user, _) => user.toFirestore(),);
+  static CollectionReference<AppUser> collectionRef = AppFirebase.db.collection("users").withConverter(
+    fromFirestore: AppUser.fromFirestore,
+    toFirestore: (AppUser user, _) => user.toFirestore(),);
 
   // A modifier niveau gestion des erreurs
   static Future<dynamic> register(String email, String password) async {
@@ -25,7 +25,8 @@ class User {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       final userCredential = credential.user!;
-      final user = User(uid: userCredential.uid, email: email, displayName: 'user_${AppUtilities.getRandomString(10)}');
+      final user = AppUser(uid: userCredential.uid, email: email, displayName: 'user_${AppUtilities.getRandomString(10)}');
+      await userCredential.updateDisplayName(user.displayName);
       await collectionRef.doc(user.uid).set(user);
       return user;
     } on FirebaseAuthException {
@@ -39,7 +40,7 @@ class User {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       final userCredential = credential.user!;
-      final user = User(uid: userCredential.uid, email: email, displayName: userCredential.displayName!);
+      final user = AppUser(uid: userCredential.uid, email: email, displayName: userCredential.displayName!);
       return user;
     } on FirebaseAuthException {
       return false;
@@ -77,12 +78,12 @@ class User {
     }
   }
 
-  factory User.fromFirestore(
+  factory AppUser.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options,
       ) {
     final data = snapshot.data();
-    return User(
+    return AppUser(
       email: data?["email"],
       displayName: data?["display_name"]
     );
