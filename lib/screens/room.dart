@@ -1,3 +1,4 @@
+
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
 import 'package:SoundSphere/widgets/popup/popup_room_settings.dart';
@@ -16,10 +17,10 @@ class RoomPage extends StatefulWidget {
   State<StatefulWidget> createState() => _RoomPage();
 }
 
-class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
+class _RoomPage extends State<RoomPage> {
   late final Room _room;
   late Future<Music?> _actualMusic;
-  late final AudioPlayer _audioPlayer = AudioPlayer(playerId: _room.id);
+  late final AudioPlayer _audioPlayer = AudioPlayer();
   Music? _music;
   bool _isPlaying  = false;
   Duration _duration = const Duration(seconds: 0);
@@ -28,10 +29,10 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
     _room = widget.room;
 
     _actualMusic = Music.getActualMusic(_room);
-    _audioPlayer.setVolume(1.0);
 
     _audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
@@ -68,17 +69,22 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void reloadMusic() {
     setState(() {
       _actualMusic = Music.getActualMusic(_room);
     });
   }
 
-  void _pause(){
+  void _pause() {
     _audioPlayer.pause();
   }
 
-  void _play(Music? music){
+  void _play(Music? music) {
     if (_audioPlayer.state == PlayerState.stopped) {
       if (music != null) {
         _audioPlayer.play(UrlSource(music.url));
@@ -120,6 +126,7 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
           Music? music;
           if (snapshot.hasData) {
             music = snapshot.data;
+            print(snapshot.toString());
             if (music == null || music.url.isEmpty) {
               title = "No music in queue...";
               artists = "No music in queue...";
@@ -190,7 +197,7 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         IconButton(
-                          iconSize: 30,
+                          iconSize: 27,
                           icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
                           onPressed: () {
                             setState(() {
@@ -200,15 +207,15 @@ class _RoomPage extends State<RoomPage> with WidgetsBindingObserver {
                         ),
                         CircleAvatar(
                           backgroundColor: const Color(0xFFFF86C9),
-                          radius: 30,
+                          radius: 27,
                           child: IconButton(
-                            iconSize: 30,
+                            iconSize: 27,
                             icon: Icon(_isPlaying ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
                             onPressed: _isPlaying ? () => _pause() : () => _play(_music),
                           ),
                         ),
                         IconButton(
-                          iconSize: 30,
+                          iconSize: 27,
                           icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
                           onPressed: () {
                             _room.nextMusic(_audioPlayer);

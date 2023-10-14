@@ -10,17 +10,6 @@ class MusicSearchWidget {
   final Room room;
   final AudioPlayer audioPlayer;
 
-  String getArtists(List<dynamic> artists) {
-    String output = "";
-    for (int i = 0; i < artists.length; i++) {
-      output += artists[i];
-      if (artists.last != artists[i]) {
-        output += ", ";
-      }
-    }
-    return output;
-  }
-
   Widget getWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),

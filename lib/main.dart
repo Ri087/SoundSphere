@@ -32,18 +32,13 @@ class SoundSphere extends StatelessWidget {
           backgroundColor: Color(0xFFFF86C9),
           foregroundColor: Color(0xFF02203A),
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-          size: 30,
-        ),
+        iconTheme: const IconThemeData(color: Colors.white, size: 30,),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Colors.white),
           bodyMedium: TextStyle(color: Colors.white),
           bodySmall: TextStyle(color: Colors.white),
         ),
-        dialogTheme: const DialogTheme(
-          backgroundColor: Color(0xFF02203A),
-        )
+        dialogTheme: const DialogTheme(backgroundColor: Color(0xFF02203A),)
       ),
       debugShowCheckedModeBanner: false,
       home: const Home(),

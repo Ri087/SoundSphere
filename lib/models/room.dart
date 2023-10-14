@@ -20,7 +20,7 @@ class Room {
   String? actualMusic;
   final List<dynamic> musicQueue;
 
-  static CollectionReference<Room> collectionRef = AppFirebase.db.collection("room")
+  static CollectionReference<Room> collectionRef = AppFirebase.db.collection("rooms")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);
 

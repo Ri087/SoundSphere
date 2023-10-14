@@ -15,7 +15,7 @@ class RoomWidget extends StatefulWidget {
 
 }
 
-class _RoomWidget extends State<RoomWidget>{
+class _RoomWidget extends State<RoomWidget> {
   late final Room room;
   late Future<Widget> musicRow;
 

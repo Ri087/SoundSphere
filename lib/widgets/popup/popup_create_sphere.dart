@@ -132,6 +132,7 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
               child: TextButton(
                 onPressed: () {
                   Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers).then((value) {
+                    Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(
                         builder: (context) => RoomPage(room: value,)));
                   });
