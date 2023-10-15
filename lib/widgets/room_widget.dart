@@ -9,7 +9,8 @@ import '../models/room.dart';
 
 class RoomWidget extends StatefulWidget {
   final Room room;
-  const RoomWidget({super.key, required this.room});
+  final void Function() onReturn;
+  const RoomWidget({super.key, required this.room, required this.onReturn});
 
   @override
   State<StatefulWidget> createState() => _RoomWidget();
@@ -17,11 +18,12 @@ class RoomWidget extends StatefulWidget {
 }
 
 class _RoomWidget extends State<RoomWidget> {
-  late final Room room;
+  late final Room _room;
+  late final void Function() _onReturn;
   late Future<Widget> musicRow;
 
   Future<Widget> getMusicRow() async {
-    Music? actualMusic = await Music.getActualMusic(room);
+    Music? actualMusic = await Music.getActualMusic(_room);
 
     if (actualMusic == null) {
       return Padding(
@@ -75,7 +77,8 @@ class _RoomWidget extends State<RoomWidget> {
   @override
   void initState() {
     super.initState();
-    room = widget.room;
+    _room = widget.room;
+    _onReturn = widget.onReturn;
     musicRow = getMusicRow();
   }
 
@@ -83,10 +86,10 @@ class _RoomWidget extends State<RoomWidget> {
   Widget build(BuildContext context) {
 
     Future<void> navigateToRoom() async {
-      final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
+      final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
       if (hasJoined && mounted) {
         Navigator.push(context, MaterialPageRoute(
-            builder: (context) => RoomPage(room: room,)));
+            builder: (context) => RoomPage(room: _room,))).then((value) => _onReturn());
       } else if (mounted) {
         ToastUtil.showErrorToast(context, "Error: Connection error");
       }
@@ -126,7 +129,7 @@ class _RoomWidget extends State<RoomWidget> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 3.0),
-                          child: Text(room.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                          child: Text(_room.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                         ),
                         FutureBuilder(
                             future: musicRow,
@@ -144,10 +147,10 @@ class _RoomWidget extends State<RoomWidget> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(room.members.length.toString()),
+                            Text(_room.members.length.toString()),
                             const Icon(Icons.person_rounded, size: 16),
                             const Text(" - "),
-                            Icon(room.isPrivate ? Icons.lock : Icons.lock_open, size: 16,),
+                            Icon(_room.isPrivate ? Icons.lock : Icons.lock_open, size: 16,),
                           ],
                         )
                       ],

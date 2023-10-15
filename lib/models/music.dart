@@ -34,6 +34,7 @@ class Music {
       return null;
     }
     final docSnap = await collectionRef.doc(room.actualMusic["id"]).get();
+    print(docSnap);
     return docSnap.data();
   }
   

@@ -16,14 +16,15 @@ class Room {
   final int maxMembers;
   final List<dynamic> members;
   final bool isPrivate;
-  Map<String, dynamic> actualMusic;
   final List<dynamic> musicQueue;
+  Map<String, dynamic> actualMusic;
+  String action;
 
   static CollectionReference<Room> collectionRef = AppFirebase.db.collection("rooms")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);
 
-  Room({required this.id, required this.host, required this.musicQueue, required this.actualMusic, required this.title, this.description, required this.maxMembers, required this.members, required this.isPrivate});
+  Room({required this.id, required this.host, required this.musicQueue, required this.actualMusic, required this.title, this.description, required this.maxMembers, required this.members, required this.isPrivate, required this.action});
 
   Future<bool> nextMusic(AudioPlayer player) async {
     if (musicQueue.isNotEmpty) {
@@ -68,12 +69,12 @@ class Room {
     return rooms;
   }
 
-  static Future<List<Widget>> getPublicRoomWidgets() async {
+  static Future<List<Widget>> getPublicRoomWidgets(void Function() onReturn) async {
     List<Widget> widgets = [];
     List<Room>? rooms = await Room.getPublicRooms();
     if (rooms != null) {
       for (var room in rooms) {
-        widgets.add(RoomWidget(room: room));
+        widgets.add(RoomWidget(room: room, onReturn: onReturn,));
       }
     }
     return widgets;
@@ -91,12 +92,13 @@ class Room {
         id: "S-${AppUtilities.getRandomString(5).toUpperCase()}",
         host: hostUID,
         musicQueue: [],
-        actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0, "last_updater": ""},
+        actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0},
         description: description,
         title: title,
         isPrivate: isPrivate,
         members: [],
-        maxMembers: maxMembers
+        maxMembers: maxMembers,
+        action: "",
     );
     await collectionRef.doc(room.id).set(room);
     return room;
@@ -138,6 +140,7 @@ class Room {
       actualMusic: data?["actual_music"],
       musicQueue: data?["music_queue"],
       host: data?["host"],
+      action: data?["action"],
     );
   }
 
@@ -151,6 +154,7 @@ class Room {
       "actual_music": actualMusic,
       "music_queue": musicQueue,
       "host": host,
+      "action": action,
     };
   }
 }

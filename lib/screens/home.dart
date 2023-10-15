@@ -25,12 +25,12 @@ class _Home extends State<Home> {
           context,
           MaterialPageRoute(builder: (context) => const LoginEmail())));
     }
-    publicRoomWidgetList = Room.getPublicRoomWidgets();
+    publicRoomWidgetList = Room.getPublicRoomWidgets(reloadData);
   }
 
   void reloadData() {
     setState(() {
-      publicRoomWidgetList = Room.getPublicRoomWidgets();
+      publicRoomWidgetList = Room.getPublicRoomWidgets(reloadData);
     });
   }
 

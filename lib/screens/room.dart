@@ -5,6 +5,7 @@ import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
 import 'package:SoundSphere/widgets/popup/popup_room_settings.dart';
+import 'package:SoundSphere/widgets/toast.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +24,13 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   late Room _room;
   late Future<Music?> _actualMusic;
-  late final AudioPlayer _audioPlayer = AudioPlayer();
-  late Music _music;
+  final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
   late final Future<AppUser> _host;
-  bool _isPlaying  = false;
+  late PlayerState _playerState;
   Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
+  late String _lastAction;
 
 
   @override
@@ -37,13 +38,39 @@ class _RoomPage extends State<RoomPage> {
     super.initState();
 
     _room = widget.room;
+    _lastAction = _room.action;
+    _playerState = _audioPlayer.state;
 
     // permet de mettre à jour la room selon les intéractions d'autres utilisateurs
     _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
        if (event.data() != null) {
          Room newRoom = event.data()!;
-         if (newRoom.actualMusic["last_updater"].toString() == FirebaseAuth.instance.currentUser!.uid) {
+         if (_lastAction == newRoom.action) {
+           if (_room.members.length != newRoom.members.length) {
+             // Si l'action n'a pas bouger alors possible join ou leave d'un user
+             // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
+             ToastUtil.showInfoToast(context, "A user has join or leave");
+           }
            return;
+         }
+         _lastAction = newRoom.action;
+         switch (_lastAction) {
+           case "":
+             return;
+           case "play":
+             _play(null);
+           case "pause":
+             _pause();
+           case "next_music":
+             _pause();
+           case "restart_music":
+             _pause();
+           case "change_position":
+             _pause();
+           case "add_music":
+             _pause();
+           case "remove_music":
+             _pause();
          }
        }
      }, onError: (error) => print("Listen failed: $error"));
@@ -54,7 +81,7 @@ class _RoomPage extends State<RoomPage> {
     _audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
         _duration = duration;
-        reloadMusic();
+        _actualMusic = Music.getActualMusic(_room);
       });
     });
 
@@ -67,35 +94,29 @@ class _RoomPage extends State<RoomPage> {
 
     // Event quand la musique est mis en pause ou resume etc...
     _audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
-      setState(() {
-        if (playerState == PlayerState.playing) {
-          _isPlaying = true;
-        } else {
-          _isPlaying = false;
-        }
-      });
+      if (mounted) {
+        setState(() => _playerState = playerState);
+      }
     });
 
     // Event quand la musique se termine (hors pause ou stop par user)
     _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() {
-        _isPlaying = false;
-        _position = const Duration(seconds: 0);
-        _room.nextMusic(_audioPlayer);
-      });
+      if (mounted) {
+        setState(() {
+          _position = const Duration(seconds: 0);
+          _room.nextMusic(_audioPlayer);
+        });
+      }
     });
   }
 
+  // La page se ferme donc on fait leave l'utilisateur de la room
   @override
   void dispose() {
-    _roomStream.cancel();
     super.dispose();
-  }
-
-  void reloadMusic() {
-    setState(() {
-      _actualMusic = Music.getActualMusic(_room);
-    });
+    _audioPlayer.dispose();
+    _roomStream.cancel();
+    _room.removeMember(FirebaseAuth.instance.currentUser!.uid);
   }
 
   void _pause() {
@@ -103,20 +124,15 @@ class _RoomPage extends State<RoomPage> {
   }
 
   void _play(Music? music) {
-    print(_audioPlayer.state);
-    if (_audioPlayer.state == PlayerState.stopped) {
+    if ([PlayerState.stopped, PlayerState.completed].contains(_playerState)) {
       if (music != null) {
         _audioPlayer.play(UrlSource(music.url));
+      } else {
+        print("no music to play");
       }
     } else {
       _audioPlayer.resume();
     }
-  }
-
-  void leaveRoom() {
-    _audioPlayer.dispose();
-    _room.removeMember(FirebaseAuth.instance.currentUser!.uid);
-    Navigator.pop(context);
   }
 
   Future openPopupSettings() => showDialog(
@@ -130,7 +146,7 @@ class _RoomPage extends State<RoomPage> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
-        leading: BackButton(onPressed: () => leaveRoom(),),
+        leading: BackButton(onPressed: () => Navigator.pop(context),),
         title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
@@ -230,8 +246,14 @@ class _RoomPage extends State<RoomPage> {
                           radius: 27,
                           child: IconButton(
                             iconSize: 27,
-                            icon: Icon(_isPlaying ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
-                            onPressed: _isPlaying ? () => _pause() : () => _play(_music),
+                            icon: Icon(_playerState == PlayerState.playing ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
+                            onPressed: _playerState == PlayerState.playing ? () {
+                              _room.action = "pause";
+                              Room.collectionRef.doc(_room.id).set(_room);
+                            } : () {
+                              _room.action = "play";
+                              Room.collectionRef.doc(_room.id).set(_room);
+                            },
                           ),
                         ),
                         IconButton(
