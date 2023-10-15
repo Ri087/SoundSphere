@@ -60,28 +60,29 @@ class _RoomPage extends State<RoomPage> {
            case "":
              break;
            case "user_join":
-            if (_room.members.length != newRoom.members.length) {
-              // Si l'action n'a pas bouger alors possible join ou leave d'un user
-              // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
-              ToastUtil.showInfoToast(context, "A user has join");
-            }
+             // Si l'action n'a pas bouger alors possible join ou leave d'un user
+             // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
+             ToastUtil.showInfoToast(context, "A user has join");
+            break;
            case "user_leave":
-             if (_room.members.length != newRoom.members.length) {
-               // Si l'action n'a pas bouger alors possible join ou leave d'un user
-               // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
-               ToastUtil.showInfoToast(context, "A user has leave");
-             }
+             ToastUtil.showInfoToast(context, "A user has leave");
+             break;
            case "play":
              _play(null);
+             break;
            case "pause":
              _pause();
+             break;
            case "next_music":
              _room.nextMusic(_audioPlayer);
+             break;
            case "restart_music":
              _audioPlayer.seek(const Duration(seconds: 0));
+             break;
            case "changed_position":
              _isPositionChanged = false;
              _audioPlayer.seek(Duration(seconds: _room.actualMusic["position"] as int));
+             break;
            case "add_music":
              if (_room.actualMusic["id"].toString().isEmpty) {
                if (_room.musicQueue.isNotEmpty && _isUpdater) {
@@ -92,9 +93,10 @@ class _RoomPage extends State<RoomPage> {
                  Room.collectionRef.doc(_room.id).set(_room);
                }
              }
+             break;
            case "remove_music":
-             print("remove_music");
              //TODO
+             break;
          }
        }
      }, onError: (error) => print("Listen failed: $error"));
