@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/room.dart';
 import '../../screens/room.dart';
+import '../toast.dart';
 
 class PopupCreateSphere extends StatefulWidget {
   const PopupCreateSphere({super.key});
@@ -18,6 +20,18 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
 
   @override
   Widget build(BuildContext context) {
+
+    Future<void> navigateToRoom(Room room) async {
+      final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
+      if (hasJoined && mounted) {
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) => RoomPage(room: room,)));
+      } else if (mounted) {
+        ToastUtil.showErrorToast(context, "Error: Connection error");
+      }
+    }
+
     return AlertDialog(
       scrollable: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7),),
@@ -130,12 +144,9 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: TextButton(
-                onPressed: () {
-                  Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers).then((value) {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => RoomPage(room: value,)));
-                  });
+                onPressed: () async {
+                  final Room room = await Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
+                  navigateToRoom(room);
                 },
                 style: ButtonStyle(
                   fixedSize: MaterialStateProperty.resolveWith(

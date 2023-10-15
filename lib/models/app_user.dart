@@ -48,6 +48,7 @@ class AppUser {
   }
 
   static Future<bool> userExist(String email) async {
+    // check si connecté à internet
     bool connectedToInternet = false;
     try {
       DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();

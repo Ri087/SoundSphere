@@ -9,26 +9,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Room {
-  final String? id;
-  final String code;
+  final String id;
   final String title;
   final String? description;
   final String host;
   final int maxMembers;
   final List<dynamic> members;
   final bool isPrivate;
-  String? actualMusic;
+  Map<String, dynamic> actualMusic;
   final List<dynamic> musicQueue;
 
   static CollectionReference<Room> collectionRef = AppFirebase.db.collection("rooms")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);
 
-  Room({this.id, required this.code, required this.host, required this.musicQueue, this.actualMusic, required this.title, this.description, required this.maxMembers, required this.members, required this.isPrivate});
+  Room({required this.id, required this.host, required this.musicQueue, required this.actualMusic, required this.title, this.description, required this.maxMembers, required this.members, required this.isPrivate});
 
   Future<bool> nextMusic(AudioPlayer player) async {
     if (musicQueue.isNotEmpty) {
-      actualMusic = musicQueue.first;
+      actualMusic["id"] = musicQueue.first;
       musicQueue.removeAt(0);
       Music? music = await Music.getActualMusic(this);
       await collectionRef.doc(id).set(this);
@@ -43,8 +42,8 @@ class Room {
 
   Future<bool> addMusic(Music musicToAdd, AudioPlayer audioPlayer) async {
     bool playMusic = false;
-    if (musicQueue.isEmpty && actualMusic!.isEmpty) {
-      actualMusic = musicToAdd.id;
+    if (musicQueue.isEmpty && actualMusic["id"].toString().isEmpty) {
+      actualMusic["id"] = musicToAdd.id;
       playMusic = true;
     } else {
       musicQueue.add(musicToAdd.id);
@@ -64,6 +63,8 @@ class Room {
   static Future<List<Room>?> getPublicRooms() async {
     final snap = await collectionRef.where("is_private", isEqualTo: false).get();
     final rooms = snap.docs.map((e) => e.data()).toList();
+    // Trie desc du nombre de user dans une room
+    rooms.sort((previous, next) => next.members.length.compareTo(previous.members.length));
     return rooms;
   }
 
@@ -85,18 +86,31 @@ class Room {
   }
 
   static Future<Room> createSphere(String title, String description, bool isPrivate, int maxMembers) async {
-    String hostUid = FirebaseAuth.instance.currentUser!.uid;
-    final room = Room(code: "S-${AppUtilities.getRandomString(5)}", host: hostUid, musicQueue: [], actualMusic: "", description: description, title: title, isPrivate: isPrivate, members: [], maxMembers: maxMembers);
-    await collectionRef.doc().set(room);
+    String hostUID = FirebaseAuth.instance.currentUser!.uid;
+    final Room room = Room(
+        id: "S-${AppUtilities.getRandomString(5).toUpperCase()}",
+        host: hostUID,
+        musicQueue: [],
+        actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0, "last_updater": ""},
+        description: description,
+        title: title,
+        isPrivate: isPrivate,
+        members: [],
+        maxMembers: maxMembers
+    );
+    await collectionRef.doc(room.id).set(room);
     return room;
   }
 
   Future<bool> addMember(String uid) async {
-    if (members.length == maxMembers || members.contains(uid)) {
+    if (members.length == maxMembers) {
       return false;
     }
-    members.add(uid);
-    await collectionRef.doc(id).set(this);
+
+    if (!members.contains(uid)) {
+      members.add(uid);
+      await collectionRef.doc(id).set(this);
+    }
     return true;
   }
 
@@ -116,7 +130,6 @@ class Room {
     final data = snapshot.data();
     return Room(
       id: snapshot.id,
-      code: data?["code"],
       title: data?["title"],
       description: data?["description"],
       maxMembers: data?["max_members"],
@@ -130,7 +143,6 @@ class Room {
 
   Map<String, dynamic> toFirestore() {
     return {
-      "code": code,
       "title": title,
       if (description != null) "description": description,
       "max_members": maxMembers,

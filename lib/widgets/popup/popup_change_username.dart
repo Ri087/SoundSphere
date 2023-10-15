@@ -1,3 +1,4 @@
+import 'package:SoundSphere/models/app_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -49,10 +50,12 @@ class PopupChangeUsername extends StatelessWidget {
                   onPressed: () {
                     try {
                       FirebaseAuth.instance.currentUser!.updateDisplayName(newUsername.text).then((value) {
-                        ToastUtil.showSuccessToast(context, "Success: Username has been updated");
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                        newUsername.clear();
+                        AppUser.collectionRef.doc(FirebaseAuth.instance.currentUser!.uid).update({"display_name": newUsername.text}).then((value) {
+                          ToastUtil.showSuccessToast(context, "Success: Username has been updated");
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          newUsername.clear();
+                        });
                       });
                     } catch (_) {
                       ToastUtil.showErrorToast(context, "Error: An error has occurred");

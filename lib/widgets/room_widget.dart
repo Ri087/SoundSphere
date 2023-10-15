@@ -1,5 +1,6 @@
 import 'package:SoundSphere/screens/room.dart';
 import 'package:SoundSphere/utils/app_utilities.dart';
+import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,12 +19,6 @@ class RoomWidget extends StatefulWidget {
 class _RoomWidget extends State<RoomWidget> {
   late final Room room;
   late Future<Widget> musicRow;
-
-  Future<void> navigateToRoom(BuildContext context) async {
-    room.addMember(FirebaseAuth.instance.currentUser!.uid);
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) => RoomPage(room: room,)));
-  }
 
   Future<Widget> getMusicRow() async {
     Music? actualMusic = await Music.getActualMusic(room);
@@ -86,12 +81,23 @@ class _RoomWidget extends State<RoomWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    Future<void> navigateToRoom() async {
+      final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
+      if (hasJoined && mounted) {
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) => RoomPage(room: room,)));
+      } else if (mounted) {
+        ToastUtil.showErrorToast(context, "Error: Connection error");
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => navigateToRoom(context),
+          onTap: () => navigateToRoom(),
           child: Container(
             decoration: BoxDecoration(
                 color: const Color(0xFF02203A),
@@ -128,10 +134,8 @@ class _RoomWidget extends State<RoomWidget> {
                               Widget row;
                               if (snapshot.hasData) {
                                 row = snapshot.data!;
-                              } else if (snapshot.hasError) {
-                                row = const Text('Error loading music');
                               } else {
-                                row = const Text('Load music...');
+                                row = snapshot.hasError ? const Text('Error loading music') : const Text('Load music...');
                               }
                               return row;
                             }
@@ -143,7 +147,7 @@ class _RoomWidget extends State<RoomWidget> {
                             Text(room.members.length.toString()),
                             const Icon(Icons.person_rounded, size: 16),
                             const Text(" - "),
-                            Icon(room.isPrivate ? Icons.public_off : Icons.public, size: 16,),
+                            Icon(room.isPrivate ? Icons.lock : Icons.lock_open, size: 16,),
                           ],
                         )
                       ],

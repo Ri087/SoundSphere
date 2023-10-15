@@ -51,118 +51,127 @@ class _Home extends State<Home> {
   @override
   Widget build(BuildContext context) {
     _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom;
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 10,
-        backgroundColor: const Color(0xFF02203A),
-        leading: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Image.asset("assets/images/image_transparent_fit.png"),
+    return GestureDetector(
+      onTap: () {
+        // Permet de unfocus les textfields quand on tap en dehors du clavier
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 10,
+          backgroundColor: const Color(0xFF02203A),
+          leading: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Image.asset("assets/images/image_transparent_fit.png"),
+          ),
+          title: const Text("SoundSphere", style: TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
+          actions: [
+            IconButton(
+              onPressed: () {openPopupProfile(context);},
+              icon: const Icon(Icons.person_rounded,),
+            )
+          ],
         ),
-        title: const Text("SoundSphere", style: TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
-        actions: [
-          IconButton(
-            onPressed: () {openPopupProfile(context);},
-            icon: const Icon(Icons.person_rounded,),
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: 45,
-                child: TextField(
-                  onTap: () {
-                    setState(() {
-                      _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 140 - MediaQuery.of(context).viewInsets.bottom;
-                    });
-                  },
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Search a sphere',
-                    filled: true,
-                    fillColor: const Color(0xFF02203A),
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
-                    suffixIcon: Material(
-                      borderRadius: const BorderRadius.only(topRight: Radius.circular(7)),
-                      color: Colors.transparent,
-                      child: IconButton(
-                        onPressed: () {
-                        },
-                        icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: 45,
+                  child: TextField(
+                    onTap: () {
+                      setState(() {
+                        _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 140 - MediaQuery.of(context).viewInsets.bottom;
+                      });
+                    },
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Search a sphere',
+                      filled: true,
+                      fillColor: const Color(0xFF02203A),
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      suffixIcon: Material(
+                        borderRadius: const BorderRadius.only(topRight: Radius.circular(7)),
+                        color: Colors.transparent,
+                        child: IconButton(
+                          onPressed: () {
+                          },
+                          icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Column(
-                children: [
-                  RefreshIndicator(
-                    triggerMode: RefreshIndicatorTriggerMode.anywhere,
-                    backgroundColor: const Color(0xFF0EE6F1),
-                    color: Colors.white,
-                    onRefresh: () async {
-                      reloadData();
-                      Future.delayed(const Duration(milliseconds: 200));
-                    },
-                    child: FutureBuilder(
-                      future: publicRoomWidgetList,
-                      builder: (context, snapshot) {
-                        List<Widget> listItems;
-                        if (snapshot.hasData) {
-                          listItems = snapshot.data!;
-                        } else if (snapshot.hasError) {
-                          listItems = [Text("Result : ${snapshot.error}")];
-                        } else {
-                          listItems = [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
-                              child: const Center(
-                                child: SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Column(
+                  children: [
+                    RefreshIndicator(
+                      triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                      backgroundColor: const Color(0xFF0EE6F1),
+                      color: Colors.white,
+                      onRefresh: () async {
+                        reloadData();
+                        Future.delayed(const Duration(milliseconds: 200));
+                      },
+                      child: FutureBuilder(
+                        future: publicRoomWidgetList,
+                        builder: (context, snapshot) {
+                          List<Widget> listItems;
+                          if (snapshot.hasData) {
+                            listItems = snapshot.data!;
+                          } else if (snapshot.hasError) {
+                            listItems = [Text("Result : ${snapshot.error}")];
+                          } else {
+                            listItems = [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                                  ),
                                 ),
                               ),
+                            ];
+                          }
+                          return SizedBox(
+                            height: _widgetSize,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ListView.builder(
+                                itemCount: listItems.length,
+                                itemBuilder: (ctxt /*context*/, ind) {
+                                  return listItems[ind];
+                                },
+                              ),
                             ),
-                          ];
+                          );
                         }
-                        return SizedBox(
-                          height: _widgetSize,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListView.builder(
-                              itemCount: listItems.length,
-                              itemBuilder: (ctxt /*context*/, ind) {
-                                return listItems[ind];
-                              },
-                            ),
-                          ),
-                        );
-                      }
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          ],
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
-      ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {openPopUpCreateSphere(context);},
-        child: const Icon(Icons.add,),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => openPopUpCreateSphere(context),
+          child: const Icon(Icons.add,),
+        ),
       ),
     );
   }

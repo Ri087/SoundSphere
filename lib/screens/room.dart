@@ -1,4 +1,7 @@
 
+import 'dart:async';
+
+import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
 import 'package:SoundSphere/widgets/popup/popup_room_settings.dart';
@@ -18,13 +21,16 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPage extends State<RoomPage> {
-  late final Room _room;
+  late Room _room;
   late Future<Music?> _actualMusic;
   late final AudioPlayer _audioPlayer = AudioPlayer();
-  Music? _music;
+  late Music _music;
+  late final StreamSubscription _roomStream;
+  late final Future<AppUser> _host;
   bool _isPlaying  = false;
   Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
+
 
   @override
   void initState() {
@@ -32,7 +38,18 @@ class _RoomPage extends State<RoomPage> {
 
     _room = widget.room;
 
+    // permet de mettre à jour la room selon les intéractions d'autres utilisateurs
+    _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
+       if (event.data() != null) {
+         Room newRoom = event.data()!;
+         if (newRoom.actualMusic["last_updater"].toString() == FirebaseAuth.instance.currentUser!.uid) {
+           return;
+         }
+       }
+     }, onError: (error) => print("Listen failed: $error"));
+
     _actualMusic = Music.getActualMusic(_room);
+    _host = _room.getHost();
 
     _audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
@@ -71,6 +88,7 @@ class _RoomPage extends State<RoomPage> {
 
   @override
   void dispose() {
+    _roomStream.cancel();
     super.dispose();
   }
 
@@ -85,6 +103,7 @@ class _RoomPage extends State<RoomPage> {
   }
 
   void _play(Music? music) {
+    print(_audioPlayer.state);
     if (_audioPlayer.state == PlayerState.stopped) {
       if (music != null) {
         _audioPlayer.play(UrlSource(music.url));
@@ -118,47 +137,56 @@ class _RoomPage extends State<RoomPage> {
             onPressed: () {openPopupSettings();}, icon: const Icon(Icons.settings),)
         ],
       ),
-      body: FutureBuilder(
-        future: _actualMusic,
-        builder: (context, snapshot) {
-          String title = "No music in queue...", artists = "No music in queue...";
-          Widget cover = const Icon(Icons.music_note, size: 60);
-          Music? music;
-          if (snapshot.hasData) {
-            music = snapshot.data;
-            print(snapshot.toString());
-            if (music == null || music.url.isEmpty) {
-              title = "No music in queue...";
-              artists = "No music in queue...";
-            } else {
-              cover = Image.network(music.cover!);
-              title = music.title;
-              artists = music.artists!.join(", ");
-            }
-          } else if (snapshot.hasError) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Text("An error as occured : ${snapshot.error}")
-              ],
-            );
-          } else {
-            print(snapshot.toString());
-            title = "Loading music...";
-            artists = "Loading music...";
-          }
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: FutureBuilder(
+            future: _actualMusic,
+            builder: (context, snapshot) {
+              String title = "No music in queue...", artists = "No music in queue...";
+              Widget cover = const Icon(Icons.music_note, size: 60);
+              Music? music;
+              if (snapshot.hasData) {
+                music = snapshot.data;
+                if (music == null || music.url.isEmpty) {
+                  title = "No music in queue...";
+                  artists = "No music in queue...";
+                } else {
+                  cover = Image.network(music.cover!);
+                  title = music.title;
+                  artists = music.artists!.join(", ");
+                }
+              } else if (snapshot.hasError) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text("An error as occured : ${snapshot.error}")
+                  ],
+                );
+              } else {
+                title = "Loading music...";
+                artists = "Loading music...";
+              }
+              return Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 4.0),
-                    child: Text("Hosted by ", style: TextStyle(fontSize: 16),),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: FutureBuilder(
+                      future: _host,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Text("Hosted by ${snapshot.data!.displayName}", style: const TextStyle(fontSize: 16),);
+                        } else if (snapshot.hasError) {
+                          return const Text("Error loading host", style: TextStyle(fontSize: 16),);
+                        } else {
+                          return const Text("Loading host", style: TextStyle(fontSize: 16),);
+                        }
+                      },
+                    ),
                   ),
-                  Text("code: ${_room.code}"),
+                  Text("code: ${_room.id}"),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Container(
@@ -180,11 +208,7 @@ class _RoomPage extends State<RoomPage> {
                           min: 0,
                           max: _duration.inSeconds.toDouble(),
                           value: _position.inSeconds.toDouble(),
-                          onChanged: (value) {
-                            setState(() {
-                              _audioPlayer.seek(Duration(seconds: value.toInt()));
-                            });
-                          }
+                          onChanged: (value) => _audioPlayer.seek(Duration(seconds: value.toInt())),
                         ),
                       ),
                       Text(AppUtilities.formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
@@ -192,18 +216,14 @@ class _RoomPage extends State<RoomPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row( 
+                    child: Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         IconButton(
                           iconSize: 27,
                           icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
-                          onPressed: () {
-                            setState(() {
-                              _audioPlayer.seek(const Duration(seconds: 0));
-                            });
-                          },
+                          onPressed: () => _audioPlayer.seek(const Duration(seconds: 0)),
                         ),
                         CircleAvatar(
                           backgroundColor: const Color(0xFFFF86C9),
@@ -241,11 +261,12 @@ class _RoomPage extends State<RoomPage> {
                     ),
                   )
                 ],
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,

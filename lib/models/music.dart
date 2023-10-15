@@ -30,16 +30,11 @@ class Music {
     toFirestore: (Music music, _) => music.toFirestore(),);
 
   static Future<Music?> getActualMusic(Room room) async {
-    if (room.actualMusic!.isEmpty) {
+    if (room.actualMusic["id"].toString().isEmpty) {
       return null;
     }
-    final docSnap = await collectionRef.doc(room.actualMusic).get();
-    final music = docSnap.data();
-    if (music != null) {
-      return music;
-    } else {
-      return null;
-    }
+    final docSnap = await collectionRef.doc(room.actualMusic["id"]).get();
+    return docSnap.data();
   }
   
   static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room, AudioPlayer audioPlayer) async {
