@@ -47,13 +47,14 @@ class _RoomPage extends State<RoomPage> {
     _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
        if (event.data() != null) {
          Room newRoom = event.data()!;
-         if (_isFirstBuild) return;
+         if (_isFirstBuild) {
+          return;
+        }
 
-         _lastAction = newRoom.action;
+        _lastAction = newRoom.action;
          setState(() {
            _room = newRoom;
          });
-         print("pass");
 
          switch (_lastAction) {
            case "":
@@ -71,7 +72,6 @@ class _RoomPage extends State<RoomPage> {
                ToastUtil.showInfoToast(context, "A user has leave");
              }
            case "play":
-             print("play");
              _play(null);
            case "pause":
              _pause();
@@ -84,7 +84,13 @@ class _RoomPage extends State<RoomPage> {
              _audioPlayer.seek(Duration(seconds: _room.actualMusic["position"] as int));
            case "add_music":
              if (_room.actualMusic["id"].toString().isEmpty) {
-               _room.nextMusic(_audioPlayer);
+               if (_room.musicQueue.isNotEmpty && _isUpdater) {
+                 _room.action = "next_music";
+                 _room.actualMusic["position"] = 0;
+                 _room.actualMusic["id"] = _room.musicQueue.first;
+                 _room.musicQueue.removeAt(0);
+                 Room.collectionRef.doc(_room.id).set(_room);
+               }
              }
            case "remove_music":
              print("remove_music");
@@ -118,7 +124,7 @@ class _RoomPage extends State<RoomPage> {
         setState(() => _playerState = playerState);
       }
 
-      if (_isUpdater && (playerState != PlayerState.stopped)) {
+      if (_isUpdater && (_playerState != PlayerState.stopped)) {
         _isUpdater = false;
         _room.actualMusic["state"] = _playerState.toString();
         _room.actualMusic["position"] = _position.inSeconds;
