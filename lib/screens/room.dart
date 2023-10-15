@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:SoundSphere/models/app_user.dart';
@@ -24,6 +23,7 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   late Room _room;
   late Future<Music?> _actualMusic;
+  late Music? _music;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
   late final Future<AppUser> _host;
@@ -31,7 +31,9 @@ class _RoomPage extends State<RoomPage> {
   Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
   late String _lastAction;
-
+  bool _isPositionChanged = false;
+  bool _isUpdater = false;
+  bool _isFirstBuild = true;
 
   @override
   void initState() {
@@ -45,32 +47,48 @@ class _RoomPage extends State<RoomPage> {
     _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
        if (event.data() != null) {
          Room newRoom = event.data()!;
-         if (_lastAction == newRoom.action) {
-           if (_room.members.length != newRoom.members.length) {
-             // Si l'action n'a pas bouger alors possible join ou leave d'un user
-             // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
-             ToastUtil.showInfoToast(context, "A user has join or leave");
-           }
-           return;
-         }
+         if (_isFirstBuild) return;
+
          _lastAction = newRoom.action;
+         setState(() {
+           _room = newRoom;
+         });
+         print("pass");
+
          switch (_lastAction) {
            case "":
-             return;
+             break;
+           case "user_join":
+            if (_room.members.length != newRoom.members.length) {
+              // Si l'action n'a pas bouger alors possible join ou leave d'un user
+              // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
+              ToastUtil.showInfoToast(context, "A user has join");
+            }
+           case "user_leave":
+             if (_room.members.length != newRoom.members.length) {
+               // Si l'action n'a pas bouger alors possible join ou leave d'un user
+               // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
+               ToastUtil.showInfoToast(context, "A user has leave");
+             }
            case "play":
+             print("play");
              _play(null);
            case "pause":
              _pause();
            case "next_music":
-             _pause();
+             _room.nextMusic(_audioPlayer);
            case "restart_music":
-             _pause();
-           case "change_position":
-             _pause();
+             _audioPlayer.seek(const Duration(seconds: 0));
+           case "changed_position":
+             _isPositionChanged = false;
+             _audioPlayer.seek(Duration(seconds: _room.actualMusic["position"] as int));
            case "add_music":
-             _pause();
+             if (_room.actualMusic["id"].toString().isEmpty) {
+               _room.nextMusic(_audioPlayer);
+             }
            case "remove_music":
-             _pause();
+             print("remove_music");
+             //TODO
          }
        }
      }, onError: (error) => print("Listen failed: $error"));
@@ -87,9 +105,11 @@ class _RoomPage extends State<RoomPage> {
 
     // mise à jour progress bar
     _audioPlayer.onPositionChanged.listen((Duration duration) {
-      setState(() {
-        _position = duration;
-      });
+      if (_isPositionChanged == false) {
+        setState(() {
+          _position = duration;
+        });
+      }
     });
 
     // Event quand la musique est mis en pause ou resume etc...
@@ -97,15 +117,32 @@ class _RoomPage extends State<RoomPage> {
       if (mounted) {
         setState(() => _playerState = playerState);
       }
+
+      if (_isUpdater && (playerState != PlayerState.stopped)) {
+        _isUpdater = false;
+        _room.actualMusic["state"] = _playerState.toString();
+        _room.actualMusic["position"] = _position.inSeconds;
+        _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
+        Room.collectionRef.doc(_room.id).set(_room);
+      }
     });
 
     // Event quand la musique se termine (hors pause ou stop par user)
     _audioPlayer.onPlayerComplete.listen((_) {
-      if (mounted) {
-        setState(() {
-          _position = const Duration(seconds: 0);
-          _room.nextMusic(_audioPlayer);
-        });
+      setState(() {
+        _position = const Duration(seconds: 0);
+      });
+      if (_room.musicQueue.isNotEmpty) {
+        _room.actualMusic["position"] = 0;
+        _room.actualMusic["id"] = _room.musicQueue.first;
+        _room.musicQueue.removeAt(0);
+        _room.nextMusic(_audioPlayer);
+        // Seulement le host fait l'update pour éviter de skip plusieurs musiques
+        if (_room.host == FirebaseAuth.instance.currentUser!.uid) {
+          _room.action = "";
+          _isUpdater = true;
+          Room.collectionRef.doc(_room.id).set(_room);
+        }
       }
     });
   }
@@ -127,8 +164,8 @@ class _RoomPage extends State<RoomPage> {
     if ([PlayerState.stopped, PlayerState.completed].contains(_playerState)) {
       if (music != null) {
         _audioPlayer.play(UrlSource(music.url));
-      } else {
-        print("no music to play");
+      } else if(_room.actualMusic["state"] == PlayerState.paused.toString()){
+        _audioPlayer.resume();
       }
     } else {
       _audioPlayer.resume();
@@ -161,16 +198,30 @@ class _RoomPage extends State<RoomPage> {
             builder: (context, snapshot) {
               String title = "No music in queue...", artists = "No music in queue...";
               Widget cover = const Icon(Icons.music_note, size: 60);
-              Music? music;
               if (snapshot.hasData) {
-                music = snapshot.data;
-                if (music == null || music.url.isEmpty) {
+                _music = snapshot.data;
+                if (_music == null || _music!.url.isEmpty) {
                   title = "No music in queue...";
                   artists = "No music in queue...";
                 } else {
-                  cover = Image.network(music.cover!);
-                  title = music.title;
-                  artists = music.artists!.join(", ");
+                  cover = Image.network(_music!.cover!);
+                  title = _music!.title;
+                  artists = _music!.artists!.join(", ");
+
+                  // Permet de synchro l'utilisateur qui join la room
+                  if (_isFirstBuild) {
+                    _isFirstBuild = false;
+                    if (_music!.url.isNotEmpty) {
+                      _audioPlayer.setSourceUrl(_music!.url);
+                      Duration songPosition = Duration(seconds: _room.actualMusic["position"] as int);
+                      _audioPlayer.seek(songPosition);
+                      if (_room.actualMusic["state"] == PlayerState.playing.toString()) {
+                        songPosition = Duration(seconds: Duration(milliseconds: DateTime.now().millisecondsSinceEpoch - _room.actualMusic["timestamp"] as int).inSeconds + _room.actualMusic["position"] as int);
+                        _audioPlayer.seek(songPosition);
+                        _audioPlayer.resume();
+                      }
+                    }
+                  }
                 }
               } else if (snapshot.hasError) {
                 return Column(
@@ -224,7 +275,20 @@ class _RoomPage extends State<RoomPage> {
                           min: 0,
                           max: _duration.inSeconds.toDouble(),
                           value: _position.inSeconds.toDouble(),
-                          onChanged: (value) => _audioPlayer.seek(Duration(seconds: value.toInt())),
+                          onChangeStart: (value) {
+                            _isPositionChanged = true;
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              _position = Duration(seconds: value.toInt());
+                            });
+                          },
+                          onChangeEnd: (value) {
+                            _isUpdater = true;
+                            _room.action = "changed_position";
+                            _room.actualMusic["position"] = value.toInt();
+                            Room.collectionRef.doc(_room.id).set(_room);
+                          },
                         ),
                       ),
                       Text(AppUtilities.formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
@@ -239,7 +303,12 @@ class _RoomPage extends State<RoomPage> {
                         IconButton(
                           iconSize: 27,
                           icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
-                          onPressed: () => _audioPlayer.seek(const Duration(seconds: 0)),
+                          onPressed: () {
+                            _isUpdater = true;
+                            _room.actualMusic["position"] = 0;
+                            _room.action = "restart_music";
+                            Room.collectionRef.doc(_room.id).set(_room);
+                          },
                         ),
                         CircleAvatar(
                           backgroundColor: const Color(0xFFFF86C9),
@@ -248,9 +317,11 @@ class _RoomPage extends State<RoomPage> {
                             iconSize: 27,
                             icon: Icon(_playerState == PlayerState.playing ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
                             onPressed: _playerState == PlayerState.playing ? () {
+                              _isUpdater = true;
                               _room.action = "pause";
                               Room.collectionRef.doc(_room.id).set(_room);
                             } : () {
+                              _isUpdater = true;
                               _room.action = "play";
                               Room.collectionRef.doc(_room.id).set(_room);
                             },
@@ -260,7 +331,14 @@ class _RoomPage extends State<RoomPage> {
                           iconSize: 27,
                           icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
                           onPressed: () {
-                            _room.nextMusic(_audioPlayer);
+                            if (_room.musicQueue.isNotEmpty) {
+                              _isUpdater = true;
+                              _room.action = "next_music";
+                              _room.actualMusic["position"] = 0;
+                              _room.actualMusic["id"] = _room.musicQueue.first;
+                              _room.musicQueue.removeAt(0);
+                              Room.collectionRef.doc(_room.id).set(_room);
+                            }
                           },
                         )
                       ],
@@ -291,6 +369,7 @@ class _RoomPage extends State<RoomPage> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          _isUpdater = true;
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => SearchMusic(room: _room, audioPlayer: _audioPlayer,)));
         },

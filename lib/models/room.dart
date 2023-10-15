@@ -27,32 +27,22 @@ class Room {
   Room({required this.id, required this.host, required this.musicQueue, required this.actualMusic, required this.title, this.description, required this.maxMembers, required this.members, required this.isPrivate, required this.action});
 
   Future<bool> nextMusic(AudioPlayer player) async {
-    if (musicQueue.isNotEmpty) {
-      actualMusic["id"] = musicQueue.first;
-      musicQueue.removeAt(0);
-      Music? music = await Music.getActualMusic(this);
-      await collectionRef.doc(id).set(this);
-      if (player.state == PlayerState.playing) {
-        await player.stop();
-      }
-      await player.play(UrlSource(music!.url));
-      return true;
+    Music? music = await Music.getActualMusic(this);
+
+    if (player.state == PlayerState.playing) {
+      await player.stop();
     }
-    return false;
+
+    await player.setSourceUrl(music!.url);
+    await player.seek(const Duration(seconds: 0));
+    await player.resume();
+    return true;
   }
 
   Future<bool> addMusic(Music musicToAdd, AudioPlayer audioPlayer) async {
-    bool playMusic = false;
-    if (musicQueue.isEmpty && actualMusic["id"].toString().isEmpty) {
-      actualMusic["id"] = musicToAdd.id;
-      playMusic = true;
-    } else {
-      musicQueue.add(musicToAdd.id);
-    }
+    action = "add_music";
+    musicQueue.add(musicToAdd.id);
     await collectionRef.doc(id).set(this);
-    if (playMusic) {
-      await audioPlayer.play(UrlSource(musicToAdd.url));
-    }
     return true;
   }
 
@@ -110,6 +100,7 @@ class Room {
     }
 
     if (!members.contains(uid)) {
+      action = "user_join";
       members.add(uid);
       await collectionRef.doc(id).set(this);
     }
@@ -120,6 +111,7 @@ class Room {
     if (!members.contains(uid)) {
       return false;
     }
+    action = "user_leave";
     members.remove(uid);
     await collectionRef.doc(id).set(this);
     return true;
