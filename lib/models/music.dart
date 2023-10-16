@@ -1,4 +1,5 @@
 import 'package:SoundSphere/models/room.dart';
+import 'package:SoundSphere/widgets/music_queue_widget.dart';
 import 'package:SoundSphere/widgets/music_search_widget.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,12 +37,31 @@ class Music {
     final docSnap = await collectionRef.doc(room.actualMusic["id"]).get();
     return docSnap.data();
   }
+
+  static Future<List<Music?>?> getMusicQueue(Room room) async {
+    if (room.musicQueue.isEmpty) {
+      return null;
+    }
+    final docSnap = await collectionRef.where("id",whereIn: room.musicQueue).get();
+    final musics = docSnap.docs.map((e) {print(e.data().title) ; return e.data();} ).toList();
+    return musics;
+  }
   
   static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room, AudioPlayer audioPlayer) async {
     List<Widget> widgets = [];
     List<Music?> musics = await Music.getDbMusics(search);
     for (var music in musics) {
       widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer).getWidget(context));
+    }
+    return widgets;
+  }
+
+  static Future<List<Widget>> getMusicQueueWidgets(Room room) async {
+    List<Widget> widgets = [];
+    List<Music?>? musicQueue = await Music.getMusicQueue(room);
+    if(musicQueue == null) return [];
+    for (var music in musicQueue) {
+      widgets.add(MusicQueueWidget(music: music!));
     }
     return widgets;
   }
