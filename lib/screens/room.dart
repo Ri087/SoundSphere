@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
@@ -23,7 +22,9 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   late Room _room;
   late Future<Music?> _actualMusic;
+  late Future<List<Widget>> _queueWidgets;
   late Music? _music;
+  late List<Music?>? _nextMusic;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
   late final Future<AppUser> _host;
@@ -75,6 +76,9 @@ class _RoomPage extends State<RoomPage> {
              break;
            case "next_music":
              _room.nextMusic(_audioPlayer);
+             setState(() {
+               _queueWidgets = Music.getMusicQueueWidgets(_room);
+             });
              break;
            case "restart_music":
              _audioPlayer.seek(const Duration(seconds: 0));
@@ -95,13 +99,16 @@ class _RoomPage extends State<RoomPage> {
              }
              break;
            case "remove_music":
-             //TODO
+             /*setState(() {
+               _queueWidgets = Music.getMusicQueueWidgets(_room);
+             });*/
              break;
          }
        }
      }, onError: (error) => print("Listen failed: $error"));
 
     _actualMusic = Music.getActualMusic(_room);
+    _queueWidgets = Music.getMusicQueueWidgets(_room);
     _host = _room.getHost();
 
     _audioPlayer.onDurationChanged.listen((Duration duration) {
@@ -199,179 +206,212 @@ class _RoomPage extends State<RoomPage> {
         ],
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: FutureBuilder(
-            future: _actualMusic,
-            builder: (context, snapshot) {
-              String title = "No music in queue...", artists = "No music in queue...";
-              Widget cover = const Icon(Icons.music_note, size: 60);
-              if (snapshot.hasData) {
-                _music = snapshot.data;
-                if (_music == null || _music!.url.isEmpty) {
-                  title = "No music in queue...";
-                  artists = "No music in queue...";
-                } else {
-                  cover = Image.network(_music!.cover!);
-                  title = _music!.title;
-                  artists = _music!.artists!.join(", ");
+        child: Column(
+          children: [
+            // ==== Actual Music ====
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: FutureBuilder(
+                future: _actualMusic,
+                builder: (context, snapshot) {
+                  String title = "No music in queue...", artists = "No music in queue...";
+                  Widget cover = const Icon(Icons.music_note, size: 60);
+                  if (snapshot.hasData) {
+                    _music = snapshot.data;
+                    if (_music == null || _music!.url.isEmpty) {
+                      title = "No music in queue...";
+                      artists = "No music in queue...";
+                    } else {
+                      cover = Image.network(_music!.cover!);
+                      title = _music!.title;
+                      artists = _music!.artists!.join(", ");
 
-                  // Permet de synchro l'utilisateur qui join la room
-                  if (_isFirstBuild) {
-                    _isFirstBuild = false;
-                    if (_music!.url.isNotEmpty) {
-                      _audioPlayer.setSourceUrl(_music!.url);
-                      Duration songPosition = Duration(seconds: _room.actualMusic["position"] as int);
-                      _audioPlayer.seek(songPosition);
-                      if (_room.actualMusic["state"] == PlayerState.playing.toString()) {
-                        songPosition = Duration(seconds: Duration(milliseconds: DateTime.now().millisecondsSinceEpoch - _room.actualMusic["timestamp"] as int).inSeconds + _room.actualMusic["position"] as int);
-                        _audioPlayer.seek(songPosition);
-                        _audioPlayer.resume();
+                      // Permet de synchro l'utilisateur qui join la room
+                      if (_isFirstBuild) {
+                        _isFirstBuild = false;
+                        if (_music!.url.isNotEmpty) {
+                          _audioPlayer.setSourceUrl(_music!.url);
+                          Duration songPosition = Duration(seconds: _room.actualMusic["position"] as int);
+                          _audioPlayer.seek(songPosition);
+                          if (_room.actualMusic["state"] == PlayerState.playing.toString()) {
+                            songPosition = Duration(seconds: Duration(milliseconds: DateTime.now().millisecondsSinceEpoch - _room.actualMusic["timestamp"] as int).inSeconds + _room.actualMusic["position"] as int);
+                            _audioPlayer.seek(songPosition);
+                            _audioPlayer.resume();
+                          }
+                        }
                       }
                     }
+                  } else if (snapshot.hasError) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text("An error as occured : ${snapshot.error}")
+                      ],
+                    );
+                  } else {
+                    title = "Loading music...";
+                    artists = "Loading music...";
                   }
-                }
-              } else if (snapshot.hasError) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text("An error as occured : ${snapshot.error}")
-                  ],
-                );
-              } else {
-                title = "Loading music...";
-                artists = "Loading music...";
-              }
-              return Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: FutureBuilder(
-                      future: _host,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Text("Hosted by ${snapshot.data!.displayName}", style: const TextStyle(fontSize: 16),);
-                        } else if (snapshot.hasError) {
-                          return const Text("Error loading host", style: TextStyle(fontSize: 16),);
-                        } else {
-                          return const Text("Loading host", style: TextStyle(fontSize: 16),);
-                        }
-                      },
-                    ),
-                  ),
-                  Text("code: ${_room.id}"),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Container(
-                      height: 180, width: 180,
-                      decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                      child: cover),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text(title, style: const TextStyle(fontSize: 22), ),
-                  ),
-                  Text(artists),
-                  Row(
+                  return Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(AppUtilities.formatedTime(timeInSecond: _position.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
-                      Expanded(
-                        child: Slider(
-                          min: 0,
-                          max: _duration.inSeconds.toDouble(),
-                          value: _position.inSeconds.toDouble(),
-                          onChangeStart: (value) {
-                            _isPositionChanged = true;
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              _position = Duration(seconds: value.toInt());
-                            });
-                          },
-                          onChangeEnd: (value) {
-                            _isUpdater = true;
-                            _room.action = "changed_position";
-                            _room.actualMusic["position"] = value.toInt();
-                            Room.collectionRef.doc(_room.id).set(_room);
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: FutureBuilder(
+                          future: _host,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text("Hosted by ${snapshot.data!.displayName}", style: const TextStyle(fontSize: 16),);
+                            } else if (snapshot.hasError) {
+                              return const Text("Error loading host", style: TextStyle(fontSize: 16),);
+                            } else {
+                              return const Text("Loading host", style: TextStyle(fontSize: 16),);
+                            }
                           },
                         ),
                       ),
-                      Text(AppUtilities.formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        IconButton(
-                          iconSize: 27,
-                          icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
-                          onPressed: () {
-                            _isUpdater = true;
-                            _room.actualMusic["position"] = 0;
-                            _room.action = "restart_music";
-                            Room.collectionRef.doc(_room.id).set(_room);
-                          },
+                      Text("code: ${_room.id}"),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Container(
+                          height: 180, width: 180,
+                          decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
+                          child: cover),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Text(title, style: const TextStyle(fontSize: 22), ),
+                      ),
+                      Text(artists),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Text(AppUtilities.formatedTime(timeInSecond: _position.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
+                          Expanded(
+                            child: Slider(
+                              min: 0,
+                              max: _duration.inSeconds.toDouble(),
+                              value: _position.inSeconds.toDouble(),
+                              onChangeStart: (value) {
+                                _isPositionChanged = true;
+                              },
+                              onChanged: (value) {
+                                setState(() {
+                                  _position = Duration(seconds: value.toInt());
+                                });
+                              },
+                              onChangeEnd: (value) {
+                                _isUpdater = true;
+                                _room.action = "changed_position";
+                                _room.actualMusic["position"] = value.toInt();
+                                Room.collectionRef.doc(_room.id).set(_room);
+                              },
+                            ),
+                          ),
+                          Text(AppUtilities.formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            IconButton(
+                              iconSize: 27,
+                              icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
+                              onPressed: () {
+                                _isUpdater = true;
+                                _room.actualMusic["position"] = 0;
+                                _room.action = "restart_music";
+                                Room.collectionRef.doc(_room.id).set(_room);
+                              },
+                            ),
+                            CircleAvatar(
+                              backgroundColor: const Color(0xFFFF86C9),
+                              radius: 27,
+                              child: IconButton(
+                                iconSize: 27,
+                                icon: Icon(_playerState == PlayerState.playing ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
+                                onPressed: _playerState == PlayerState.playing ? () {
+                                  _isUpdater = true;
+                                  _room.action = "pause";
+                                  Room.collectionRef.doc(_room.id).set(_room);
+                                } : () {
+                                  _isUpdater = true;
+                                  _room.action = "play";
+                                  Room.collectionRef.doc(_room.id).set(_room);
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              iconSize: 27,
+                              icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
+                              onPressed: () {
+                                if (_room.musicQueue.isNotEmpty) {
+                                  _isUpdater = true;
+                                  _room.action = "next_music";
+                                  _room.actualMusic["position"] = 0;
+                                  _room.actualMusic["id"] = _room.musicQueue.first;
+                                  _room.musicQueue.removeAt(0);
+                                  Room.collectionRef.doc(_room.id).set(_room);
+                                }
+                              },
+                            )
+                          ],
                         ),
-                        CircleAvatar(
-                          backgroundColor: const Color(0xFFFF86C9),
-                          radius: 27,
-                          child: IconButton(
-                            iconSize: 27,
-                            icon: Icon(_playerState == PlayerState.playing ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
-                            onPressed: _playerState == PlayerState.playing ? () {
-                              _isUpdater = true;
-                              _room.action = "pause";
-                              Room.collectionRef.doc(_room.id).set(_room);
-                            } : () {
-                              _isUpdater = true;
-                              _room.action = "play";
-                              Room.collectionRef.doc(_room.id).set(_room);
-                            },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Text("Music queue",),
+            ),
+            // ==== Queue ====
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: FutureBuilder(
+                  future:  _queueWidgets,
+                  builder: (context, snapshot) {
+                    List<Widget> listItems;
+                    if (snapshot.hasData) {
+                      listItems = snapshot.data!;
+                    } else if (snapshot.hasError) {
+                      listItems = [Text("Result : ${snapshot.error}")];
+                    } else {
+                      listItems = [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
+                          child: const Center(
+                            child: SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                            ),
                           ),
                         ),
-                        IconButton(
-                          iconSize: 27,
-                          icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
-                          onPressed: () {
-                            if (_room.musicQueue.isNotEmpty) {
-                              _isUpdater = true;
-                              _room.action = "next_music";
-                              _room.actualMusic["position"] = 0;
-                              _room.actualMusic["id"] = _room.musicQueue.first;
-                              _room.musicQueue.removeAt(0);
-                              Room.collectionRef.doc(_room.id).set(_room);
-                            }
+                      ];
+                    }
+                    return SizedBox(
+                      height: 250,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                          itemCount: listItems.length,
+                          itemBuilder: (ctxt /*context*/, ind) {
+                            return listItems[ind];
                           },
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFF0EE6F1), width: 2))),
-                          child: const Padding(
-                            padding: EdgeInsets.only(bottom: 8.0),
-                            child: Text("Music queue",),
-                          )
                         ),
-                      ],
-                    ),
-                  )
-                ],
-              );
-            },
-          ),
+                      ),
+                    );
+                  }
+              ),
+            ),
+          ],
         ),
       ),
 
