@@ -30,12 +30,26 @@ class Music {
     fromFirestore: Music.fromFirestore,
     toFirestore: (Music music, _) => music.toFirestore(),);
 
-  static Future<List<Music?>?> getMusicQueue(Room room) async {
+  static Future<Map<String, Music?>?> getMusicQueue(Room room) async {
     if (room.musicQueue.isEmpty) {
       return null;
     }
     final docSnap = await collectionRef.where("id",whereIn: room.musicQueue).get();
-    return docSnap.docs.map((e) => e.data()).toList();
+    Map<String, Music?> returnMap = {};
+    for (var doc in docSnap.docs) {
+      returnMap[doc.data().id!] = doc.data();
+    }
+    return returnMap;
+  }
+
+  static Future<List<Widget>> getMusicQueueWidgets(Room room) async {
+    List<Widget> widgets = [];
+    Map<String, Music?>? musicQueue = await Music.getMusicQueue(room);
+    if (musicQueue == null) return [];
+    for (var musicID in room.musicQueue) {
+      widgets.add(MusicQueueWidget(music: musicQueue[musicID]!));
+    }
+    return widgets;
   }
   
   static Future<List<Widget>> getMusicsSearchWidgets(String search, Room room, AudioPlayer audioPlayer) async {
@@ -43,16 +57,6 @@ class Music {
     List<Music?> musics = await Music.getDbMusics(search);
     for (var music in musics) {
       widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer));
-    }
-    return widgets;
-  }
-
-  static Future<List<Widget>> getMusicQueueWidgets(Room room) async {
-    List<Widget> widgets = [];
-    List<Music?>? musicQueue = await Music.getMusicQueue(room);
-    if (musicQueue == null) return [];
-    for (var music in musicQueue) {
-      widgets.add(MusicQueueWidget(music: music!));
     }
     return widgets;
   }

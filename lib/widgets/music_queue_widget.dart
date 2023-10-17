@@ -20,14 +20,12 @@ class MusicQueueWidget extends StatelessWidget {
            child: Image.network(music.cover!)),
          Padding(
            padding: const EdgeInsets.only(left:12),
-           child: Expanded(
-             child: Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 Text(music.title, style: const TextStyle(fontSize: 22), textAlign: TextAlign.left, maxLines: 1),
-                 Text(music.artists!.join(", "), style: const TextStyle(fontSize: 16), textAlign: TextAlign.left, maxLines: 1),
-               ],
-             ),
+           child: Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Text(music.title, style: const TextStyle(fontSize: 22), textAlign: TextAlign.left, maxLines: 1),
+               Text(music.artists!.join(", "), style: const TextStyle(fontSize: 16), textAlign: TextAlign.left, maxLines: 1),
+             ],
            ),
          ),
        ],

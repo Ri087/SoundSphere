@@ -35,7 +35,6 @@ class Room {
     this.updater = "",
   });
 
-
   static CollectionReference<Room> collectionRef = AppFirebase.db.collection("rooms")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);

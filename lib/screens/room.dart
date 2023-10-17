@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
-import 'package:SoundSphere/widgets/app_button_widget.dart';
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
@@ -31,7 +29,6 @@ class _RoomPage extends State<RoomPage> {
   late PlayerState _playerState;
   Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
-  late String _lastAction;
   bool _isPositionChanged = false;
   bool _isUpdater = false;
   bool _isFirstBuild = true;
@@ -41,7 +38,6 @@ class _RoomPage extends State<RoomPage> {
     super.initState();
 
     _room = widget.room;
-    _lastAction = _room.action;
     _playerState = _audioPlayer.state;
 
     // Async
@@ -54,44 +50,45 @@ class _RoomPage extends State<RoomPage> {
        if (event.data() != null) {
          Room newRoom = event.data()!;
 
-        _lastAction = newRoom.action;
         if (mounted) setState(() => _room = newRoom);
 
-         switch (_lastAction) {
+        if (_isFirstBuild) return;
+
+         switch (newRoom.action) {
            case "":
              break;
            case "user_join":
-             if (mounted) ToastUtil.showInfoToast(context, "${_room.updater} joined");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} joined");
              break;
            case "user_leave":
-             if (mounted) ToastUtil.showInfoToast(context, "${_room.updater} leaved");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} leaved");
              break;
            case "play":
-             ToastUtil.showInfoToast(context, "${_room.updater} played the music");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} played the music");
              _play(null);
              break;
            case "pause":
-             ToastUtil.showInfoToast(context, "${_room.updater} paused the music");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} paused the music");
              _pause();
              break;
            case "next_music":
-             ToastUtil.showInfoToast(context, "${_room.updater} restart the music");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} skip the music");
              _room.nextMusic(_audioPlayer);
              setState(() {
                _queueWidgets = Music.getMusicQueueWidgets(_room);
              });
              break;
            case "restart_music":
-             ToastUtil.showInfoToast(context, "${_room.updater} restart the music");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} restart the music");
              _audioPlayer.seek(const Duration(seconds: 0));
              break;
            case "changed_position":
-             ToastUtil.showInfoToast(context, "${_room.updater} changed music position");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} changed music position");
              _isPositionChanged = false;
              _audioPlayer.seek(Duration(seconds: _room.actualMusic["position"] as int));
              break;
            case "add_music":
-             ToastUtil.showInfoToast(context, "${_room.updater} add music in queue");
+             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} add music in queue");
              if (_room.actualMusic["id"].toString().isEmpty) {
                if (_room.musicQueue.isNotEmpty && _isUpdater) {
                  _room.action = "next_music";
@@ -101,6 +98,9 @@ class _RoomPage extends State<RoomPage> {
                  _room.update();
                }
              }
+             setState(() {
+               _queueWidgets = Music.getMusicQueueWidgets(_room);
+             });
              break;
            case "remove_music":
              /*setState(() {
@@ -121,9 +121,7 @@ class _RoomPage extends State<RoomPage> {
     // mise à jour progress bar
     _audioPlayer.onPositionChanged.listen((Duration duration) {
       if (_isPositionChanged == false) {
-        setState(() {
-          _position = duration;
-        });
+        setState(() => _position = duration);
       }
     });
 
@@ -350,6 +348,8 @@ class _RoomPage extends State<RoomPage> {
                                   _room.actualMusic["id"] = _room.musicQueue.first;
                                   _room.musicQueue.removeAt(0);
                                   _room.update();
+                                } else {
+                                  if (mounted && !_isUpdater) ToastUtil.showErrorToast(context, "Music queue empty");
                                 }
                               },
                             )

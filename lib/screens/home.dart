@@ -66,6 +66,7 @@ class _Home extends State<Home> {
           title: const Text("SoundSphere", style: TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
           actions: [
             IconButton(
+              splashRadius: 0.1,
               onPressed: () => openPopupProfile(context),
               icon: const Icon(Icons.person_rounded,),
             )
@@ -118,7 +119,6 @@ class _Home extends State<Home> {
                       color: Colors.white,
                       onRefresh: () async {
                         reloadData();
-                        Future.delayed(const Duration(milliseconds: 200));
                       },
                       child: FutureBuilder(
                         future: publicRoomWidgetList,

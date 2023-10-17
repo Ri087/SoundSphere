@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:SoundSphere/screens/room.dart';
 import 'package:SoundSphere/utils/app_utilities.dart';
 import 'package:SoundSphere/widgets/toast.dart';
@@ -18,15 +20,42 @@ class RoomWidget extends StatefulWidget {
 }
 
 class _RoomWidget extends State<RoomWidget> {
-  late final Room _room;
-  late final void Function() _onReturn;
+  late Room _room;
+  late void Function() _onReturn;
   late Future<Music?> music;
+  late final StreamSubscription _roomStream;
+  late String _lastActualMusic;
 
   @override
   void initState() {
     super.initState();
     _room = widget.room;
     _onReturn = widget.onReturn;
+    _lastActualMusic = _room.actualMusic["id"];
+    music = _room.getMusic();
+
+    _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
+      if (event.data() != null) {
+        Room newRoom = event.data()!;
+
+        if (_lastActualMusic == newRoom.actualMusic["id"].toString()) {
+          _lastActualMusic = newRoom.actualMusic["id"].toString();
+          if (mounted) setState(() => music = _room.getMusic());
+        }
+        if (mounted) setState(() => _room = newRoom);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _roomStream.cancel();
+  }
+
+  @override
+  void didUpdateWidget(covariant RoomWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
     music = _room.getMusic();
   }
 
@@ -40,7 +69,6 @@ class _RoomWidget extends State<RoomWidget> {
           Navigator.push(context, MaterialPageRoute(
               builder: (context) => RoomPage(room: _room,))).whenComplete(() {
             _onReturn();
-            setState(() => music = _room.getMusic());
           });
         } else if (mounted) {
           ToastUtil.showErrorToast(context, "Error: Connection error");
