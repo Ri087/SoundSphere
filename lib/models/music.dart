@@ -1,4 +1,5 @@
 import 'package:SoundSphere/models/room.dart';
+import 'package:SoundSphere/widgets/music_queue_widget.dart';
 import 'package:SoundSphere/widgets/music_search_widget.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +17,7 @@ class Music {
   final String? cover;
 
   Music({
-    required this.id,
+    this.id,
     required this.url,
     required this.duration,
     required this.artists,
@@ -29,32 +30,40 @@ class Music {
     fromFirestore: Music.fromFirestore,
     toFirestore: (Music music, _) => music.toFirestore(),);
 
-  static Future<Music?> getActualMusic(Room room) async {
-    if (room.actualMusic!.isEmpty) {
+  static Future<Map<String, Music?>?> getMusicQueue(Room room) async {
+    if (room.musicQueue.isEmpty) {
       return null;
     }
-    final docSnap = await collectionRef.doc(room.actualMusic).get();
-    final music = docSnap.data();
-    if (music != null) {
-      return music;
-    } else {
-      return null;
+    final docSnap = await collectionRef.where("id",whereIn: room.musicQueue).get();
+    Map<String, Music?> returnMap = {};
+    for (var doc in docSnap.docs) {
+      returnMap[doc.data().id!] = doc.data();
     }
+    return returnMap;
+  }
+
+  static Future<List<Widget>> getMusicQueueWidgets(Room room) async {
+    List<Widget> widgets = [];
+    Map<String, Music?>? musicQueue = await Music.getMusicQueue(room);
+    if (musicQueue == null) return [];
+    for (var musicID in room.musicQueue) {
+      widgets.add(MusicQueueWidget(music: musicQueue[musicID]!));
+    }
+    return widgets;
   }
   
-  static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room, AudioPlayer audioPlayer) async {
+  static Future<List<Widget>> getMusicsSearchWidgets(String search, Room room, AudioPlayer audioPlayer) async {
     List<Widget> widgets = [];
     List<Music?> musics = await Music.getDbMusics(search);
     for (var music in musics) {
-      widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer).getWidget(context));
+      widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer));
     }
     return widgets;
   }
   
   static Future<List<Music?>> getDbMusics(String search) async {
     final snap = await collectionRef.get();
-    final musics = snap.docs.map((e) {Music data = e.data(); if (data.title.startsWith(search)) return data;}).toList();
-    return musics;
+    return snap.docs.map((e) {Music data = e.data(); if (data.title.startsWith(search)) return data;}).toList();
   }
 
   factory Music.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot, SnapshotOptions? options,) {

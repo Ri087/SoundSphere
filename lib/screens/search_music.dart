@@ -25,7 +25,7 @@ class _SearchMusic extends State<SearchMusic> {
     super.initState();
     room = widget.room;
     audioPlayer = widget.audioPlayer;
-    searchMusicWidgets = Music.getMusicsSearchWidgets(context, "", room, audioPlayer);
+    searchMusicWidgets = Music.getMusicsSearchWidgets("", room, audioPlayer);
   }
 
   void leavePage() {
@@ -43,7 +43,7 @@ class _SearchMusic extends State<SearchMusic> {
           style: const TextStyle(fontSize: 16),
           onChanged: (value) {
             setState(() {
-              searchMusicWidgets = Music.getMusicsSearchWidgets(context, searchController.value.toString(), room, audioPlayer);
+              searchMusicWidgets = Music.getMusicsSearchWidgets(searchController.value.toString(), room, audioPlayer);
             });
           },
           decoration: InputDecoration(
@@ -94,7 +94,7 @@ class _SearchMusic extends State<SearchMusic> {
               padding: const EdgeInsets.all(8.0),
               child: ListView.builder(
                 itemCount: musicsWidgets.length,
-                itemBuilder: (ctxt /*context*/, ind) {
+                itemBuilder: (ctxt, ind) {
                   return musicsWidgets[ind];
                 },
               ),

@@ -130,8 +130,8 @@ class _RegisterPassword extends State<RegisterPassword> {
                       } else {
                         ToastUtil.showErrorToast(context, "Error: Passwords don't match !");
                       }
-                      return true;
-                  })
+                    },
+                  )
                 ),
               ],
             ),

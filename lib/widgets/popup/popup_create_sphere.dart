@@ -1,7 +1,10 @@
+import 'package:SoundSphere/widgets/app_button_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/room.dart';
 import '../../screens/room.dart';
+import '../toast.dart';
 
 class PopupCreateSphere extends StatefulWidget {
   const PopupCreateSphere({super.key});
@@ -18,6 +21,18 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
 
   @override
   Widget build(BuildContext context) {
+
+    Future<void> navigateToRoom(Room room) async {
+      final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
+      if (hasJoined && mounted) {
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) => RoomPage(room: room,)));
+      } else if (mounted) {
+        ToastUtil.showErrorToast(context, "Error: Connection error");
+      }
+    }
+
     return AlertDialog(
       scrollable: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7),),
@@ -129,37 +144,14 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 20),
-              child: TextButton(
-                onPressed: () {
-                  Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers).then((value) {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => RoomPage(room: value,)));
-                  });
+              child: AppButtonWidget(
+                onPressed: () async {
+                  final Room room = await Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
+                  navigateToRoom(room);
                 },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.resolveWith(
-                          (states) => const Size(350, 50)),
-                  backgroundColor: MaterialStateProperty.resolveWith(
-                          (states) => const Color.fromARGB(255, 14, 230, 241)),
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7),
-                      side: const BorderSide(width: 2.0),
-                    ),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("CREATE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5),
-                      child: Icon(Icons.add, color: Colors.white, size: 25,),
-                    )
-                  ],
-                ),
-              ),
+                buttonText: 'CREATE',
+                buttonIcon: const Icon(Icons.add),
+              )
             ),
           ],
         ),

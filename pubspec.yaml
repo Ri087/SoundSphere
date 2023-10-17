@@ -40,7 +40,8 @@ dependencies:
   firebase_auth: ^4.10.1
   audioplayers: ^5.2.0
   fluttertoast: ^8.2.2
-  device_info_plus: ^10.0.0
+  device_info_plus: ^9.0.3
+  provider: ^6.0.5
   
 
 dev_dependencies:
