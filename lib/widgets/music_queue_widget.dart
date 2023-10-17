@@ -21,26 +21,32 @@ class _MusicQueueWidget extends State<MusicQueueWidget>{
 
   @override
   Widget build(BuildContext context) {
-      return Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Container(
-                height: 60, width: 60,
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12, left:12, right:12),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+                height: 70, width: 70,
                 decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
                 child: Image.network(music!.cover!)),
-          ),
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Text(music.title, style: const TextStyle(fontSize: 22), ),
+            Padding(
+              padding: const EdgeInsets.only(left:12),
+              child: SizedBox(
+                width: 200, // TODO : Valeur à changer
+                child:
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(alignment: Alignment.centerLeft, child: Text(music.title, style: const TextStyle(fontSize: 22), textAlign: TextAlign.left, maxLines: 1)),
+                      Container(alignment: Alignment.centerLeft,child: Text(music.artists!.join(", "), style: const TextStyle(fontSize: 16), textAlign: TextAlign.left, maxLines: 1),),
+                    ],
+                  ),
               ),
-              Text(music.artists!.join(", ")),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       );
   }
 }
