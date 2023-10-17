@@ -20,78 +20,30 @@ class RoomWidget extends StatefulWidget {
 class _RoomWidget extends State<RoomWidget> {
   late final Room _room;
   late final void Function() _onReturn;
-  late Future<Widget> musicRow;
-
-  Future<Widget> getMusicRow() async {
-    Music? actualMusic = await Music.getActualMusic(_room);
-
-    if (actualMusic == null) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 12.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Container(
-                width: 25,
-                height: 25,
-                decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                child: const Icon(Icons.music_note, size:17,),
-              ),
-            ),
-            const Text("No music")
-          ],
-        ),
-      );
-    } else {
-      Widget cover = const Icon(Icons.music_note);
-
-      if (actualMusic.cover != null) {
-        cover = Image.network(actualMusic.cover!);
-      }
-
-      return Padding(
-        padding: const EdgeInsets.only(left: 12.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 35, right: 8.0),
-              child: Container(
-                width: 25,
-                height: 25,
-                decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                child: cover,
-              ),
-            ),
-            Text(actualMusic.title)
-          ],
-        ),
-      );
-    }
-  }
+  late Future<Music?> music;
 
   @override
   void initState() {
     super.initState();
     _room = widget.room;
     _onReturn = widget.onReturn;
-    musicRow = getMusicRow();
+    music = Music.getActualMusic(_room);
   }
 
   @override
   Widget build(BuildContext context) {
-
     Future<void> navigateToRoom() async {
       Room? room = await Room.getRoom(_room.id);
       if (room != null) {
         final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
           Navigator.push(context, MaterialPageRoute(
-              builder: (context) => RoomPage(room: _room,))).then((value) => _onReturn());
+              builder: (context) => RoomPage(room: _room,))).then((value) {
+            _onReturn();
+            setState(() {
+              music = Music.getActualMusic(_room);
+            });
+          });
         } else if (mounted) {
           ToastUtil.showErrorToast(context, "Error: Connection error");
         }
@@ -137,16 +89,42 @@ class _RoomWidget extends State<RoomWidget> {
                           child: Text(_room.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                         ),
                         FutureBuilder(
-                            future: musicRow,
-                            builder: (context, snapshot) {
-                              Widget row;
-                              if (snapshot.hasData) {
-                                row = snapshot.data!;
+                          future: music,
+                          builder: (context, snapshot) {
+                            Music? music;
+                            String title;
+                            Widget cover = const Icon(Icons.music_note, size: 17,);
+                            if (snapshot.hasData) {
+                              music = snapshot.data;
+                              if (music != null) {
+                                cover = Image.network(music.cover!);
+                                title = music.title;
                               } else {
-                                row = snapshot.hasError ? const Text('Error loading music') : const Text('Load music...');
+                                title = "No music";
                               }
-                              return row;
+                            } else {
+                              title = snapshot.hasError ? "Error loading music" : "Load music...";
                             }
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 12.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Container(
+                                      width: 25,
+                                      height: 25,
+                                      decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
+                                      child: cover,
+                                    ),
+                                  ),
+                                  Text(title)
+                                ],
+                              ),
+                            );
+                          }
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,

@@ -95,7 +95,6 @@ class _LoginPassword extends State<LoginPassword> {
                         ToastUtil.showErrorToast(context, "Error: Invalid password");
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginEmail()));
                       }
-                      return true;
                     }
                   )
                 ),

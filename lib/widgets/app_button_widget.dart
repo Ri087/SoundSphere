@@ -4,7 +4,7 @@ class AppButtonWidget extends StatefulWidget {
   const AppButtonWidget({super.key, required this.buttonText, required this.buttonIcon, required this.onPressed});
   final String buttonText;
   final Icon buttonIcon;
-  final bool Function() onPressed;
+  final void Function() onPressed;
 
   @override
   State<StatefulWidget> createState() => _AppButtonWidget();
@@ -13,7 +13,7 @@ class AppButtonWidget extends StatefulWidget {
 class _AppButtonWidget extends State<AppButtonWidget> {
   late final String buttonText;
   late final Icon buttonIcon;
-  late final bool Function() onPressed;
+  late final void Function() onPressed;
   late List<Widget> rowChildren;
   Color buttonColor = const Color(0xFF0EE6F1);
   bool clicked = false;

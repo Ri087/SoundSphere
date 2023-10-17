@@ -14,18 +14,31 @@ class Room {
   final String? description;
   final String host;
   final int maxMembers;
-  final List<dynamic> members;
+  List<dynamic> members;
   final bool isPrivate;
-  final List<dynamic> musicQueue;
+  List<dynamic> musicQueue;
   Map<String, dynamic> actualMusic;
   String action;
+  String updater;
+
+  Room({
+    required this.id,
+    required this.host,
+    required this.musicQueue,
+    required this.actualMusic,
+    required this.title,
+    this.description,
+    required this.maxMembers,
+    required this.members,
+    this.isPrivate = false,
+    this.action = "",
+    this.updater = "",
+  });
 
 
   static CollectionReference<Room> collectionRef = AppFirebase.db.collection("rooms")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);
-
-  Room({required this.id, required this.host, required this.musicQueue, required this.actualMusic, required this.title, this.description, required this.maxMembers, required this.members, required this.isPrivate, required this.action});
 
   Future<bool> nextMusic(AudioPlayer player) async {
     Music? music = await Music.getActualMusic(this);
@@ -43,7 +56,7 @@ class Room {
   Future<bool> addMusic(Music musicToAdd, AudioPlayer audioPlayer) async {
     action = "add_music";
     musicQueue.add(musicToAdd.id);
-    await collectionRef.doc(id).set(this);
+    await update();
     return true;
   }
 
@@ -82,14 +95,13 @@ class Room {
     final Room room = Room(
         id: "S-${AppUtilities.getRandomString(5).toUpperCase()}",
         host: hostUID,
+        members: [],
         musicQueue: [],
         actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0},
         description: description,
         title: title,
         isPrivate: isPrivate,
-        members: [],
         maxMembers: maxMembers,
-        action: "",
     );
     await collectionRef.doc(room.id).set(room);
     return room;
@@ -103,7 +115,7 @@ class Room {
     if (!members.contains(uid)) {
       action = "user_join";
       members.add(uid);
-      await collectionRef.doc(id).set(this);
+      await update();
     }
     return true;
   }
@@ -114,8 +126,13 @@ class Room {
     }
     action = "user_leave";
     members.remove(uid);
-    await collectionRef.doc(id).set(this);
+    await update();
     return true;
+  }
+
+  Future<void> update() async {
+    updater = FirebaseAuth.instance.currentUser!.displayName!;
+    await collectionRef.doc(id).set(this);
   }
 
   factory Room.fromFirestore(
@@ -134,6 +151,7 @@ class Room {
       musicQueue: data?["music_queue"],
       host: data?["host"],
       action: data?["action"],
+      updater: data?["updater"],
     );
   }
 
@@ -148,6 +166,7 @@ class Room {
       "music_queue": musicQueue,
       "host": host,
       "action": action,
+      "updater": updater,
     };
   }
 }

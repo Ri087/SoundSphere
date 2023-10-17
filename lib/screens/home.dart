@@ -36,16 +36,12 @@ class _Home extends State<Home> {
 
   Future openPopupProfile(BuildContext context) => showDialog(
     context: context,
-    builder: (BuildContext context) {
-      return const PopupProfile();
-    }
+    builder: (BuildContext context) => const PopupProfile()
   );
 
   Future openPopUpCreateSphere(BuildContext context) => showDialog(
     context: context,
-    builder: (BuildContext context) {
-      return const PopupCreateSphere();
-    },
+    builder: (BuildContext context) => const PopupCreateSphere()
   );
 
   @override
@@ -70,7 +66,7 @@ class _Home extends State<Home> {
           title: const Text("SoundSphere", style: TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
           actions: [
             IconButton(
-              onPressed: () {openPopupProfile(context);},
+              onPressed: () => openPopupProfile(context),
               icon: const Icon(Icons.person_rounded,),
             )
           ],

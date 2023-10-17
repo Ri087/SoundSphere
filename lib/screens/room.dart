@@ -24,7 +24,6 @@ class _RoomPage extends State<RoomPage> {
   late Future<Music?> _actualMusic;
   late Future<List<Widget>> _queueWidgets;
   late Music? _music;
-  late List<Music?>? _nextMusic;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
   late final Future<AppUser> _host;
@@ -48,9 +47,7 @@ class _RoomPage extends State<RoomPage> {
     _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
        if (event.data() != null) {
          Room newRoom = event.data()!;
-         if (_isFirstBuild) {
-          return;
-        }
+         if (_isFirstBuild) return;
 
         _lastAction = newRoom.action;
          setState(() {
@@ -61,40 +58,44 @@ class _RoomPage extends State<RoomPage> {
            case "":
              break;
            case "user_join":
-             // Si l'action n'a pas bouger alors possible join ou leave d'un user
-             // Petite notif pour prévenir du flux des gens. (A voir pour être un paramètre dans la room)
-             ToastUtil.showInfoToast(context, "A user has join");
-            break;
+             ToastUtil.showInfoToast(context, "${_room.updater} joined");
+             break;
            case "user_leave":
-             ToastUtil.showInfoToast(context, "A user has leave");
+             ToastUtil.showInfoToast(context, "${_room.updater} leaved");
              break;
            case "play":
+             ToastUtil.showInfoToast(context, "${_room.updater} played the music");
              _play(null);
              break;
            case "pause":
+             ToastUtil.showInfoToast(context, "${_room.updater} paused the music");
              _pause();
              break;
            case "next_music":
+             ToastUtil.showInfoToast(context, "${_room.updater} restart the music");
              _room.nextMusic(_audioPlayer);
              setState(() {
                _queueWidgets = Music.getMusicQueueWidgets(_room);
              });
              break;
            case "restart_music":
+             ToastUtil.showInfoToast(context, "${_room.updater} restart the music");
              _audioPlayer.seek(const Duration(seconds: 0));
              break;
            case "changed_position":
+             ToastUtil.showInfoToast(context, "${_room.updater} changed music position");
              _isPositionChanged = false;
              _audioPlayer.seek(Duration(seconds: _room.actualMusic["position"] as int));
              break;
            case "add_music":
+             ToastUtil.showInfoToast(context, "${_room.updater} add music in queue");
              if (_room.actualMusic["id"].toString().isEmpty) {
                if (_room.musicQueue.isNotEmpty && _isUpdater) {
                  _room.action = "next_music";
                  _room.actualMusic["position"] = 0;
                  _room.actualMusic["id"] = _room.musicQueue.first;
                  _room.musicQueue.removeAt(0);
-                 Room.collectionRef.doc(_room.id).set(_room);
+                 _room.update();
                }
              }
              break;
@@ -138,7 +139,7 @@ class _RoomPage extends State<RoomPage> {
         _room.actualMusic["state"] = _playerState.toString();
         _room.actualMusic["position"] = _position.inSeconds;
         _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
-        Room.collectionRef.doc(_room.id).set(_room);
+        _room.update();
       }
     });
 
@@ -156,7 +157,7 @@ class _RoomPage extends State<RoomPage> {
         if (_room.host == FirebaseAuth.instance.currentUser!.uid) {
           _room.action = "";
           _isUpdater = true;
-          Room.collectionRef.doc(_room.id).set(_room);
+          _room.update();
         }
       }
     });
@@ -202,13 +203,13 @@ class _RoomPage extends State<RoomPage> {
         title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
           IconButton(
-            onPressed: () {openPopupSettings();}, icon: const Icon(Icons.settings),)
+            onPressed: () => openPopupSettings(),
+            icon: const Icon(Icons.settings),)
         ],
       ),
       body: Center(
         child: Column(
           children: [
-            // ==== Actual Music ====
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: FutureBuilder(
@@ -371,46 +372,45 @@ class _RoomPage extends State<RoomPage> {
               padding: EdgeInsets.only(top: 20),
               child: Text("Music queue",),
             ),
-            // ==== Queue ====
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: FutureBuilder(
-                  future:  _queueWidgets,
-                  builder: (context, snapshot) {
-                    List<Widget> listItems;
-                    if (snapshot.hasData) {
-                      listItems = snapshot.data!;
-                    } else if (snapshot.hasError) {
-                      listItems = [Text("Result : ${snapshot.error}")];
-                    } else {
-                      listItems = [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
-                          child: const Center(
-                            child: SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
-                            ),
+                future:  _queueWidgets,
+                builder: (context, snapshot) {
+                  List<Widget> listItems;
+                  if (snapshot.hasData) {
+                    listItems = snapshot.data!;
+                  } else if (snapshot.hasError) {
+                    listItems = [Text("Result : ${snapshot.error}")];
+                  } else {
+                    listItems = [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
+                        child: const Center(
+                          child: SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
                           ),
                         ),
-                      ];
-                    }
-                    return SizedBox(
-                      height: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView.builder(
-                          itemCount: listItems.length,
-                          itemBuilder: (ctxt /*context*/, ind) {
-                            return listItems[ind];
-                          },
-                        ),
                       ),
-                    );
+                    ];
                   }
-              ),
-            ),
+                  return SizedBox(
+                    height: 250,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.builder(
+                        itemCount: listItems.length,
+                        itemBuilder: (ctxt /*context*/, ind) {
+                          return listItems[ind];
+                        }
+                      )
+                    )
+                  );
+                }
+              )
+            )
           ],
         ),
       ),

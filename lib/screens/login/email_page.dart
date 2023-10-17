@@ -93,7 +93,6 @@ class _LoginEmail extends State<LoginEmail> {
                           navigate(context, value);
                         }).onError((error, stackTrace) {ToastUtil.showErrorToast(context, "Error: Connection error");});
                       }
-                      return true;
                     }
                   )
                 ),

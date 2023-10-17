@@ -1,3 +1,4 @@
+import 'package:SoundSphere/widgets/app_button_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -143,34 +144,14 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 20),
-              child: TextButton(
+              child: AppButtonWidget(
                 onPressed: () async {
                   final Room room = await Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
                   navigateToRoom(room);
                 },
-                style: ButtonStyle(
-                  fixedSize: MaterialStateProperty.resolveWith(
-                          (states) => const Size(350, 50)),
-                  backgroundColor: MaterialStateProperty.resolveWith(
-                          (states) => const Color.fromARGB(255, 14, 230, 241)),
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7),
-                      side: const BorderSide(width: 2.0),
-                    ),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("CREATE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5),
-                      child: Icon(Icons.add, color: Colors.white, size: 25,),
-                    )
-                  ],
-                ),
-              ),
+                buttonText: 'CREATE',
+                buttonIcon: const Icon(Icons.add),
+              )
             ),
           ],
         ),
