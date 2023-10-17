@@ -65,7 +65,7 @@ class PopupRoomSettings extends StatelessWidget {
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 25),
-                    child: Text("Delete Sphere", style: TextStyle(color: Color(0xFFFF86C9), fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,)
+                    child: Text("Delete", style: TextStyle(color: Color(0xFFFF86C9), fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,)
                     ),
                   ),
                 ],

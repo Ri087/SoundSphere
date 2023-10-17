@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:ffi';
+import 'package:SoundSphere/widgets/app_button_widget.dart';
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
@@ -368,9 +370,22 @@ class _RoomPage extends State<RoomPage> {
                 },
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Text("Music queue",),
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 5.0),
+                child: Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(width: 2.0, color: Color(0xFF0ee6f1)),
+                      ),
+                ),
+                  child: const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text("Music queue", style : TextStyle(fontSize: 22)),
+                  ),
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -396,18 +411,37 @@ class _RoomPage extends State<RoomPage> {
                       ),
                     ];
                   }
-                  return SizedBox(
-                    height: 250,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView.builder(
-                        itemCount: listItems.length,
-                        itemBuilder: (ctxt /*context*/, ind) {
-                          return listItems[ind];
-                        }
+                  if (listItems.isEmpty)
+                    {
+                      return const Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top : 8),
+                            child: Text("No music in the queue yet.", style: TextStyle(fontSize: 18),),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top : 8),
+                            child: Text("Add the first music with the button below", style: TextStyle(fontSize: 18),),
+                          ),
+
+                        ],
+                      );
+                    }
+                  else{
+                    return Container(
+                      height: 200,
+                      alignment: Alignment.center,
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                              itemCount: listItems.length,
+                              itemBuilder: (ctxt /*context*/, ind) {
+                                return listItems[ind];
+                              }
+                          )
                       )
-                    )
-                  );
+                  );}
+
                 }
               )
             )
@@ -421,7 +455,7 @@ class _RoomPage extends State<RoomPage> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => SearchMusic(room: _room, audioPlayer: _audioPlayer,)));
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.music_note),
       ),
     );
   }
