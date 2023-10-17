@@ -46,9 +46,9 @@ class _RoomPage extends State<RoomPage> {
     _host = _room.getHost();
 
     // permet de mettre à jour la room selon les intéractions d'autres utilisateurs
-    _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
-       if (event.data() != null) {
-         Room newRoom = event.data()!;
+    _roomStream = Room.collectionRef.doc(_room.id).snapshots(includeMetadataChanges: true).listen((event) {
+      if (event.data() != null && !event.metadata.hasPendingWrites) {
+        Room newRoom = event.data()!;
 
         if (mounted) setState(() => _room = newRoom);
 
