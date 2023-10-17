@@ -27,7 +27,7 @@ class _RoomWidget extends State<RoomWidget> {
     super.initState();
     _room = widget.room;
     _onReturn = widget.onReturn;
-    music = Music.getActualMusic(_room);
+    music = _room.getMusic();
   }
 
   @override
@@ -38,11 +38,9 @@ class _RoomWidget extends State<RoomWidget> {
         final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
           Navigator.push(context, MaterialPageRoute(
-              builder: (context) => RoomPage(room: _room,))).then((value) {
+              builder: (context) => RoomPage(room: _room,))).whenComplete(() {
             _onReturn();
-            setState(() {
-              music = Music.getActualMusic(_room);
-            });
+            setState(() => music = _room.getMusic());
           });
         } else if (mounted) {
           ToastUtil.showErrorToast(context, "Error: Connection error");
@@ -60,9 +58,10 @@ class _RoomWidget extends State<RoomWidget> {
           onTap: () => navigateToRoom(),
           child: Container(
             decoration: BoxDecoration(
-                color: const Color(0xFF02203A),
-                border: Border.all(color: const Color(0xFF0EE6F1), width: 2),
-                borderRadius: const BorderRadius.all(Radius.circular(7),)),
+              color: const Color(0xFF02203A),
+              border: Border.all(color: const Color(0xFF0EE6F1), width: 2),
+              borderRadius: const BorderRadius.all(Radius.circular(7),)
+            ),
             child: Row(
               children: [
                 Padding(
@@ -96,7 +95,7 @@ class _RoomWidget extends State<RoomWidget> {
                             Widget cover = const Icon(Icons.music_note, size: 17,);
                             if (snapshot.hasData) {
                               music = snapshot.data;
-                              if (music != null) {
+                              if (music != null && music.id != null) {
                                 cover = Image.network(music.cover!);
                                 title = music.title;
                               } else {

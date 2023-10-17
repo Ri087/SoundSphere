@@ -25,7 +25,6 @@ class _RoomPage extends State<RoomPage> {
   late Room _room;
   late Future<Music?> _actualMusic;
   late Future<List<Widget>> _queueWidgets;
-  late Music? _music;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
   late final Future<AppUser> _host;
@@ -45,25 +44,27 @@ class _RoomPage extends State<RoomPage> {
     _lastAction = _room.action;
     _playerState = _audioPlayer.state;
 
+    // Async
+    _actualMusic = _room.getMusic();
+    _queueWidgets = Music.getMusicQueueWidgets(_room);
+    _host = _room.getHost();
+
     // permet de mettre à jour la room selon les intéractions d'autres utilisateurs
     _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
        if (event.data() != null) {
          Room newRoom = event.data()!;
-         if (_isFirstBuild) return;
 
         _lastAction = newRoom.action;
-         setState(() {
-           _room = newRoom;
-         });
+        if (mounted) setState(() => _room = newRoom);
 
          switch (_lastAction) {
            case "":
              break;
            case "user_join":
-             ToastUtil.showInfoToast(context, "${_room.updater} joined");
+             if (mounted) ToastUtil.showInfoToast(context, "${_room.updater} joined");
              break;
            case "user_leave":
-             ToastUtil.showInfoToast(context, "${_room.updater} leaved");
+             if (mounted) ToastUtil.showInfoToast(context, "${_room.updater} leaved");
              break;
            case "play":
              ToastUtil.showInfoToast(context, "${_room.updater} played the music");
@@ -110,14 +111,10 @@ class _RoomPage extends State<RoomPage> {
        }
      }, onError: (error) => print("Listen failed: $error"));
 
-    _actualMusic = Music.getActualMusic(_room);
-    _queueWidgets = Music.getMusicQueueWidgets(_room);
-    _host = _room.getHost();
-
     _audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
         _duration = duration;
-        _actualMusic = Music.getActualMusic(_room);
+        _actualMusic = _room.getMusic();
       });
     });
 
@@ -132,9 +129,7 @@ class _RoomPage extends State<RoomPage> {
 
     // Event quand la musique est mis en pause ou resume etc...
     _audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
-      if (mounted) {
-        setState(() => _playerState = playerState);
-      }
+      if (mounted) setState(() => _playerState = playerState);
 
       if (_isUpdater && (_playerState != PlayerState.stopped)) {
         _isUpdater = false;
@@ -147,9 +142,8 @@ class _RoomPage extends State<RoomPage> {
 
     // Event quand la musique se termine (hors pause ou stop par user)
     _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() {
-        _position = const Duration(seconds: 0);
-      });
+      setState(() => _position = const Duration(seconds: 0));
+
       if (_room.musicQueue.isNotEmpty) {
         _room.actualMusic["position"] = 0;
         _room.actualMusic["id"] = _room.musicQueue.first;
@@ -169,9 +163,10 @@ class _RoomPage extends State<RoomPage> {
   @override
   void dispose() {
     super.dispose();
-    _audioPlayer.dispose();
-    _roomStream.cancel();
-    _room.removeMember(FirebaseAuth.instance.currentUser!.uid);
+    _roomStream.cancel().whenComplete(() {
+      _audioPlayer.dispose();
+      _room.removeMember(FirebaseAuth.instance.currentUser!.uid);
+    });
   }
 
   void _pause() {
@@ -182,7 +177,7 @@ class _RoomPage extends State<RoomPage> {
     if ([PlayerState.stopped, PlayerState.completed].contains(_playerState)) {
       if (music != null) {
         _audioPlayer.play(UrlSource(music.url));
-      } else if(_room.actualMusic["state"] == PlayerState.paused.toString()){
+      } else if (_room.actualMusic["state"] == PlayerState.paused.toString()) {
         _audioPlayer.resume();
       }
     } else {
@@ -209,6 +204,7 @@ class _RoomPage extends State<RoomPage> {
             icon: const Icon(Icons.settings),)
         ],
       ),
+
       body: Center(
         child: Column(
           children: [
@@ -217,23 +213,23 @@ class _RoomPage extends State<RoomPage> {
               child: FutureBuilder(
                 future: _actualMusic,
                 builder: (context, snapshot) {
-                  String title = "No music in queue...", artists = "No music in queue...";
+                  String title = "No music in queue...";
+                  String artists = "";
                   Widget cover = const Icon(Icons.music_note, size: 60);
                   if (snapshot.hasData) {
-                    _music = snapshot.data;
-                    if (_music == null || _music!.url.isEmpty) {
+                    Music? music = snapshot.data;
+                    if (music == null || music.id == null) {
                       title = "No music in queue...";
-                      artists = "No music in queue...";
+                      artists = "";
                     } else {
-                      cover = Image.network(_music!.cover!);
-                      title = _music!.title;
-                      artists = _music!.artists!.join(", ");
-
+                      cover = Image.network(music.cover!);
+                      title = music.title;
+                      artists = music.artists!.join(", ");
                       // Permet de synchro l'utilisateur qui join la room
                       if (_isFirstBuild) {
                         _isFirstBuild = false;
-                        if (_music!.url.isNotEmpty) {
-                          _audioPlayer.setSourceUrl(_music!.url);
+                        if (music.url.isNotEmpty) {
+                          _audioPlayer.setSourceUrl(music.url);
                           Duration songPosition = Duration(seconds: _room.actualMusic["position"] as int);
                           _audioPlayer.seek(songPosition);
                           if (_room.actualMusic["state"] == PlayerState.playing.toString()) {
@@ -254,7 +250,7 @@ class _RoomPage extends State<RoomPage> {
                     );
                   } else {
                     title = "Loading music...";
-                    artists = "Loading music...";
+                    artists = "";
                   }
                   return Column(
                     mainAxisSize: MainAxisSize.max,
@@ -264,13 +260,8 @@ class _RoomPage extends State<RoomPage> {
                         child: FutureBuilder(
                           future: _host,
                           builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return Text("Hosted by ${snapshot.data!.displayName}", style: const TextStyle(fontSize: 16),);
-                            } else if (snapshot.hasError) {
-                              return const Text("Error loading host", style: TextStyle(fontSize: 16),);
-                            } else {
-                              return const Text("Loading host", style: TextStyle(fontSize: 16),);
-                            }
+                            String text = snapshot.hasData ? "Hosted by ${snapshot.data!.displayName}" : snapshot.hasError ? "Error loading host" : "Loading host";
+                            return Text(text, style: const TextStyle(fontSize: 16),);
                           },
                         ),
                       ),
@@ -308,7 +299,7 @@ class _RoomPage extends State<RoomPage> {
                                 _isUpdater = true;
                                 _room.action = "changed_position";
                                 _room.actualMusic["position"] = value.toInt();
-                                Room.collectionRef.doc(_room.id).set(_room);
+                                _room.update();
                               },
                             ),
                           ),
@@ -328,7 +319,7 @@ class _RoomPage extends State<RoomPage> {
                                 _isUpdater = true;
                                 _room.actualMusic["position"] = 0;
                                 _room.action = "restart_music";
-                                Room.collectionRef.doc(_room.id).set(_room);
+                                _room.update();
                               },
                             ),
                             CircleAvatar(
@@ -340,11 +331,11 @@ class _RoomPage extends State<RoomPage> {
                                 onPressed: _playerState == PlayerState.playing ? () {
                                   _isUpdater = true;
                                   _room.action = "pause";
-                                  Room.collectionRef.doc(_room.id).set(_room);
+                                  _room.update();
                                 } : () {
                                   _isUpdater = true;
                                   _room.action = "play";
-                                  Room.collectionRef.doc(_room.id).set(_room);
+                                  _room.update();
                                 },
                               ),
                             ),
@@ -358,7 +349,7 @@ class _RoomPage extends State<RoomPage> {
                                   _room.actualMusic["position"] = 0;
                                   _room.actualMusic["id"] = _room.musicQueue.first;
                                   _room.musicQueue.removeAt(0);
-                                  Room.collectionRef.doc(_room.id).set(_room);
+                                  _room.update();
                                 }
                               },
                             )
@@ -375,11 +366,7 @@ class _RoomPage extends State<RoomPage> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 5.0),
                 child: Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(width: 2.0, color: Color(0xFF0ee6f1)),
-                      ),
-                ),
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(width: 2.0, color: Color(0xFF0ee6f1)),),),
                   child: const Padding(
                     padding: EdgeInsets.only(bottom: 8),
                     child: Text("Music queue", style : TextStyle(fontSize: 22)),
@@ -411,37 +398,33 @@ class _RoomPage extends State<RoomPage> {
                       ),
                     ];
                   }
-                  if (listItems.isEmpty)
-                    {
-                      return const Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top : 8),
-                            child: Text("No music in the queue yet.", style: TextStyle(fontSize: 18),),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top : 8),
-                            child: Text("Add the first music with the button below", style: TextStyle(fontSize: 18),),
-                          ),
-
-                        ],
-                      );
-                    }
-                  else{
-                    return Container(
-                      height: 200,
-                      alignment: Alignment.center,
+                  if (listItems.isEmpty) {
+                    return const Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(top : 8),
+                          child: Text("No music in the queue yet.", style: TextStyle(fontSize: 18),),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top : 8),
+                          child: Text("Add the first music with the button below", style: TextStyle(fontSize: 18),),
+                        ),
+                      ],
+                    );
+                  } else {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height - 480,
                       child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListView.builder(
-                              itemCount: listItems.length,
-                              itemBuilder: (ctxt /*context*/, ind) {
-                                return listItems[ind];
-                              }
-                          )
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                          itemCount: listItems.length,
+                          itemBuilder: (ctxt, ind) {
+                            return listItems[ind];
+                          }
+                        )
                       )
-                  );}
-
+                    );
+                  }
                 }
               )
             )

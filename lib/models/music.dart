@@ -17,7 +17,7 @@ class Music {
   final String? cover;
 
   Music({
-    required this.id,
+    this.id,
     required this.url,
     required this.duration,
     required this.artists,
@@ -30,28 +30,19 @@ class Music {
     fromFirestore: Music.fromFirestore,
     toFirestore: (Music music, _) => music.toFirestore(),);
 
-  static Future<Music?> getActualMusic(Room room) async {
-    if (room.actualMusic["id"].toString().isEmpty) {
-      return null;
-    }
-    final docSnap = await collectionRef.doc(room.actualMusic["id"]).get();
-    return docSnap.data();
-  }
-
   static Future<List<Music?>?> getMusicQueue(Room room) async {
     if (room.musicQueue.isEmpty) {
       return null;
     }
     final docSnap = await collectionRef.where("id",whereIn: room.musicQueue).get();
-    final musics = docSnap.docs.map((e) {print(e.data().title) ; return e.data();} ).toList();
-    return musics;
+    return docSnap.docs.map((e) => e.data()).toList();
   }
   
-  static Future<List<Widget>> getMusicsSearchWidgets(context, String search, Room room, AudioPlayer audioPlayer) async {
+  static Future<List<Widget>> getMusicsSearchWidgets(String search, Room room, AudioPlayer audioPlayer) async {
     List<Widget> widgets = [];
     List<Music?> musics = await Music.getDbMusics(search);
     for (var music in musics) {
-      widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer).getWidget(context));
+      widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer));
     }
     return widgets;
   }
@@ -59,7 +50,7 @@ class Music {
   static Future<List<Widget>> getMusicQueueWidgets(Room room) async {
     List<Widget> widgets = [];
     List<Music?>? musicQueue = await Music.getMusicQueue(room);
-    if(musicQueue == null) return [];
+    if (musicQueue == null) return [];
     for (var music in musicQueue) {
       widgets.add(MusicQueueWidget(music: music!));
     }
@@ -68,8 +59,7 @@ class Music {
   
   static Future<List<Music?>> getDbMusics(String search) async {
     final snap = await collectionRef.get();
-    final musics = snap.docs.map((e) {Music data = e.data(); if (data.title.startsWith(search)) return data;}).toList();
-    return musics;
+    return snap.docs.map((e) {Music data = e.data(); if (data.title.startsWith(search)) return data;}).toList();
   }
 
   factory Music.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot, SnapshotOptions? options,) {

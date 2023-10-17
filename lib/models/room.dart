@@ -13,9 +13,9 @@ class Room {
   final String title;
   final String? description;
   final String host;
+  final bool isPrivate;
   final int maxMembers;
   List<dynamic> members;
-  final bool isPrivate;
   List<dynamic> musicQueue;
   Map<String, dynamic> actualMusic;
   String action;
@@ -40,24 +40,33 @@ class Room {
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
       (Room room, _) => room.toFirestore(),);
 
-  Future<bool> nextMusic(AudioPlayer player) async {
-    Music? music = await Music.getActualMusic(this);
+  Future<void> nextMusic(AudioPlayer player) async {
+    Music? music = await getMusic();
 
     if (player.state == PlayerState.playing) {
       await player.stop();
     }
 
-    await player.setSourceUrl(music!.url);
+    await player.setSourceUrl(music.url);
     await player.seek(const Duration(seconds: 0));
     await player.resume();
-    return true;
   }
 
-  Future<bool> addMusic(Music musicToAdd, AudioPlayer audioPlayer) async {
+  Future<void> addMusic(Music musicToAdd, AudioPlayer audioPlayer) async {
     action = "add_music";
     musicQueue.add(musicToAdd.id);
     await update();
-    return true;
+  }
+
+  Future<Music> getMusic() async {
+    if (actualMusic["id"].toString().isEmpty) {
+      return Music(url: "", duration: 0, artists: [], title: "", album: "", cover: "");
+    }
+    final docSnap = await Music.collectionRef.doc(actualMusic["id"]).get();
+    if(docSnap.data() != null) {
+      return docSnap.data()!;
+    }
+    return Music(url: "", duration: 0, artists: [], title: "", album: "", cover: "");
   }
 
   static Future<Room?> getRoom(String docId) async {
@@ -120,14 +129,13 @@ class Room {
     return true;
   }
 
-  Future<bool> removeMember(String uid) async {
+  Future<void> removeMember(String uid) async {
     if (!members.contains(uid)) {
-      return false;
+      return;
     }
     action = "user_leave";
     members.remove(uid);
     await update();
-    return true;
   }
 
   Future<void> update() async {

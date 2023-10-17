@@ -4,13 +4,14 @@ import 'package:SoundSphere/widgets/toast.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
-class MusicSearchWidget {
-  MusicSearchWidget({required this.music, required this.room, required this.audioPlayer});
+class MusicSearchWidget extends StatelessWidget {
   final Music music;
   final Room room;
   final AudioPlayer audioPlayer;
+  const MusicSearchWidget({super.key, required this.music, required this.room, required this.audioPlayer});
 
-  Widget getWidget(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: Row(
