@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'package:SoundSphere/widgets/app_button_widget.dart';
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
@@ -410,19 +411,44 @@ class _RoomPage extends State<RoomPage> {
                       ),
                     ];
                   }
-                  return Container(
-                    height: 200,
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView.builder(
-                        itemCount: listItems.length,
-                        itemBuilder: (ctxt /*context*/, ind) {
-                          return listItems[ind];
-                        }
+                  if (listItems.isEmpty)
+                    {
+                      return Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top : 8),
+                            child: Text("No music in the queue yet.", style: TextStyle(fontSize: 18),),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top : 16, left:30, right:30),
+                            child: AppButtonWidget(
+                                buttonText: "ADD THE FIRST MUSIC",
+                                buttonIcon: const Icon(Icons.music_note),
+                                onPressed: () {
+                                  _isUpdater = true;
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) => SearchMusic(room: _room, audioPlayer: _audioPlayer,)));
+                                }
+                            ),
+                          )
+                        ],
+                      );
+                    }
+                  else{
+                    return Container(
+                      height: 200,
+                      alignment: Alignment.center,
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                              itemCount: listItems.length,
+                              itemBuilder: (ctxt /*context*/, ind) {
+                                return listItems[ind];
+                              }
+                          )
                       )
-                    )
-                  );
+                  );}
+
                 }
               )
             )
@@ -436,7 +462,7 @@ class _RoomPage extends State<RoomPage> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => SearchMusic(room: _room, audioPlayer: _audioPlayer,)));
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.music_note),
       ),
     );
   }
