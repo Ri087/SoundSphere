@@ -45,6 +45,12 @@ class _Home extends State<Home> {
   );
 
   @override
+  void didUpdateWidget(covariant Home oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    publicRoomWidgetList = Room.getPublicRoomWidgets(reloadData);
+  }
+
+  @override
   Widget build(BuildContext context) {
     _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 180 - MediaQuery.of(context).viewInsets.bottom;
     return GestureDetector(

@@ -1,20 +1,17 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import '../models/music.dart';
 import '../models/room.dart';
 
 class SearchMusic extends StatefulWidget {
-  const SearchMusic({super.key, required this.room, required this.audioPlayer});
+  const SearchMusic({super.key, required this.room});
   final Room room;
-  final AudioPlayer audioPlayer;
 
   @override
   State<StatefulWidget> createState() => _SearchMusic();
 }
 
 class _SearchMusic extends State<SearchMusic> {
-  late final AudioPlayer audioPlayer;
   late final Room room;
   late Future<List<Widget>> searchMusicWidgets;
   TextEditingController searchController = TextEditingController();
@@ -24,8 +21,7 @@ class _SearchMusic extends State<SearchMusic> {
   void initState() {
     super.initState();
     room = widget.room;
-    audioPlayer = widget.audioPlayer;
-    searchMusicWidgets = Music.getMusicsSearchWidgets("", room, audioPlayer);
+    searchMusicWidgets = Music.getMusicsSearchWidgets("", room);
   }
 
   void leavePage() {
@@ -43,7 +39,7 @@ class _SearchMusic extends State<SearchMusic> {
           style: const TextStyle(fontSize: 16),
           onChanged: (value) {
             setState(() {
-              searchMusicWidgets = Music.getMusicsSearchWidgets(searchController.value.toString(), room, audioPlayer);
+              searchMusicWidgets = Music.getMusicsSearchWidgets(searchController.value.toString(), room);
             });
           },
           decoration: InputDecoration(

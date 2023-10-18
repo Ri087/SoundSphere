@@ -35,23 +35,11 @@ class Room {
     this.updater = "",
   });
 
-  static CollectionReference<Room> collectionRef = AppFirebase.db.collection("rooms")
+  static CollectionReference<Room> getCollectionRef() => AppFirebase.db.collection("rooms")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
-      (Room room, _) => room.toFirestore(),);
+  (Room room, _) => room.toFirestore(),);
 
-  Future<void> nextMusic(AudioPlayer player) async {
-    Music? music = await getMusic();
-
-    if (player.state == PlayerState.playing) {
-      await player.stop();
-    }
-
-    await player.setSourceUrl(music.url);
-    await player.seek(const Duration(seconds: 0));
-    await player.resume();
-  }
-
-  Future<void> addMusic(Music musicToAdd, AudioPlayer audioPlayer) async {
+  Future<void> addMusic(Music musicToAdd) async {
     action = "add_music";
     musicQueue.add(musicToAdd.id);
     await update();
@@ -69,12 +57,12 @@ class Room {
   }
 
   static Future<Room?> getRoom(String docId) async {
-    final docSnap = await collectionRef.doc(docId).get();
+    final docSnap = await getCollectionRef().doc(docId).get();
     return docSnap.data();
   }
 
   static Future<List<Room>?> getPublicRooms() async {
-    final snap = await collectionRef.where("is_private", isEqualTo: false).get();
+    final snap = await getCollectionRef().where("is_private", isEqualTo: false).get();
     final rooms = snap.docs.map((e) => e.data()).toList();
     // Trie desc du nombre de user dans une room
     rooms.sort((previous, next) => next.members.length.compareTo(previous.members.length));
@@ -111,7 +99,7 @@ class Room {
         isPrivate: isPrivate,
         maxMembers: maxMembers,
     );
-    await collectionRef.doc(room.id).set(room);
+    await getCollectionRef().doc(room.id).set(room);
     return room;
   }
 
@@ -139,7 +127,7 @@ class Room {
 
   Future<void> update() async {
     updater = FirebaseAuth.instance.currentUser!.displayName!;
-    await collectionRef.doc(id).set(this);
+    await getCollectionRef().doc(id).set(this);
   }
 
   factory Room.fromFirestore(

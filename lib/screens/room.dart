@@ -46,61 +46,100 @@ class _RoomPage extends State<RoomPage> {
     _host = _room.getHost();
 
     // permet de mettre à jour la room selon les intéractions d'autres utilisateurs
-    _roomStream = Room.collectionRef.doc(_room.id).snapshots(includeMetadataChanges: true).listen((event) {
-      if (event.data() != null && !event.metadata.hasPendingWrites) {
+    _roomStream = Room.getCollectionRef().doc(_room.id).snapshots(includeMetadataChanges: true).listen((event) {
+      if (event.data() != null && !event.metadata.hasPendingWrites && !event.metadata.isFromCache) {
         Room newRoom = event.data()!;
 
         if (mounted) setState(() => _room = newRoom);
-
         if (_isFirstBuild) return;
 
-         switch (newRoom.action) {
+        String updater = _room.updater;
+        bool queueToActual = false;
+
+        if (_room.action == "next_music_new") {
+          _room.action = "next_music";
+          queueToActual = true;
+        }
+
+         switch (_room.action) {
            case "":
              break;
            case "user_join":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} joined");
+             if (mounted) ToastUtil.showInfoToast(context, "$updater join");
              break;
            case "user_leave":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} leaved");
+             if (mounted) ToastUtil.showInfoToast(context, "$updater leave");
+             _isUpdater = false;
              break;
            case "play":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} played the music");
+             if (mounted) ToastUtil.showInfoToast(context, "$updater resume the music");
              _play(null);
+             if (_isUpdater) {
+               _isUpdater = false;
+               _room.action = "";
+               _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
+               _room.actualMusic["position"] = _position.inSeconds;
+               _room.actualMusic["state"] = PlayerState.playing.toString();
+               _room.update();
+             }
              break;
            case "pause":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} paused the music");
+             if (mounted) ToastUtil.showInfoToast(context, "$updater pause the music");
              _pause();
+             if (_isUpdater) {
+               _isUpdater = false;
+               _room.action = "";
+               _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
+               _room.actualMusic["position"] = _position.inSeconds;
+               _room.actualMusic["state"] = PlayerState.paused.toString();
+               _room.update();
+             }
              break;
            case "next_music":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} skip the music");
-             _room.nextMusic(_audioPlayer);
-             setState(() {
-               _queueWidgets = Music.getMusicQueueWidgets(_room);
-             });
+             _room.actualMusic["state"] = _playerState == PlayerState.playing ? PlayerState.playing.toString() : PlayerState.paused.toString();
+             if (queueToActual) {
+               if (mounted) ToastUtil.showInfoToast(context, "$updater play the music");
+               _room.actualMusic["state"] = PlayerState.playing.toString();
+             } else {
+               if (mounted) ToastUtil.showInfoToast(context, "$updater skip the music");
+             }
+             _room.action = "";
+             _room.actualMusic["position"] = 0;
+             _room.actualMusic["id"] = _room.musicQueue.first;
+             _room.musicQueue.removeAt(0);
+             _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
+             nextMusic();
+             if (_isUpdater) {
+               _room.update();
+               _isUpdater = false;
+             }
              break;
            case "restart_music":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} restart the music");
+             if (mounted) ToastUtil.showInfoToast(context, "$updater restart the music");
              _audioPlayer.seek(const Duration(seconds: 0));
+             _isUpdater = false;
              break;
            case "changed_position":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} changed music position");
-             _isPositionChanged = false;
+             if (mounted) ToastUtil.showInfoToast(context, "$updater change music position");
              _audioPlayer.seek(Duration(seconds: _room.actualMusic["position"] as int));
+             _isPositionChanged = false;
+             _isUpdater = false;
              break;
            case "add_music":
-             if (mounted && !_isUpdater) ToastUtil.showInfoToast(context, "${_room.updater} add music in queue");
              if (_room.actualMusic["id"].toString().isEmpty) {
                if (_room.musicQueue.isNotEmpty && _isUpdater) {
-                 _room.action = "next_music";
-                 _room.actualMusic["position"] = 0;
-                 _room.actualMusic["id"] = _room.musicQueue.first;
-                 _room.musicQueue.removeAt(0);
+                 _room.action = "next_music_new";
                  _room.update();
+               } else {
+                 _isUpdater = false;
                }
+             } else {
+               if (mounted) ToastUtil.showInfoToast(context, "$updater add a music in queue");
+               _isUpdater = false;
+               setState(() {
+                 _queueWidgets = Music.getMusicQueueWidgets(_room);
+               });
              }
-             setState(() {
-               _queueWidgets = Music.getMusicQueueWidgets(_room);
-             });
              break;
            case "remove_music":
              /*setState(() {
@@ -128,31 +167,35 @@ class _RoomPage extends State<RoomPage> {
     // Event quand la musique est mis en pause ou resume etc...
     _audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
       if (mounted) setState(() => _playerState = playerState);
-
-      if (_isUpdater && (_playerState != PlayerState.stopped)) {
-        _isUpdater = false;
-        _room.actualMusic["state"] = _playerState.toString();
-        _room.actualMusic["position"] = _position.inSeconds;
-        _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
-        _room.update();
-      }
     });
 
     // Event quand la musique se termine (hors pause ou stop par user)
     _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() => _position = const Duration(seconds: 0));
+      setState(() {
+        _position = const Duration(seconds: 0);
+      });
+      _room.actualMusic["position"] = 0;
 
       if (_room.musicQueue.isNotEmpty) {
-        _room.actualMusic["position"] = 0;
         _room.actualMusic["id"] = _room.musicQueue.first;
         _room.musicQueue.removeAt(0);
-        _room.nextMusic(_audioPlayer);
-        // Seulement le host fait l'update pour éviter de skip plusieurs musiques
-        if (_room.host == FirebaseAuth.instance.currentUser!.uid) {
-          _room.action = "";
-          _isUpdater = true;
-          _room.update();
-        }
+        _room.actualMusic["state"] = PlayerState.playing.toString();
+        nextMusic();
+      } else {
+        _room.actualMusic["id"] = "";
+        _room.actualMusic["state"] = PlayerState.completed.toString();
+        setState(() {
+          _duration = const Duration(seconds: 0);
+          _actualMusic = _room.getMusic();
+        });
+      }
+
+      // Seulement l'host fait l'update pour éviter des mises à jours en masse inutiles
+      if (_room.host == FirebaseAuth.instance.currentUser!.uid) {
+        _room.action = "";
+        _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
+        _isUpdater = true;
+        _room.update();
       }
     });
   }
@@ -163,7 +206,11 @@ class _RoomPage extends State<RoomPage> {
     super.dispose();
     _roomStream.cancel().whenComplete(() {
       _audioPlayer.dispose();
-      _room.removeMember(FirebaseAuth.instance.currentUser!.uid);
+      _room.removeMember(FirebaseAuth.instance.currentUser!.uid).whenComplete(() {
+        if (_room.members.isEmpty || FirebaseAuth.instance.currentUser!.uid == _room.host) {
+          Room.getCollectionRef().doc(_room.id).delete();
+        }
+      });
     });
   }
 
@@ -181,6 +228,18 @@ class _RoomPage extends State<RoomPage> {
     } else {
       _audioPlayer.resume();
     }
+  }
+
+  Future<void> nextMusic() async {
+    Music? music = await _room.getMusic();
+
+    if (_audioPlayer.state == PlayerState.playing) {
+      await _audioPlayer.stop();
+    }
+    await _audioPlayer.play(UrlSource(music.url));
+    setState(() {
+      _queueWidgets = Music.getMusicQueueWidgets(_room);
+    });
   }
 
   Future openPopupSettings() => showDialog(
@@ -216,7 +275,7 @@ class _RoomPage extends State<RoomPage> {
                   Widget cover = const Icon(Icons.music_note, size: 60);
                   if (snapshot.hasData) {
                     Music? music = snapshot.data;
-                    if (music == null || music.id == null) {
+                    if (music == null || music.id == null || music.id == "") {
                       title = "No music in queue...";
                       artists = "";
                     } else {
@@ -224,20 +283,22 @@ class _RoomPage extends State<RoomPage> {
                       title = music.title;
                       artists = music.artists!.join(", ");
                       // Permet de synchro l'utilisateur qui join la room
-                      if (_isFirstBuild) {
-                        _isFirstBuild = false;
+                      if (_isFirstBuild || _audioPlayer.state == PlayerState.stopped) {
                         if (music.url.isNotEmpty) {
                           _audioPlayer.setSourceUrl(music.url);
                           Duration songPosition = Duration(seconds: _room.actualMusic["position"] as int);
                           _audioPlayer.seek(songPosition);
                           if (_room.actualMusic["state"] == PlayerState.playing.toString()) {
                             songPosition = Duration(seconds: Duration(milliseconds: DateTime.now().millisecondsSinceEpoch - _room.actualMusic["timestamp"] as int).inSeconds + _room.actualMusic["position"] as int);
-                            _audioPlayer.seek(songPosition);
-                            _audioPlayer.resume();
+                            if (songPosition < _duration) {
+                              _audioPlayer.seek(songPosition);
+                              _audioPlayer.resume();
+                            }
                           }
                         }
                       }
                     }
+                    _isFirstBuild = false;
                   } else if (snapshot.hasError) {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -325,7 +386,7 @@ class _RoomPage extends State<RoomPage> {
                               radius: 27,
                               child: IconButton(
                                 iconSize: 27,
-                                icon: Icon(_playerState == PlayerState.playing ? Icons.pause_outlined : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
+                                icon: Icon(_playerState == PlayerState.playing ? Icons.pause : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
                                 onPressed: _playerState == PlayerState.playing ? () {
                                   _isUpdater = true;
                                   _room.action = "pause";
@@ -344,12 +405,9 @@ class _RoomPage extends State<RoomPage> {
                                 if (_room.musicQueue.isNotEmpty) {
                                   _isUpdater = true;
                                   _room.action = "next_music";
-                                  _room.actualMusic["position"] = 0;
-                                  _room.actualMusic["id"] = _room.musicQueue.first;
-                                  _room.musicQueue.removeAt(0);
                                   _room.update();
                                 } else {
-                                  if (mounted && !_isUpdater) ToastUtil.showErrorToast(context, "Music queue empty");
+                                  if (mounted) ToastUtil.showErrorToast(context, "Music queue is empty");
                                 }
                               },
                             )
@@ -369,7 +427,7 @@ class _RoomPage extends State<RoomPage> {
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(width: 2.0, color: Color(0xFF0ee6f1)),),),
                   child: const Padding(
                     padding: EdgeInsets.only(bottom: 8),
-                    child: Text("Music queue", style : TextStyle(fontSize: 22)),
+                    child: Text("Music queue", style : TextStyle(fontSize: 20)),
                   ),
                 ),
               ),
@@ -399,17 +457,9 @@ class _RoomPage extends State<RoomPage> {
                     ];
                   }
                   if (listItems.isEmpty) {
-                    return const Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(top : 8),
-                          child: Text("No music in the queue yet.", style: TextStyle(fontSize: 18),),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top : 8),
-                          child: Text("Add the first music with the button below", style: TextStyle(fontSize: 18),),
-                        ),
-                      ],
+                    return const Padding(
+                      padding: EdgeInsets.only(top : 20),
+                      child: Text("Add the first music with the button below", style: TextStyle(fontSize: 16),),
                     );
                   } else {
                     return SizedBox(
@@ -436,7 +486,13 @@ class _RoomPage extends State<RoomPage> {
         onPressed: () {
           _isUpdater = true;
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SearchMusic(room: _room, audioPlayer: _audioPlayer,)));
+              MaterialPageRoute(builder: (context) => SearchMusic(room: _room)))
+              .whenComplete(() {
+                setState(() {
+                  _actualMusic = _room.getMusic();
+                  _queueWidgets = Music.getMusicQueueWidgets(_room);
+                });
+              });
         },
         child: const Icon(Icons.music_note),
       ),
