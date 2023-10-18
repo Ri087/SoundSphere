@@ -35,15 +35,18 @@ class PopupRoom extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFF0EE6F1)), borderRadius: BorderRadius.circular(7)),
-                      child: IconButton(
-                        icon: const Icon(Icons.settings, color: Color(0xFF0EE6F1), size: 40,),
-                        onPressed: () {
-                          // ADD CODE
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+
                         },
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          decoration: BoxDecoration(border: Border.all(color: const Color(0xFF0EE6F1)), borderRadius: BorderRadius.circular(7)),
+                          child: const Icon(Icons.settings, color: Color(0xFF0EE6F1), size: 40,),
+                        ),
                       ),
                     ),
                     const Padding(
@@ -54,16 +57,19 @@ class PopupRoom extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFFFF86C9)),
-                          borderRadius: BorderRadius.circular(7)
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.delete, color: Color(0xFFFF86C9), size: 40,),
-                        onPressed: () => openPopupDeleteRoom(),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => openPopupDeleteRoom(),
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          decoration: BoxDecoration(
+                              border: Border.all(color: const Color(0xFFFF86C9)),
+                              borderRadius: BorderRadius.circular(7)
+                          ),
+                          child: const Icon(Icons.delete, color: Color(0xFFFF86C9), size: 40,),
+                        ),
                       ),
                     ),
                     const Padding(
@@ -82,16 +88,19 @@ class PopupRoom extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFFFFE681)), borderRadius: BorderRadius.circular(7)),
-                      child: IconButton(
-                        icon: const Icon(Icons.group, color: Color(0xFFFFE681), size: 40,),
-                        onPressed: () {
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
                           Navigator.pop(context);
                           Navigator.push(context, MaterialPageRoute(builder: (context) => RoomUsersPage(room: room)));
                         },
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFFFE681)), borderRadius: BorderRadius.circular(7)),
+                          child: const Icon(Icons.group, color: Color(0xFFFFE681), size: 40,),
+                        ),
                       ),
                     ),
                     const Padding(
@@ -102,16 +111,19 @@ class PopupRoom extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white),
-                          borderRadius: BorderRadius.circular(7)
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.chat_bubble, color: Colors.white, size: 40,),
-                        onPressed: () {},
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {},
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.white),
+                              borderRadius: BorderRadius.circular(7)
+                          ),
+                          child: const Icon(Icons.chat_bubble, color: Colors.white, size: 40,),
+                        ),
                       ),
                     ),
                     const Padding(

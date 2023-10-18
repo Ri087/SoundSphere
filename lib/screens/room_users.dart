@@ -4,7 +4,6 @@ import '../models/room.dart';
 
 class RoomUsersPage extends StatefulWidget {
   final Room room;
-
   const RoomUsersPage({super.key, required this.room});
 
   @override
@@ -24,7 +23,7 @@ class _RoomUsersPage extends State<RoomUsersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        
+
       ),
 
       body: Column(),
