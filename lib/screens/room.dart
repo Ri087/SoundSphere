@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
-import 'package:SoundSphere/widgets/popup/popup_room_settings.dart';
+import 'package:SoundSphere/widgets/popup/popup_room.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:SoundSphere/widgets/toast.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -245,7 +245,7 @@ class _RoomPage extends State<RoomPage> {
 
   Future openPopupSettings() => showDialog(
     context: context,
-    builder:(context)=> const PopupRoomSettings(),
+    builder:(context)=> const PopupRoom(),
   );
 
   Future openPopupWarningDelete() => showDialog(

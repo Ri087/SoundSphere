@@ -2,8 +2,8 @@ import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:flutter/material.dart';
 
 
-class PopupRoomSettings extends StatelessWidget {
-  const PopupRoomSettings({super.key});
+class PopupRoom extends StatelessWidget {
+  const PopupRoom({super.key});
 
   @override
   Widget build(BuildContext context) {
