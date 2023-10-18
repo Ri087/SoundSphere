@@ -260,7 +260,7 @@ class _RoomPage extends State<RoomPage> {
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
         leading: BackButton(onPressed: () => openPopupWarningDelete(),),
-        title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
+        title: Text(_room.title.toUpperCase(), style: const TextStyle(fontFamily: 'ZenDots', fontSize: 20, color: Color(0xFFFF86C9)),),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -326,11 +326,13 @@ class _RoomPage extends State<RoomPage> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: TextButton(
-                          onPressed: () async {
-                            await Clipboard.setData(ClipboardData(text: _room.id));
-                            if (mounted) ToastUtil.showShortInfoToast(context, "Code copied");
-                          },
-                          child: Text("#${_room.id}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF86C9)),)),
+                            style: const ButtonStyle(padding: MaterialStatePropertyAll(EdgeInsets.zero,)),
+                            onPressed: () async {
+                              await Clipboard.setData(ClipboardData(text: _room.id));
+                              if (mounted) ToastUtil.showShortInfoToast(context, "Code copied");
+                            },
+                            child: Text("Click to copy: #${_room.id}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),)
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
@@ -356,7 +358,7 @@ class _RoomPage extends State<RoomPage> {
                       ),
                       Text(artists),
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 2.0),
+                        padding: const EdgeInsets.all(6.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
                           children: [
@@ -504,7 +506,7 @@ class _RoomPage extends State<RoomPage> {
                     );
                   } else {
                     return SizedBox(
-                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height - 525,
+                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height - 550,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ListView.builder(
