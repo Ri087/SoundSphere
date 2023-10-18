@@ -26,8 +26,7 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
       final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
       if (hasJoined && mounted) {
         Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(
-            builder: (context) => RoomPage(room: room,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,)));
       } else if (mounted) {
         ToastUtil.showErrorToast(context, "Error: Connection error");
       }

@@ -1,9 +1,13 @@
+import 'package:SoundSphere/screens/room_users.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/room.dart';
+
 
 class PopupRoom extends StatelessWidget {
-  const PopupRoom({super.key});
+  final Room room;
+  const PopupRoom({super.key, required this.room});
 
   @override
   Widget build(BuildContext context) {
@@ -16,56 +20,108 @@ class PopupRoom extends StatelessWidget {
 
     return AlertDialog(
       elevation: 10,
-      alignment: Alignment.topCenter,
+      alignment: Alignment.center,
       content: SizedBox(
-        height: 150,
+        height: 300,
         width: MediaQuery.of(context).size.width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(border: Border.all(color: const Color(0xFF0EE6F1)), borderRadius: BorderRadius.circular(7)),
-                  child: IconButton(
-                    icon: const Icon(Icons.settings, color: Color(0xFF0EE6F1), size: 40,),
-                    onPressed: () {
-                      // ADD CODE
-                    },
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFF0EE6F1)), borderRadius: BorderRadius.circular(7)),
+                      child: IconButton(
+                        icon: const Icon(Icons.settings, color: Color(0xFF0EE6F1), size: 40,),
+                        onPressed: () {
+                          // ADD CODE
+                        },
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top : 15),
+                      child: Text('SETTINGS', textDirection: TextDirection.ltr, style: TextStyle(color: Color(0xFF0EE6F1),fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,),),),
+                  ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top : 25),
-                  child: Text('Settings', textDirection: TextDirection.ltr, style: TextStyle(color: Color(0xFF0EE6F1),fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,),),),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFFFF86C9)),
+                          borderRadius: BorderRadius.circular(7)
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.delete, color: Color(0xFFFF86C9), size: 40,),
+                        onPressed: () => openPopupDeleteRoom(),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 15),
+                      child: Text("DELETE", style: TextStyle(color: Color(0xFFFF86C9), fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,)
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(left:40),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFFF86C9)),
-                        borderRadius: BorderRadius.circular(10)
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFFFFE681)), borderRadius: BorderRadius.circular(7)),
+                      child: IconButton(
+                        icon: const Icon(Icons.group, color: Color(0xFFFFE681), size: 40,),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => RoomUsersPage(room: room)));
+                        },
+                      ),
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.delete, color: Color(0xFFFF86C9), size: 40,),
-                      onPressed: () => openPopupDeleteRoom(),
+                    const Padding(
+                      padding: EdgeInsets.only(top : 15),
+                      child: Text('USERS', textDirection: TextDirection.ltr, style: TextStyle(color: Color(0xFFFFE681),fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,),),),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white),
+                          borderRadius: BorderRadius.circular(7)
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.chat_bubble, color: Colors.white, size: 40,),
+                        onPressed: () {},
+                      ),
                     ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 25),
-                    child: Text("Delete", style: TextStyle(color: Color(0xFFFF86C9), fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 15),
+                      child: Text("SOON", style: TextStyle(color: Colors.white, fontSize: 18, fontFamily: "Roboto", fontWeight: FontWeight.w400, height: 0,)
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),

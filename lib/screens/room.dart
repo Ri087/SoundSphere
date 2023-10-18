@@ -245,7 +245,7 @@ class _RoomPage extends State<RoomPage> {
 
   Future openPopupSettings() => showDialog(
     context: context,
-    builder:(context)=> const PopupRoom(),
+    builder:(context)=> PopupRoom(room: _room,),
   );
 
   Future openPopupWarningDelete() => showDialog(
