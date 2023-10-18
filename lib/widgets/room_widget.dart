@@ -101,9 +101,8 @@ class _RoomWidget extends State<RoomWidget> {
                     width: 70,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: AppUtilities.getRandomColor(),
-                        borderRadius: const BorderRadius.all(Radius.circular(7.0)
-                        )
+                      color: AppUtilities.getRandomColor(),
+                      borderRadius: const BorderRadius.all(Radius.circular(7.0))
                     ),
                   ),
                 ),

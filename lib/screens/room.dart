@@ -260,7 +260,7 @@ class _RoomPage extends State<RoomPage> {
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
         leading: BackButton(onPressed: () => openPopupWarningDelete(),),
-        title: Text(_room.title.toUpperCase(), style: const TextStyle(fontFamily: 'ZenDots', fontSize: 20, color: Color(0xFFFF86C9)),),
+        title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 20, color: Color(0xFFFF86C9)),),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),

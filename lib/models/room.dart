@@ -94,7 +94,7 @@ class Room {
         musicQueue: [],
         actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0},
         description: description,
-        title: title,
+        title: title.toUpperCase(),
         isPrivate: isPrivate,
         maxMembers: maxMembers,
     );
