@@ -8,6 +8,7 @@ import 'package:SoundSphere/widgets/toast.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/room.dart';
 import '../utils/app_utilities.dart';
@@ -323,11 +324,16 @@ class _RoomPage extends State<RoomPage> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text("Sphere #${_room.id}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: TextButton(
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: _room.id));
+                            if (mounted) ToastUtil.showShortInfoToast(context, "Code copied");
+                          },
+                          child: Text("#${_room.id}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF86C9)),)),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        padding: const EdgeInsets.only(bottom: 8.0),
                         child: FutureBuilder(
                           future: _host,
                           builder: (context, snapshot) {
