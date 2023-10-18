@@ -3,7 +3,6 @@ import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/utils/app_utilities.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:SoundSphere/widgets/room_widget.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

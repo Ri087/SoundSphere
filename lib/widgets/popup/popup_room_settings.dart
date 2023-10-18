@@ -10,7 +10,7 @@ class PopupRoomSettings extends StatelessWidget {
     Future openPopupDeleteRoom() => showDialog(
         context: context,
         builder: (BuildContext context) {
-          return const PopupWarningDeleteRoom(warningText: "");
+          return const PopupWarningDeleteRoom(warningText: "You are going to remove the sphere. Are you sure ?", fromPopup: true);
         }
     );
 

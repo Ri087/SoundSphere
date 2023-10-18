@@ -3,6 +3,7 @@ import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/search_music.dart';
 import 'package:SoundSphere/widgets/popup/popup_room_settings.dart';
+import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:SoundSphere/widgets/toast.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,7 +22,7 @@ class RoomPage extends StatefulWidget {
 
 class _RoomPage extends State<RoomPage> {
   late Room _room;
-  late Future<Music?> _actualMusic;
+  late Future<Music> _actualMusic;
   late Future<List<Widget>> _queueWidgets;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
@@ -29,6 +30,8 @@ class _RoomPage extends State<RoomPage> {
   late PlayerState _playerState;
   Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
+  bool _muted = false;
+  bool _notified = true;
   bool _isPositionChanged = false;
   bool _isUpdater = false;
   bool _isFirstBuild = true;
@@ -65,15 +68,15 @@ class _RoomPage extends State<RoomPage> {
            case "":
              break;
            case "user_join":
-             if (mounted) ToastUtil.showInfoToast(context, "$updater join");
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater join");
              break;
            case "user_leave":
-             if (mounted) ToastUtil.showInfoToast(context, "$updater leave");
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater leave");
              _isUpdater = false;
              break;
            case "play":
-             if (mounted) ToastUtil.showInfoToast(context, "$updater resume the music");
-             _play(null);
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater resume the music");
+             _play();
              if (_isUpdater) {
                _isUpdater = false;
                _room.action = "";
@@ -84,7 +87,7 @@ class _RoomPage extends State<RoomPage> {
              }
              break;
            case "pause":
-             if (mounted) ToastUtil.showInfoToast(context, "$updater pause the music");
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater pause the music");
              _pause();
              if (_isUpdater) {
                _isUpdater = false;
@@ -98,10 +101,10 @@ class _RoomPage extends State<RoomPage> {
            case "next_music":
              _room.actualMusic["state"] = _playerState == PlayerState.playing ? PlayerState.playing.toString() : PlayerState.paused.toString();
              if (queueToActual) {
-               if (mounted) ToastUtil.showInfoToast(context, "$updater play the music");
+               if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater play the music");
                _room.actualMusic["state"] = PlayerState.playing.toString();
              } else {
-               if (mounted) ToastUtil.showInfoToast(context, "$updater skip the music");
+               if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater skip the music");
              }
              _room.action = "";
              _room.actualMusic["position"] = 0;
@@ -115,12 +118,12 @@ class _RoomPage extends State<RoomPage> {
              }
              break;
            case "restart_music":
-             if (mounted) ToastUtil.showInfoToast(context, "$updater restart the music");
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater restart the music");
              _audioPlayer.seek(const Duration(seconds: 0));
              _isUpdater = false;
              break;
            case "changed_position":
-             if (mounted) ToastUtil.showInfoToast(context, "$updater change music position");
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater change music position");
              _audioPlayer.seek(Duration(seconds: _room.actualMusic["position"] as int));
              _isPositionChanged = false;
              _isUpdater = false;
@@ -134,7 +137,7 @@ class _RoomPage extends State<RoomPage> {
                  _isUpdater = false;
                }
              } else {
-               if (mounted) ToastUtil.showInfoToast(context, "$updater add a music in queue");
+               if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater add a music in queue");
                _isUpdater = false;
                setState(() {
                  _queueWidgets = Music.getMusicQueueWidgets(_room);
@@ -148,7 +151,7 @@ class _RoomPage extends State<RoomPage> {
              break;
          }
        }
-     }, onError: (error) => print("Listen failed: $error"));
+     }, onError: (error) {});
 
     _audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
@@ -218,25 +221,22 @@ class _RoomPage extends State<RoomPage> {
     _audioPlayer.pause();
   }
 
-  void _play(Music? music) {
-    if ([PlayerState.stopped, PlayerState.completed].contains(_playerState)) {
-      if (music != null) {
-        _audioPlayer.play(UrlSource(music.url));
-      } else if (_room.actualMusic["state"] == PlayerState.paused.toString()) {
-        _audioPlayer.resume();
-      }
-    } else {
+  void _play() {
+    if (![PlayerState.stopped, PlayerState.completed].contains(_playerState)) {
       _audioPlayer.resume();
     }
   }
 
   Future<void> nextMusic() async {
-    Music? music = await _room.getMusic();
+    Music music = await _room.getMusic();
 
     if (_audioPlayer.state == PlayerState.playing) {
-      await _audioPlayer.stop();
+      await _audioPlayer.pause();
     }
-    await _audioPlayer.play(UrlSource(music.url));
+
+    await _audioPlayer.setSource(UrlSource(music.url));
+    await _audioPlayer.seek(Duration.zero);
+    await _audioPlayer.resume();
     setState(() {
       _queueWidgets = Music.getMusicQueueWidgets(_room);
     });
@@ -247,18 +247,26 @@ class _RoomPage extends State<RoomPage> {
     builder:(context)=> const PopupRoomSettings(),
   );
 
+  Future openPopupWarningDelete() => showDialog(
+    context: context,
+    builder:(context)=> const PopupWarningDeleteRoom(warningText: "If you leave the sphere while being the host of it, the sphere will be removed!", fromPopup: false),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
-        leading: BackButton(onPressed: () => Navigator.pop(context),),
+        leading: BackButton(onPressed: () => openPopupWarningDelete(),),
         title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 18),),
         actions: [
-          IconButton(
-            onPressed: () => openPopupSettings(),
-            icon: const Icon(Icons.settings),)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: IconButton(
+              onPressed: () => openPopupSettings(),
+              icon: const Icon(Icons.settings),),
+          )
         ],
       ),
 
@@ -315,7 +323,11 @@ class _RoomPage extends State<RoomPage> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text("Sphere #${_room.id}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: FutureBuilder(
                           future: _host,
                           builder: (context, snapshot) {
@@ -324,95 +336,118 @@ class _RoomPage extends State<RoomPage> {
                           },
                         ),
                       ),
-                      Text("code: ${_room.id}"),
                       Padding(
-                        padding: const EdgeInsets.all(12.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: Container(
-                          height: 180, width: 180,
+                          height: 184, width: 184,
                           decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
-                          child: cover),
+                          child: cover
+                        ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
-                        child: Text(title, style: const TextStyle(fontSize: 22), ),
+                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: Text(title, style: const TextStyle(fontSize: 20), ),
                       ),
                       Text(artists),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Text(AppUtilities.formatedTime(timeInSecond: _position.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
-                          Expanded(
-                            child: Slider(
-                              min: 0,
-                              max: _duration.inSeconds.toDouble(),
-                              value: _position.inSeconds.toDouble(),
-                              onChangeStart: (value) {
-                                _isPositionChanged = true;
-                              },
-                              onChanged: (value) {
-                                setState(() {
-                                  _position = Duration(seconds: value.toInt());
-                                });
-                              },
-                              onChangeEnd: (value) {
-                                _isUpdater = true;
-                                _room.action = "changed_position";
-                                _room.actualMusic["position"] = value.toInt();
-                                _room.update();
-                              },
-                            ),
-                          ),
-                          Text(AppUtilities.formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
-                        ],
-                      ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 2.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            IconButton(
-                              iconSize: 27,
-                              icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
-                              onPressed: () {
-                                _isUpdater = true;
-                                _room.actualMusic["position"] = 0;
-                                _room.action = "restart_music";
-                                _room.update();
-                              },
-                            ),
-                            CircleAvatar(
-                              backgroundColor: const Color(0xFFFF86C9),
-                              radius: 27,
-                              child: IconButton(
-                                iconSize: 27,
-                                icon: Icon(_playerState == PlayerState.playing ? Icons.pause : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
-                                onPressed: _playerState == PlayerState.playing ? () {
+                            Text(AppUtilities.formatedTime(timeInSecond: _position.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
+                            Expanded(
+                              child: Slider(
+                                min: 0,
+                                max: _duration.inSeconds.toDouble(),
+                                value: _position.inSeconds.toDouble(),
+                                onChangeStart: (value) {
+                                  _isPositionChanged = true;
+                                },
+                                onChanged: (value) {
+                                  setState(() {
+                                    _position = Duration(seconds: value.toInt());
+                                  });
+                                },
+                                onChangeEnd: (value) {
                                   _isUpdater = true;
-                                  _room.action = "pause";
-                                  _room.update();
-                                } : () {
-                                  _isUpdater = true;
-                                  _room.action = "play";
+                                  _room.action = "changed_position";
+                                  _room.actualMusic["position"] = value.toInt();
                                   _room.update();
                                 },
                               ),
                             ),
-                            IconButton(
-                              iconSize: 27,
-                              icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
-                              onPressed: () {
-                                if (_room.musicQueue.isNotEmpty) {
-                                  _isUpdater = true;
-                                  _room.action = "next_music";
-                                  _room.update();
-                                } else {
-                                  if (mounted) ToastUtil.showErrorToast(context, "Music queue is empty");
-                                }
-                              },
-                            )
+                            Text(AppUtilities.formatedTime(timeInSecond: _duration.inSeconds.toInt()), style: const TextStyle(color: Colors.blueGrey, fontSize: 10),),
                           ],
                         ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          IconButton(
+                            iconSize: 20,
+                            onPressed: () {
+                              setState(() {
+                                _muted = !_muted;
+                              });
+                              if (_muted) {
+                                _audioPlayer.setVolume(0.0);
+                              } else {
+                                _audioPlayer.setVolume(1.0);
+                              }
+                            },
+                            icon: Icon(_muted ? Icons.volume_off : Icons.volume_up, color: const Color(0xFFFFE681),)
+                          ),
+                          IconButton(
+                            iconSize: 27,
+                            icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
+                            onPressed: () {
+                              _isUpdater = true;
+                              _room.actualMusic["position"] = 0;
+                              _room.action = "restart_music";
+                              _room.update();
+                            },
+                          ),
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFFFF86C9),
+                            radius: 27,
+                            child: IconButton(
+                              iconSize: 27,
+                              icon: Icon(_playerState == PlayerState.playing ? Icons.pause : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
+                              onPressed: _playerState == PlayerState.playing ? () {
+                                _isUpdater = true;
+                                _room.action = "pause";
+                                _room.update();
+                              } : () {
+                                _isUpdater = true;
+                                _room.action = "play";
+                                _room.update();
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            iconSize: 27,
+                            icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
+                            onPressed: () {
+                              if (_room.musicQueue.isNotEmpty) {
+                                _isUpdater = true;
+                                _room.action = "next_music";
+                                _room.update();
+                              } else {
+                                if (mounted) ToastUtil.showErrorToast(context, "Music queue is empty");
+                              }
+                            },
+                          ),
+                          IconButton(
+                            iconSize: 20,
+                            onPressed: () {
+                              setState(() {
+                                _notified = !_notified;
+                              });
+                            },
+                            icon: Icon(_notified ? Icons.notifications_active: Icons.notifications_off, color: const Color(0xFFFFE681),)
+                          ),
+                        ],
                       ),
                     ],
                   );
@@ -463,7 +498,7 @@ class _RoomPage extends State<RoomPage> {
                     );
                   } else {
                     return SizedBox(
-                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height - 480,
+                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height - 525,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ListView.builder(
@@ -494,7 +529,7 @@ class _RoomPage extends State<RoomPage> {
                 });
               });
         },
-        child: const Icon(Icons.music_note),
+        child: const Icon(Icons.format_list_bulleted),
       ),
     );
   }
