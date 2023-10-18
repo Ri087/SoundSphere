@@ -37,4 +37,16 @@ class ToastUtil {
         textColor: Colors.white,
         fontSize: 16.0);
   }
+
+  static void showShortInfoToast(BuildContext context, String infoMessage) {
+    Fluttertoast.showToast(
+        msg: infoMessage,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        webShowClose: true,
+        timeInSecForIosWeb: 3,
+        backgroundColor: const Color(0xFF2787D6),
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
 }

@@ -52,11 +52,11 @@ class Music {
     return widgets;
   }
   
-  static Future<List<Widget>> getMusicsSearchWidgets(String search, Room room, AudioPlayer audioPlayer) async {
+  static Future<List<Widget>> getMusicsSearchWidgets(String search, Room room) async {
     List<Widget> widgets = [];
     List<Music?> musics = await Music.getDbMusics(search);
     for (var music in musics) {
-      widgets.add(MusicSearchWidget(music: music!, room: room, audioPlayer: audioPlayer));
+      widgets.add(MusicSearchWidget(music: music!, room: room));
     }
     return widgets;
   }

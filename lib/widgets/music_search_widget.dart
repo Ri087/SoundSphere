@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 class MusicSearchWidget extends StatelessWidget {
   final Music music;
   final Room room;
-  final AudioPlayer audioPlayer;
-  const MusicSearchWidget({super.key, required this.music, required this.room, required this.audioPlayer});
+  const MusicSearchWidget({super.key, required this.music, required this.room});
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +45,7 @@ class MusicSearchWidget extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
-                ToastUtil.showInfoToast(context, "Music added to the queue");
-                room.addMusic(music, audioPlayer);
+                room.addMusic(music);
               },
               child: const Icon(Icons.add, color: Color(0xFF0EE6F1), size: 30,),
             ),

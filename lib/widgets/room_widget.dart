@@ -34,15 +34,19 @@ class _RoomWidget extends State<RoomWidget> {
     _lastActualMusic = _room.actualMusic["id"];
     music = _room.getMusic();
 
-    _roomStream = Room.collectionRef.doc(_room.id).snapshots().listen((event) {
-      if (event.data() != null) {
+    _roomStream = Room.getCollectionRef().doc(_room.id).snapshots(includeMetadataChanges: true).listen((event) {
+      if (event.data() != null && !event.metadata.hasPendingWrites) {
         Room newRoom = event.data()!;
 
         if (_lastActualMusic == newRoom.actualMusic["id"].toString()) {
           _lastActualMusic = newRoom.actualMusic["id"].toString();
-          if (mounted) setState(() => music = _room.getMusic());
+          setState(() {
+            music = _room.getMusic();
+          });
         }
-        if (mounted) setState(() => _room = newRoom);
+        setState(() {
+          _room = newRoom;
+        });
       }
     });
   }
@@ -54,7 +58,7 @@ class _RoomWidget extends State<RoomWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant RoomWidget oldWidget) {
+  void didUpdateWidget(covariant oldWidget) {
     super.didUpdateWidget(oldWidget);
     music = _room.getMusic();
   }
@@ -67,9 +71,7 @@ class _RoomWidget extends State<RoomWidget> {
         final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
           Navigator.push(context, MaterialPageRoute(
-              builder: (context) => RoomPage(room: _room,))).whenComplete(() {
-            _onReturn();
-          });
+              builder: (context) => RoomPage(room: _room,))).then((value) => _onReturn());
         } else if (mounted) {
           ToastUtil.showErrorToast(context, "Error: Connection error");
         }

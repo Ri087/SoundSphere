@@ -1,18 +1,16 @@
-import 'package:SoundSphere/widgets/popup/popup_change_username.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:flutter/material.dart';
 
-import '../../screens/login/email_page.dart';
 
 class PopupRoomSettings extends StatelessWidget {
   const PopupRoomSettings({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Future openPopupRoomSettings() => showDialog(
+    Future openPopupDeleteRoom() => showDialog(
         context: context,
         builder: (BuildContext context) {
-          return PopupChangeUsername();
+          return const PopupWarningDeleteRoom(warningText: "You are going to remove the sphere. Are you sure ?", fromPopup: true);
         }
     );
 
@@ -58,9 +56,7 @@ class PopupRoomSettings extends StatelessWidget {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.delete, color: Color(0xFFFF86C9), size: 40,),
-                      onPressed: () {
-                        // ADD CODE
-                      },
+                      onPressed: () => openPopupDeleteRoom(),
                     ),
                   ),
                   const Padding(
