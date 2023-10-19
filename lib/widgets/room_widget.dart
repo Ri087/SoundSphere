@@ -58,6 +58,18 @@ class _RoomWidget extends State<RoomWidget> {
   }
 
   @override
+  void activate() {
+    super.activate();
+    if (_roomStream.isPaused) _roomStream.resume();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    if (!_roomStream.isPaused) _roomStream.pause();
+  }
+
+  @override
   void didUpdateWidget(covariant oldWidget) {
     super.didUpdateWidget(oldWidget);
     music = _room.getMusic();

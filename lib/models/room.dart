@@ -1,7 +1,7 @@
-import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/models/app_user.dart';
-import 'package:SoundSphere/utils/app_utilities.dart';
+import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
+import 'package:SoundSphere/utils/app_utilities.dart';
 import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,15 +10,15 @@ import 'package:flutter/material.dart';
 class Room {
   final String id;
   final String title;
-  final String? description;
   final String host;
   final bool isPrivate;
   final int maxMembers;
-  List<dynamic> members;
-  List<dynamic> musicQueue;
+  Map<String, dynamic> members;
+  Map<String, dynamic> musicQueue;
   Map<String, dynamic> actualMusic;
   String action;
   String updater;
+  int musicCounter = 0;
 
   Room({
     required this.id,
@@ -26,7 +26,6 @@ class Room {
     required this.musicQueue,
     required this.actualMusic,
     required this.title,
-    this.description,
     required this.maxMembers,
     required this.members,
     this.isPrivate = false,
@@ -40,7 +39,13 @@ class Room {
 
   Future<void> addMusic(Music musicToAdd) async {
     action = "add_music";
-    musicQueue.add(musicToAdd.id);
+    musicQueue["${++musicCounter}"] = musicToAdd.id;
+    await update();
+  }
+
+  Future<void> removeMusic(String index) async {
+    action = "remove_music";
+    musicQueue.remove(index);
     await update();
   }
 
@@ -53,6 +58,25 @@ class Room {
       return docSnap.data()!;
     }
     return Music(url: "", duration: 0, artists: [], title: "", album: "", cover: "");
+  }
+
+  Future<Music> getNextMusic() async {
+    if (musicQueue.isEmpty) {
+      return Music(url: "", duration: 0, artists: [], title: "", album: "", cover: "");
+    } else {
+      final docSnap = await Music.collectionRef.doc(musicQueue.values.first).get();
+      if (docSnap.data() != null) {
+        return docSnap.data()!;
+      }
+      return Music(
+          url: "",
+          duration: 0,
+          artists: [],
+          title: "",
+          album: "",
+          cover: ""
+      );
+    }
   }
 
   static Future<Room?> getRoom(String docId) async {
@@ -90,10 +114,9 @@ class Room {
     final Room room = Room(
         id: "S-${AppUtilities.getRandomString(5).toUpperCase()}",
         host: hostUID,
-        members: [],
-        musicQueue: [],
+        members: {},
+        musicQueue: {},
         actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0},
-        description: description,
         title: title.toUpperCase(),
         isPrivate: isPrivate,
         maxMembers: maxMembers,
@@ -107,16 +130,90 @@ class Room {
       return false;
     }
 
-    if (!members.contains(uid)) {
+    if (!members.containsKey(uid)) {
       action = "user_join";
-      members.add(uid);
+      if (uid == host) {
+        members[uid] = {
+          "room": {
+            "queue": true,
+            "users": true,
+            "chat": true,
+            "settings": true,
+            "delete_room": true,
+          },
+          "users": {
+            "change_permissions": true,
+            "kick_user": true,
+            "ban_user": true
+          },
+          "player": {
+            "add_music": true,
+            "remove_music": true,
+            "change_music_order": true,
+            "restart_music": true,
+            "next_music": true,
+            "pause_play_music": true,
+            "change_position": true
+          }
+        };
+      } else {
+        if (isPrivate) {
+          members[uid] = {
+            "room": {
+              "queue": true,
+              "users": true,
+              "chat": true,
+              "settings": false,
+              "delete_room": false
+            },
+            "users": {
+              "change_permissions": false,
+              "kick_user": false,
+              "ban_user": false
+            },
+            "player": {
+              "add_music": true,
+              "remove_music": true,
+              "change_music_order": true,
+              "restart_music": true,
+              "next_music": true,
+              "pause_play_music": true,
+              "change_position": true
+            }
+          };
+        } else {
+          members[uid] = {
+            "room": {
+              "queue": true,
+              "users": false,
+              "chat": false,
+              "settings": false,
+              "delete_room": false
+            },
+            "users": {
+              "change_permissions": false,
+              "kick_user": false,
+              "ban_user": false
+            },
+            "player": {
+              "add_music": false,
+              "remove_music": false,
+              "change_music_order": false,
+              "restart_music": false,
+              "next_music": false,
+              "pause_play_music": false,
+              "change_position": false
+            }
+          };
+        }
+      }
       await update();
     }
     return true;
   }
 
   Future<void> removeMember(String uid) async {
-    if (!members.contains(uid)) {
+    if (!members.containsKey(uid)) {
       return;
     }
     action = "user_leave";
@@ -137,7 +234,6 @@ class Room {
     return Room(
       id: snapshot.id,
       title: data?["title"],
-      description: data?["description"],
       maxMembers: data?["max_members"],
       members: data?["members"],
       isPrivate: data?["is_private"],
@@ -152,7 +248,6 @@ class Room {
   Map<String, dynamic> toFirestore() {
     return {
       "title": title,
-      if (description != null) "description": description,
       "max_members": maxMembers,
       "members": members,
       "is_private": isPrivate,
