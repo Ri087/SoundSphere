@@ -55,6 +55,24 @@ class Room {
     return Music(url: "", duration: 0, artists: [], title: "", album: "", cover: "");
   }
 
+  Future<Music> getNextMusic() async {
+    if (musicQueue.isEmpty) {
+      return Music(url: "", duration: 0, artists: [], title: "", album: "", cover: "");
+    }
+    else {
+      final docSnap = await Music.collectionRef.doc(musicQueue[0]).get();
+      if (docSnap.data() != null) {
+        return docSnap.data()!;
+      }
+      return Music(url: "",
+          duration: 0,
+          artists: [],
+          title: "",
+          album: "",
+          cover: "");
+    }
+  }
+
   static Future<Room?> getRoom(String docId) async {
     final docSnap = await getCollectionRef().doc(docId).get();
     return docSnap.data();
