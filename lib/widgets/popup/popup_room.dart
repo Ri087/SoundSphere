@@ -1,4 +1,5 @@
 import 'package:SoundSphere/screens/room_users.dart';
+import 'package:SoundSphere/screens/settings.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,8 @@ class PopupRoom extends StatelessWidget {
                       child: InkWell(
                         onTap: () {
                           if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["settings"]) {
+                            Navigator.pop(context);
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage(room: room)));
                           } else {
                             ToastUtil.showErrorToast(context, "Not permitted");
                           }
