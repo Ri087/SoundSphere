@@ -18,7 +18,7 @@ class Room {
   Map<String, dynamic> actualMusic;
   String action;
   String updater;
-  int musicCounter = 0;
+  int musicCounter;
 
   Room({
     required this.id,
@@ -31,6 +31,7 @@ class Room {
     this.isPrivate = false,
     this.action = "",
     this.updater = "",
+    required this.musicCounter
   });
 
   static CollectionReference<Room> getCollectionRef() => AppFirebase.db.collection("rooms")
@@ -112,14 +113,15 @@ class Room {
   static Future<Room> createSphere(String title, String description, bool isPrivate, int maxMembers) async {
     String hostUID = FirebaseAuth.instance.currentUser!.uid;
     final Room room = Room(
-        id: "S-${AppUtilities.getRandomString(5).toUpperCase()}",
-        host: hostUID,
-        members: {},
-        musicQueue: {},
-        actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0},
-        title: title.toUpperCase(),
-        isPrivate: isPrivate,
-        maxMembers: maxMembers,
+      id: "S-${AppUtilities.getRandomString(5).toUpperCase()}",
+      host: hostUID,
+      members: {},
+      musicQueue: {},
+      actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0},
+      title: title.toUpperCase(),
+      isPrivate: isPrivate,
+      maxMembers: maxMembers,
+      musicCounter: 0
     );
     await getCollectionRef().doc(room.id).set(room);
     return room;
@@ -242,6 +244,7 @@ class Room {
       host: data?["host"],
       action: data?["action"],
       updater: data?["updater"],
+      musicCounter: data?["music_counter"],
     );
   }
 
@@ -256,6 +259,7 @@ class Room {
       "host": host,
       "action": action,
       "updater": updater,
+      "music_counter": musicCounter,
     };
   }
 }
