@@ -70,80 +70,76 @@ class _Queue extends State<Queue> {
         ),
       ),
 
-      body: Column(
-        children: [
-          RefreshIndicator(
-            triggerMode: RefreshIndicatorTriggerMode.anywhere,
-            backgroundColor: const Color(0xFF0EE6F1),
-            color: Colors.white,
-            onRefresh: () async {
-              setState(() {
-                _queueWidgets = Music.getMusicQueueWidgets(_room);
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(top: 16, left: 12),
-              child: FutureBuilder(
-                future:  _queueWidgets,
-                builder: (context, snapshot) {
-                  List<Widget> listItems;
-                  if (snapshot.hasData) {
-                    listItems = snapshot.data!;
-                  } else if (snapshot.hasError) {
-                    listItems = [Text("Result : ${snapshot.error}")];
-                  } else {
-                    listItems = [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
-                        child: const Center(
-                          child: SizedBox(
-                            width: 50,
-                            height: 50,
-                            child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
-                          ),
+      body: RefreshIndicator(
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
+        backgroundColor: const Color(0xFF0EE6F1),
+        color: Colors.white,
+        onRefresh: () async {
+          setState(() {
+            _queueWidgets = Music.getMusicQueueWidgets(_room);
+          });
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(top: 16, left: 12),
+          child: FutureBuilder(
+            future:  _queueWidgets,
+            builder: (context, snapshot) {
+              List<Widget> listItems;
+              if (snapshot.hasData) {
+                listItems = snapshot.data!;
+              } else if (snapshot.hasError) {
+                listItems = [Text("Result : ${snapshot.error}")];
+              } else {
+                listItems = [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
+                    child: const Center(
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                      ),
+                    ),
+                  ),
+                ];
+              }
+              if (listItems.isEmpty) {
+                return SizedBox(
+                  height : MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
+                  child :
+                    Container(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width - 50,
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.library_music, size: 125,),
+                            Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text("The queue is empty", style: TextStyle(fontSize: 22),),
+                            ),
+                            Text("Use the '+' button to add a music to the queue."),
+                            Text("If no musics appear, try to refresh!")
+                          ],
                         ),
                       ),
-                    ];
-                  }
-                  if (listItems.isEmpty) {
-                    return SizedBox(
-                      height : MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
-                      child :
-                        Container(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width - 50,
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.library_music, size: 125,),
-                                Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Text("The queue is empty", style: TextStyle(fontSize: 22),),
-                                ),
-                                Text("Use the '+' button to add a music to the queue."),
-                                Text("If no musics appear, try to refresh!")
-                              ],
-                            ),
-                          ),
-                        ),
-                    );
-                  } else {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
-                      child: ListView.builder(
-                        itemCount: listItems.length,
-                        itemBuilder: (ctxt, ind) {
-                          return listItems[ind];
-                        }
-                      )
-                    );
-                  }
-                }
-              ),
-            )
+                    ),
+                );
+              } else {
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
+                  child: ListView.builder(
+                    itemCount: listItems.length,
+                    itemBuilder: (ctxt, ind) {
+                      return listItems[ind];
+                    }
+                  )
+                );
+              }
+            }
           ),
-        ],
+        )
       ),
 
       floatingActionButton: FloatingActionButton(
