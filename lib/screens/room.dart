@@ -149,6 +149,9 @@ class _RoomPage extends State<RoomPage> {
              if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater remove a music in queue");
              _isUpdater = false;
              break;
+           case "change_permissions":
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater change permissions");
+             break;
          }
        }
      }, onError: (error) {});

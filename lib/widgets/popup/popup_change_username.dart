@@ -50,7 +50,7 @@ class PopupChangeUsername extends StatelessWidget {
                   onPressed: () {
                     try {
                       FirebaseAuth.instance.currentUser!.updateDisplayName(newUsername.text).then((value) {
-                        AppUser.collectionRef.doc(FirebaseAuth.instance.currentUser!.uid).update({"display_name": newUsername.text}).then((value) {
+                        AppUser.collectionRef.doc(FirebaseAuth.instance.currentUser!.uid).update({"display_name": newUsername.text}).whenComplete(() {
                           ToastUtil.showSuccessToast(context, "Success: Username has been updated");
                           newUsername.clear();
                           Navigator.pop(context);

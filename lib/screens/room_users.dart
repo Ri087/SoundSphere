@@ -19,7 +19,7 @@ class _RoomUsersPage extends State<RoomUsersPage> {
     _room.members.forEach((key, value) {
       usersWidgets.add(RoomUserWidget(
         userID: key,
-        userPermissions: value
+        room: _room
       ));
     });
     return usersWidgets;
@@ -29,6 +29,11 @@ class _RoomUsersPage extends State<RoomUsersPage> {
   void initState() {
     super.initState();
     _room = widget.room;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -47,10 +52,20 @@ class _RoomUsersPage extends State<RoomUsersPage> {
       ),
 
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.only(left: 12.0, right: 12, top: 16, bottom: 80),
         child: ListView(
           children: getUsersWidgets(),
         ),
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFFFE681),
+        foregroundColor: Colors.black,
+        onPressed: () {
+          _room.action = "change_permissions";
+          _room.update();
+        },
+        child: const Icon(Icons.save,),
       ),
     );
   }

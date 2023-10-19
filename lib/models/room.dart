@@ -31,7 +31,7 @@ class Room {
     this.isPrivate = false,
     this.action = "",
     this.updater = "",
-    required this.musicCounter
+    this.musicCounter = 0
   });
 
   static CollectionReference<Room> getCollectionRef() => AppFirebase.db.collection("rooms")
@@ -121,7 +121,6 @@ class Room {
       title: title.toUpperCase(),
       isPrivate: isPrivate,
       maxMembers: maxMembers,
-      musicCounter: 0
     );
     await getCollectionRef().doc(room.id).set(room);
     return room;

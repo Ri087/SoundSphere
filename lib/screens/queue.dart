@@ -17,7 +17,7 @@ class Queue extends StatefulWidget {
 
 class _Queue extends State<Queue> {
   late Room _room;
-  late StreamSubscription<DocumentSnapshot> _roomStream;
+  late final StreamSubscription<DocumentSnapshot> _roomStream;
   late Future<List<Widget>> _queueWidgets;
   TextEditingController searchController = TextEditingController();
   bool typing = false;
@@ -30,10 +30,13 @@ class _Queue extends State<Queue> {
 
     _roomStream = Room.getCollectionRef().doc(_room.id).snapshots(includeMetadataChanges: true).listen((event) {
       if (event.data() != null && !event.metadata.hasPendingWrites && !event.metadata.isFromCache) {
-        setState(() {
-          _room = event.data()!;
-          _queueWidgets = Music.getMusicQueueWidgets(_room);
-        });
+        Room newRoom = event.data()!;
+        if (newRoom.musicQueue != _room.musicQueue) {
+          setState(() {
+            _room = event.data()!;
+            _queueWidgets = Music.getMusicQueueWidgets(_room);
+          });
+        }
       }
     });
   }
