@@ -31,6 +31,7 @@ class _RoomPage extends State<RoomPage> {
   late final StreamSubscription _roomStream;
   late final Future<AppUser> _host;
   late PlayerState _playerState;
+  late Map<String, dynamic> _userPermissions;
   Duration _duration = const Duration(seconds: 0);
   Duration _position = const Duration(seconds: 0);
   bool _muted = false;
@@ -45,6 +46,7 @@ class _RoomPage extends State<RoomPage> {
 
     _room = widget.room;
     _playerState = _audioPlayer.state;
+    _userPermissions = _room.members[FirebaseAuth.instance.currentUser!.uid];
 
     // Async
     _actualMusic = _room.getMusic();
@@ -252,7 +254,7 @@ class _RoomPage extends State<RoomPage> {
 
   Future openPopupWarningDelete() => showDialog(
     context: context,
-    builder:(context)=> const PopupWarningDeleteRoom(warningText: "If you leave the sphere while being the host of it, the sphere will be removed!", fromPopup: false),
+    builder:(context)=> const PopupWarningDeleteRoom(warningText: "If you leave the sphere as the host, it will be deleted!", fromPopup: false),
   );
 
   @override
@@ -262,7 +264,7 @@ class _RoomPage extends State<RoomPage> {
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
         leading: BackButton(onPressed: () => openPopupWarningDelete(),),
-        title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 20, color: Color(0xFFFF86C9)),),
+        title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 20,),),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -337,7 +339,7 @@ class _RoomPage extends State<RoomPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
+                        padding: const EdgeInsets.only(bottom: 10.0),
                         child: FutureBuilder(
                           future: _host,
                           builder: (context, snapshot) {
@@ -371,18 +373,26 @@ class _RoomPage extends State<RoomPage> {
                                 max: _duration.inSeconds.toDouble(),
                                 value: _position.inSeconds.toDouble(),
                                 onChangeStart: (value) {
-                                  _isPositionChanged = true;
+                                  if (_userPermissions["player"]["change_position"]) {
+                                    _isPositionChanged = true;
+                                  } else if (mounted) {
+                                    ToastUtil.showErrorToast(context, "Not permitted");
+                                  }
                                 },
                                 onChanged: (value) {
-                                  setState(() {
-                                    _position = Duration(seconds: value.toInt());
-                                  });
+                                  if(_isPositionChanged) {
+                                    setState(() {
+                                      _position = Duration(seconds: value.toInt());
+                                    });
+                                  }
                                 },
                                 onChangeEnd: (value) {
-                                  _isUpdater = true;
-                                  _room.action = "changed_position";
-                                  _room.actualMusic["position"] = value.toInt();
-                                  _room.update();
+                                  if (_isPositionChanged) {
+                                    _isUpdater = true;
+                                    _room.action = "changed_position";
+                                    _room.actualMusic["position"] = value.toInt();
+                                    _room.update();
+                                  }
                                 },
                               ),
                             ),
@@ -412,10 +422,14 @@ class _RoomPage extends State<RoomPage> {
                             iconSize: 27,
                             icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
                             onPressed: () {
-                              _isUpdater = true;
-                              _room.actualMusic["position"] = 0;
-                              _room.action = "restart_music";
-                              _room.update();
+                              if(_userPermissions["player"]["restart_music"]) {
+                                _isUpdater = true;
+                                _room.actualMusic["position"] = 0;
+                                _room.action = "restart_music";
+                                _room.update();
+                              } else if (mounted) {
+                                ToastUtil.showErrorToast(context, "Not permitted");
+                              }
                             },
                           ),
                           CircleAvatar(
@@ -424,14 +438,18 @@ class _RoomPage extends State<RoomPage> {
                             child: IconButton(
                               iconSize: 27,
                               icon: Icon(_playerState == PlayerState.playing ? Icons.pause : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
-                              onPressed: _playerState == PlayerState.playing ? () {
-                                _isUpdater = true;
-                                _room.action = "pause";
-                                _room.update();
+                              onPressed: _userPermissions["player"]["pause_play_music"] ? () {
+                                if(_playerState == PlayerState.playing) {
+                                  _isUpdater = true;
+                                  _room.action = "pause";
+                                  _room.update();
+                                } else {
+                                  _isUpdater = true;
+                                  _room.action = "play";
+                                  _room.update();
+                                }
                               } : () {
-                                _isUpdater = true;
-                                _room.action = "play";
-                                _room.update();
+                                if (mounted) ToastUtil.showErrorToast(context, "Not permitted");
                               },
                             ),
                           ),
@@ -439,12 +457,16 @@ class _RoomPage extends State<RoomPage> {
                             iconSize: 27,
                             icon: const Icon(Icons.skip_next_outlined, color: Color(0xFFFFE681)),
                             onPressed: () {
-                              if (_room.musicQueue.isNotEmpty) {
-                                _isUpdater = true;
-                                _room.action = "next_music";
-                                _room.update();
+                              if (_userPermissions["player"]["next_music"]) {
+                                if (_room.musicQueue.isNotEmpty) {
+                                  _isUpdater = true;
+                                  _room.action = "next_music";
+                                  _room.update();
+                                } else {
+                                  if (mounted) ToastUtil.showErrorToast(context, "Music queue is empty");
+                                }
                               } else {
-                                if (mounted) ToastUtil.showErrorToast(context, "Music queue is empty");
+                                if (mounted) ToastUtil.showErrorToast(context, "Not permitted");
                               }
                             },
                           ),

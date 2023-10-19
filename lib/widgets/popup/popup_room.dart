@@ -1,8 +1,10 @@
 import 'package:SoundSphere/screens/room_users.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/room.dart';
+import '../toast.dart';
 
 
 class PopupRoom extends StatelessWidget {
@@ -14,7 +16,7 @@ class PopupRoom extends StatelessWidget {
     Future openPopupDeleteRoom() => showDialog(
         context: context,
         builder: (BuildContext context) {
-          return const PopupWarningDeleteRoom(warningText: "You are going to remove the sphere. Are you sure ?", fromPopup: true);
+          return const PopupWarningDeleteRoom(warningText: "You are going to delete the sphere. Are you sure ?", fromPopup: true);
         }
     );
 
@@ -39,7 +41,10 @@ class PopupRoom extends StatelessWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-
+                          if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["settings"]) {
+                          } else {
+                            ToastUtil.showErrorToast(context, "Not permitted");
+                          }
                         },
                         child: Container(
                           height: 80,
@@ -60,7 +65,13 @@ class PopupRoom extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => openPopupDeleteRoom(),
+                        onTap: () {
+                          if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["delete_room"]) {
+                            openPopupDeleteRoom();
+                          } else {
+                            ToastUtil.showErrorToast(context, "Not permitted");
+                          }
+                        },
                         child: Container(
                           height: 80,
                           width: 80,
@@ -92,8 +103,12 @@ class PopupRoom extends StatelessWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => RoomUsersPage(room: room)));
+                          if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["users"]) {
+                            Navigator.pop(context);
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => RoomUsersPage(room: room)));
+                          } else {
+                            ToastUtil.showErrorToast(context, "Not permitted");
+                          }
                         },
                         child: Container(
                           height: 80,
@@ -114,7 +129,12 @@ class PopupRoom extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["chat"]) {
+                          } else {
+                            ToastUtil.showErrorToast(context, "Not permitted");
+                          }
+                        },
                         child: Container(
                           height: 80,
                           width: 80,
