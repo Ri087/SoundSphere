@@ -1,9 +1,8 @@
 import 'package:SoundSphere/models/room.dart';
 import 'package:SoundSphere/widgets/music_queue_widget.dart';
 import 'package:SoundSphere/widgets/music_search_widget.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../utils/app_firebase.dart';
 
@@ -34,7 +33,7 @@ class Music {
     if (room.musicQueue.isEmpty) {
       return null;
     }
-    final docSnap = await collectionRef.where("id",whereIn: room.musicQueue).get();
+    final docSnap = await collectionRef.where("id",whereIn: room.musicQueue.values).get();
     Map<String, Music?> returnMap = {};
     for (var doc in docSnap.docs) {
       returnMap[doc.data().id!] = doc.data();
@@ -46,9 +45,11 @@ class Music {
     List<Widget> widgets = [];
     Map<String, Music?>? musicQueue = await Music.getMusicQueue(room);
     if (musicQueue == null) return [];
-    for (var musicID in room.musicQueue) {
-      widgets.add(MusicQueueWidget(music: musicQueue[musicID]!));
-    }
+    room.musicQueue.forEach((key, value) {
+      widgets.add(MusicQueueWidget(music: musicQueue[value]!, onClick: () {
+        room.removeMusic(key);
+      },));
+    });
     return widgets;
   }
   

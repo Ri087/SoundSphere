@@ -1,7 +1,7 @@
-import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/models/app_user.dart';
-import 'package:SoundSphere/utils/app_utilities.dart';
+import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
+import 'package:SoundSphere/utils/app_utilities.dart';
 import 'package:SoundSphere/widgets/room_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,10 +14,11 @@ class Room {
   final bool isPrivate;
   final int maxMembers;
   Map<String, dynamic> members;
-  List<dynamic> musicQueue;
+  Map<String, dynamic> musicQueue;
   Map<String, dynamic> actualMusic;
   String action;
   String updater;
+  int musicCounter = 0;
 
   Room({
     required this.id,
@@ -38,7 +39,13 @@ class Room {
 
   Future<void> addMusic(Music musicToAdd) async {
     action = "add_music";
-    musicQueue.add(musicToAdd.id);
+    musicQueue["${++musicCounter}"] = musicToAdd.id;
+    await update();
+  }
+
+  Future<void> removeMusic(String index) async {
+    action = "remove_music";
+    musicQueue.remove(index);
     await update();
   }
 
@@ -56,18 +63,19 @@ class Room {
   Future<Music> getNextMusic() async {
     if (musicQueue.isEmpty) {
       return Music(url: "", duration: 0, artists: [], title: "", album: "", cover: "");
-    }
-    else {
-      final docSnap = await Music.collectionRef.doc(musicQueue[0]).get();
+    } else {
+      final docSnap = await Music.collectionRef.doc(musicQueue.values.first).get();
       if (docSnap.data() != null) {
         return docSnap.data()!;
       }
-      return Music(url: "",
+      return Music(
+          url: "",
           duration: 0,
           artists: [],
           title: "",
           album: "",
-          cover: "");
+          cover: ""
+      );
     }
   }
 
@@ -107,7 +115,7 @@ class Room {
         id: "S-${AppUtilities.getRandomString(5).toUpperCase()}",
         host: hostUID,
         members: {},
-        musicQueue: [],
+        musicQueue: {},
         actualMusic: {"id": "", "position": 0, "state": "", "timestamp": 0},
         title: title.toUpperCase(),
         isPrivate: isPrivate,

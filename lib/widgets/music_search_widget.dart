@@ -1,7 +1,5 @@
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/models/room.dart';
-import 'package:SoundSphere/widgets/toast.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 class MusicSearchWidget extends StatelessWidget {

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:SoundSphere/screens/search_music.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../models/music.dart';
@@ -14,6 +17,7 @@ class Queue extends StatefulWidget {
 
 class _Queue extends State<Queue> {
   late Room _room;
+  late StreamSubscription<DocumentSnapshot> _roomStream;
   late Future<List<Widget>> _queueWidgets;
   TextEditingController searchController = TextEditingController();
   bool typing = false;
@@ -23,16 +27,33 @@ class _Queue extends State<Queue> {
     super.initState();
     _room = widget.room;
     _queueWidgets = Music.getMusicQueueWidgets(_room);
-  }
 
-  void leavePage() {
-    Navigator.pop(context);
-  }
-
-  void reloadData() {
-    setState(() {
-      _queueWidgets = Music.getMusicQueueWidgets(_room);
+    _roomStream = Room.getCollectionRef().doc(_room.id).snapshots(includeMetadataChanges: true).listen((event) {
+      if (event.data() != null && !event.metadata.hasPendingWrites && !event.metadata.isFromCache) {
+        setState(() {
+          _room = event.data()!;
+          _queueWidgets = Music.getMusicQueueWidgets(_room);
+        });
+      }
     });
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _roomStream.resume();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    _roomStream.pause();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _roomStream.cancel();
   }
 
   @override
@@ -40,11 +61,11 @@ class _Queue extends State<Queue> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFFF86C9), //const Color(0xFF0EE6F1),
-        title: Text("Music Queue", style: TextStyle(color: Colors.black)),
+        title: const Text("Music Queue", style: TextStyle(color: Colors.black)),
         leading: BackButton(
           color: Colors.black,
           onPressed: () {
-            leavePage();
+            Navigator.pop(context);
           },
         ),
       ),
@@ -56,70 +77,69 @@ class _Queue extends State<Queue> {
             backgroundColor: const Color(0xFF0EE6F1),
             color: Colors.white,
             onRefresh: () async {
-              reloadData();
+              setState(() {
+                _queueWidgets = Music.getMusicQueueWidgets(_room);
+              });
             },
             child: Padding(
-              padding: const EdgeInsets.only(top : 10),
+              padding: const EdgeInsets.only(top: 16, left: 12),
               child: FutureBuilder(
-                  future:  _queueWidgets,
-                  builder: (context, snapshot) {
-                    List<Widget> listItems;
-                    if (snapshot.hasData) {
-                      listItems = snapshot.data!;
-                    } else if (snapshot.hasError) {
-                      listItems = [Text("Result : ${snapshot.error}")];
-                    } else {
-                      listItems = [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
-                          child: const Center(
-                            child: SizedBox(
-                              width: 50,
-                              height: 50,
-                              child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                future:  _queueWidgets,
+                builder: (context, snapshot) {
+                  List<Widget> listItems;
+                  if (snapshot.hasData) {
+                    listItems = snapshot.data!;
+                  } else if (snapshot.hasError) {
+                    listItems = [Text("Result : ${snapshot.error}")];
+                  } else {
+                    listItems = [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
+                        child: const Center(
+                          child: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
+                          ),
+                        ),
+                      ),
+                    ];
+                  }
+                  if (listItems.isEmpty) {
+                    return SizedBox(
+                      height : MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
+                      child :
+                        Container(
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width - 50,
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.library_music, size: 125,),
+                                Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Text("The queue is empty", style: TextStyle(fontSize: 22),),
+                                ),
+                                Text("Use the '+' button to add a music to the queue."),
+                                Text("If no musics appear, try to refresh!")
+                              ],
                             ),
                           ),
                         ),
-                      ];
-                    }
-                    if (listItems.isEmpty) {
-                      return SizedBox(
-                        height : MediaQuery.of(context).size.height - AppBar().preferredSize.height-75,
-                        child :
-                          Container(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width - 50,
-                              child: const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.library_music, size: 125,),
-                                  Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Text("The queue is empty", style: TextStyle(fontSize: 22),),
-                                  ),
-                                  Text("Use the '+' button to add a music to the queue."),
-                                  Text("If no musics appear, try to refresh!")
-                                ],
-                              ),
-                            ),
-                          ),
-                      );
-                    } else {
-                      return SizedBox(
-                          height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-50,
-                          child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ListView.builder(
-                                  itemCount: listItems.length,
-                                  itemBuilder: (ctxt, ind) {
-                                    return listItems[ind];
-                                  }
-                              )
-                          )
-                      );
-                    }
+                    );
+                  } else {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
+                      child: ListView.builder(
+                        itemCount: listItems.length,
+                        itemBuilder: (ctxt, ind) {
+                          return listItems[ind];
+                        }
+                      )
+                    );
                   }
+                }
               ),
             )
           ),
@@ -133,8 +153,7 @@ class _Queue extends State<Queue> {
               MaterialPageRoute(builder: (context) => SearchMusic(room: _room)))
               .whenComplete(() {
             setState(() {
-              //_actualMusic = _room.getMusic();
-              //_nextMusic = _room.getNextMusic();
+              _queueWidgets = Music.getMusicQueueWidgets(_room);
             });
           });
         },

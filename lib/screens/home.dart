@@ -2,7 +2,6 @@ import 'package:SoundSphere/models/room.dart';
 import 'package:SoundSphere/screens/login/email_page.dart';
 import 'package:SoundSphere/widgets/popup/popup_create_sphere.dart';
 import 'package:SoundSphere/widgets/popup/popup_profile.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

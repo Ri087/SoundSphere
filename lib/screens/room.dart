@@ -1,8 +1,8 @@
 import 'dart:async';
+
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/screens/queue.dart';
-import 'package:SoundSphere/screens/search_music.dart';
 import 'package:SoundSphere/widgets/popup/popup_room.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:SoundSphere/widgets/toast.dart';
@@ -26,7 +26,6 @@ class _RoomPage extends State<RoomPage> {
   late Room _room;
   late Future<Music> _actualMusic;
   late Future<Music> _nextMusic;
-  late Future<List<Widget>> _queueWidgets;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
   late final Future<AppUser> _host;
@@ -113,8 +112,8 @@ class _RoomPage extends State<RoomPage> {
              }
              _room.action = "";
              _room.actualMusic["position"] = 0;
-             _room.actualMusic["id"] = _room.musicQueue.first;
-             _room.musicQueue.removeAt(0);
+             _room.actualMusic["id"] = _room.musicQueue.values.first;
+             _room.musicQueue.remove(_room.musicQueue.keys.first);
              _room.actualMusic["timestamp"] = DateTime.now().millisecondsSinceEpoch;
              nextMusic();
              if (_isUpdater) {
@@ -144,15 +143,11 @@ class _RoomPage extends State<RoomPage> {
              } else {
                if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater add a music in queue");
                _isUpdater = false;
-               setState(() {
-                 _queueWidgets = Music.getMusicQueueWidgets(_room);
-               });
              }
              break;
            case "remove_music":
-             /*setState(() {
-               _queueWidgets = Music.getMusicQueueWidgets(_room);
-             });*/
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater remove a music in queue");
+             _isUpdater = false;
              break;
          }
        }
@@ -185,8 +180,8 @@ class _RoomPage extends State<RoomPage> {
       _room.actualMusic["position"] = 0;
 
       if (_room.musicQueue.isNotEmpty) {
-        _room.actualMusic["id"] = _room.musicQueue.first;
-        _room.musicQueue.removeAt(0);
+        _room.actualMusic["id"] = _room.musicQueue.keys.first;
+        _room.musicQueue.remove(_room.musicQueue.keys.first);
         _room.actualMusic["state"] = PlayerState.playing.toString();
         nextMusic();
       } else {
@@ -243,7 +238,7 @@ class _RoomPage extends State<RoomPage> {
     await _audioPlayer.seek(Duration.zero);
     await _audioPlayer.resume();
     setState(() {
-      _queueWidgets = Music.getMusicQueueWidgets(_room);
+      _nextMusic = _room.getNextMusic();
     });
   }
 
@@ -339,7 +334,7 @@ class _RoomPage extends State<RoomPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
+                        padding: const EdgeInsets.only(bottom: 20.0),
                         child: FutureBuilder(
                           future: _host,
                           builder: (context, snapshot) {
@@ -494,7 +489,7 @@ class _RoomPage extends State<RoomPage> {
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(width: 2.0, color: Color(0xFF0ee6f1)),),),
                   child: const Padding(
                     padding: EdgeInsets.only(bottom: 6),
-                    child: Text("Next Music", style : TextStyle(fontSize: 24)),
+                    child: Text("Next Music", style : TextStyle(fontSize: 22)),
                   ),
                 ),
               ),
@@ -504,9 +499,9 @@ class _RoomPage extends State<RoomPage> {
               child: FutureBuilder(
                 future:  _nextMusic,
                 builder: (context, snapshot) {
-                  Music? music = snapshot.data!;
+                  Music? music;
                   if (snapshot.hasData) {
-                    Music? music = snapshot.data;
+                    music = snapshot.data!;
                   } else if (snapshot.hasError) {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -519,7 +514,7 @@ class _RoomPage extends State<RoomPage> {
                   if (music == null || music.id == null || music.id == "") {
                     return const Padding(
                       padding: EdgeInsets.only(top : 20),
-                      child: Text("Add the first music with the button below", style: TextStyle(fontSize: 16),),
+                      child: Text("Tap the button below to add a music", style: TextStyle(fontSize: 16),),
                     );
                   } else {
                     return Padding(
@@ -529,7 +524,7 @@ class _RoomPage extends State<RoomPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                              height: 60, width: 60,
+                              height: 50, width: 50,
                               decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
                               child: Image.network(music.cover!)),
                           Padding(
@@ -539,8 +534,8 @@ class _RoomPage extends State<RoomPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(music.title, style: const TextStyle(fontSize: 28), textAlign: TextAlign.left, maxLines: 1),
-                                  Text(music.artists!.join(", "), style: const TextStyle(fontSize: 20), textAlign: TextAlign.left, maxLines: 1),
+                                  Text(music.title, style: const TextStyle(fontSize: 20), textAlign: TextAlign.left, maxLines: 1),
+                                  Text(music.artists!.join(", "), style: const TextStyle(fontSize: 16), textAlign: TextAlign.left, maxLines: 1),
                                 ],
                               ),
                             ),
