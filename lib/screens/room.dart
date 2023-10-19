@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
+import 'package:SoundSphere/screens/queue.dart';
 import 'package:SoundSphere/screens/search_music.dart';
 import 'package:SoundSphere/widgets/popup/popup_room_settings.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
@@ -24,6 +25,7 @@ class RoomPage extends StatefulWidget {
 class _RoomPage extends State<RoomPage> {
   late Room _room;
   late Future<Music> _actualMusic;
+  late Future<Music> _nextMusic;
   late Future<List<Widget>> _queueWidgets;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late final StreamSubscription _roomStream;
@@ -46,7 +48,7 @@ class _RoomPage extends State<RoomPage> {
 
     // Async
     _actualMusic = _room.getMusic();
-    _queueWidgets = Music.getMusicQueueWidgets(_room);
+    _nextMusic = _room.getNextMusic();
     _host = _room.getHost();
 
     // permet de mettre à jour la room selon les intéractions d'autres utilisateurs
@@ -463,14 +465,14 @@ class _RoomPage extends State<RoomPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.only(top: 30),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 5.0),
                 child: Container(
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(width: 2.0, color: Color(0xFF0ee6f1)),),),
                   child: const Padding(
-                    padding: EdgeInsets.only(bottom: 8),
-                    child: Text("Music queue", style : TextStyle(fontSize: 20)),
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Text("Next Music", style : TextStyle(fontSize: 24)),
                   ),
                 ),
               ),
@@ -478,44 +480,51 @@ class _RoomPage extends State<RoomPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: FutureBuilder(
-                future:  _queueWidgets,
+                future:  _nextMusic,
                 builder: (context, snapshot) {
-                  List<Widget> listItems;
+                  Music? music = snapshot.data!;
                   if (snapshot.hasData) {
-                    listItems = snapshot.data!;
+                    Music? music = snapshot.data;
                   } else if (snapshot.hasError) {
-                    listItems = [Text("Result : ${snapshot.error}")];
-                  } else {
-                    listItems = [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
-                        child: const Center(
-                          child: SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
-                          ),
-                        ),
-                      ),
-                    ];
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text("An error as occured : ${snapshot.error}")
+                      ],
+                    );
                   }
-                  if (listItems.isEmpty) {
+                  if (music == null || music.id == null || music.id == "") {
                     return const Padding(
                       padding: EdgeInsets.only(top : 20),
                       child: Text("Add the first music with the button below", style: TextStyle(fontSize: 16),),
                     );
                   } else {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height - AppBar().preferredSize.height - 550,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView.builder(
-                          itemCount: listItems.length,
-                          itemBuilder: (ctxt, ind) {
-                            return listItems[ind];
-                          }
-                        )
-                      )
+                    return Padding(
+                      padding: const EdgeInsets.only(top:16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                              height: 60, width: 60,
+                              decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(7.0))),
+                              child: Image.network(music.cover!)),
+                          Padding(
+                            padding: const EdgeInsets.only(left:12),
+                            child: SizedBox(
+                              width: 200,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(music.title, style: const TextStyle(fontSize: 28), textAlign: TextAlign.left, maxLines: 1),
+                                  Text(music.artists!.join(", "), style: const TextStyle(fontSize: 20), textAlign: TextAlign.left, maxLines: 1),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }
                 }
@@ -529,11 +538,11 @@ class _RoomPage extends State<RoomPage> {
         onPressed: () {
           _isUpdater = true;
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SearchMusic(room: _room)))
+              MaterialPageRoute(builder: (context) => Queue(room: _room)))
               .whenComplete(() {
                 setState(() {
                   _actualMusic = _room.getMusic();
-                  _queueWidgets = Music.getMusicQueueWidgets(_room);
+                  _nextMusic = _room.getNextMusic();
                 });
               });
         },
