@@ -422,10 +422,14 @@ class _RoomPage extends State<RoomPage> {
                             icon: const Icon(Icons.skip_previous_outlined, color: Color(0xFFFFE681)),
                             onPressed: () {
                               if(_userPermissions["player"]["restart_music"]) {
-                                _isUpdater = true;
-                                _room.actualMusic["position"] = 0;
-                                _room.action = "restart_music";
-                                _room.update();
+                                if (_room.actualMusic["id"] != "") {
+                                  _isUpdater = true;
+                                  _room.actualMusic["position"] = 0;
+                                  _room.action = "restart_music";
+                                  _room.update();
+                                } else if (mounted) {
+                                  ToastUtil.showShortErrorToast(context, "No music");
+                                }
                               } else if (mounted) {
                                 ToastUtil.showShortErrorToast(context, "Not permitted");
                               }
@@ -438,14 +442,18 @@ class _RoomPage extends State<RoomPage> {
                               iconSize: 27,
                               icon: Icon(_playerState == PlayerState.playing ? Icons.pause : Icons.play_arrow_outlined, color: const Color(0xFF02203A),),
                               onPressed: _userPermissions["player"]["pause_play_music"] ? () {
-                                if(_playerState == PlayerState.playing) {
-                                  _isUpdater = true;
-                                  _room.action = "pause";
-                                  _room.update();
-                                } else {
-                                  _isUpdater = true;
-                                  _room.action = "play";
-                                  _room.update();
+                                if (_room.actualMusic["id"] != "") {
+                                  if(_playerState == PlayerState.playing) {
+                                    _isUpdater = true;
+                                    _room.action = "pause";
+                                    _room.update();
+                                  } else {
+                                    _isUpdater = true;
+                                    _room.action = "play";
+                                    _room.update();
+                                  }
+                                } else if (mounted) {
+                                  ToastUtil.showShortErrorToast(context, "No music");
                                 }
                               } : () {
                                 if (mounted) ToastUtil.showShortErrorToast(context, "Not permitted");
