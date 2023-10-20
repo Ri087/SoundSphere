@@ -28,9 +28,9 @@ class MusicQueueWidget extends StatelessWidget {
                children: [
                  Padding(
                    padding: const EdgeInsets.only(bottom: 4.0),
-                   child: Text(music.title, style: const TextStyle(fontSize: 20), textAlign: TextAlign.left, maxLines: 1),
+                   child: Text(music.title, style: const TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.left, maxLines: 1),
                  ),
-                 Text(music.artists!.join(", "), style: const TextStyle(fontSize: 16), textAlign: TextAlign.left, maxLines: 1),
+                 Text(music.artists!.join(", "), style: const TextStyle(fontSize: 16, color: Colors.white), textAlign: TextAlign.left, maxLines: 1),
                ],
              ),
            ),

@@ -19,13 +19,12 @@ class AppUser {
     fromFirestore: AppUser.fromFirestore,
     toFirestore: (AppUser user, _) => user.toFirestore(),);
 
-  // A modifier niveau gestion des erreurs
   static Future<dynamic> register(String email, String password) async {
     try {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       final userCredential = credential.user!;
-      final user = AppUser(uid: userCredential.uid, email: email, displayName: 'user_${AppUtilities.getRandomString(10)}');
+      final user = AppUser(uid: userCredential.uid, email: email, displayName: 'user_${AppUtilities.getRandomString(8)}');
       await userCredential.updateDisplayName(user.displayName);
       await collectionRef.doc(user.uid).set(user);
       return user;

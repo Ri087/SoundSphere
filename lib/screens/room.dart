@@ -58,7 +58,6 @@ class _RoomPage extends State<RoomPage> {
         Room newRoom = event.data()!;
 
         setState(() => _room = newRoom);
-        print(mounted);
         if (_isFirstBuild) return;
 
         String updater = _room.updater;
@@ -139,7 +138,6 @@ class _RoomPage extends State<RoomPage> {
                  _room.action = "next_music_new";
                  _room.update();
                } else {
-                 print("non");
                  _isUpdater = false;
                }
              } else {
@@ -213,7 +211,6 @@ class _RoomPage extends State<RoomPage> {
   @override
   void dispose() {
     super.dispose();
-    print("dispose");
     _roomStream.cancel().whenComplete(() {
       _audioPlayer.dispose();
       _room.removeMember(FirebaseAuth.instance.currentUser!.uid).whenComplete(() {

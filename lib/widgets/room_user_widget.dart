@@ -18,7 +18,6 @@ class _RoomUserWidget extends State<RoomUserWidget> {
   late Future<AppUser> _user;
   late final Room _room;
   BorderRadiusGeometry? widgetBorder = BorderRadius.circular(7.0);
-  BorderRadiusGeometry? bottomWidgetBorder = const BorderRadius.vertical(bottom: Radius.circular(7.0));
   bool _permCategories = false;
   bool _permRoom = false;
   bool _permUsers = false;
@@ -97,7 +96,6 @@ class _RoomUserWidget extends State<RoomUserWidget> {
                           _permUsers = false;
                           _permRoom = false;
                           widgetBorder = BorderRadius.circular(7.0);
-                          bottomWidgetBorder = const BorderRadius.vertical(bottom: Radius.circular(7.0));
                         }
                       });
                     },
@@ -248,17 +246,12 @@ class _RoomUserWidget extends State<RoomUserWidget> {
                           onTap: () {
                             setState(() {
                               _permPlayer = !_permPlayer;
-                              if (!_permPlayer) {
-                                bottomWidgetBorder = const BorderRadius.vertical(bottom: Radius.circular(7.0));
-                              } else {
-                                bottomWidgetBorder = BorderRadius.zero;
-                              }
                             });
                           },
                           child: Column(
                             children: [
                               Container(
-                                decoration: BoxDecoration(color: const Color(0xFFFFF2C0), borderRadius: bottomWidgetBorder),
+                                decoration: const BoxDecoration(color: Color(0xFFFFF2C0)),
                                 child: const Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16),
                                   child: Row(
@@ -323,6 +316,18 @@ class _RoomUserWidget extends State<RoomUserWidget> {
                                   ),
                                 ),
                               )
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: const BoxDecoration(color: Color(0xFFFFF2C0), borderRadius: BorderRadius.vertical(bottom: Radius.circular(7.0))),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Text("L", style: TextStyle(fontSize: 16, color: Colors.black),),
                             ],
                           ),
                         ),

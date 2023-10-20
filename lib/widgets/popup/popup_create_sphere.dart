@@ -16,8 +16,14 @@ class PopupCreateSphere extends StatefulWidget {
 class _PopupCreateSphere extends State<PopupCreateSphere> {
   final TextEditingController controllerTitle = TextEditingController();
   final TextEditingController controllerDescription = TextEditingController();
+  late void Function() onLeave;
   bool stateSwitch = false;
   int countMaxMembers = 5;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

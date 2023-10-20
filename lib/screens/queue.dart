@@ -110,10 +110,22 @@ class _Queue extends State<Queue> {
               } else {
                 return SizedBox(
                   height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-125,
-                  child: ListView.builder(
+                  child: ReorderableListView.builder(
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        key: Key("$index"),
+                        title: listItems[index],
+                      );
+                    },
                     itemCount: listItems.length,
-                    itemBuilder: (ctxt, ind) {
-                      return listItems[ind];
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final Widget item = listItems.removeAt(oldIndex);
+                        listItems.insert(newIndex, item);
+                      });
                     }
                   )
                 );

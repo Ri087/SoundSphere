@@ -83,7 +83,9 @@ class _RoomWidget extends State<RoomWidget> {
         final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
           Navigator.push(context, MaterialPageRoute(
-              builder: (context) => RoomPage(room: _room,))).then((value) => _onReturn());
+              builder: (context) => RoomPage(room: _room,))).whenComplete(() {
+                Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
+              });
         } else if (mounted) {
           ToastUtil.showErrorToast(context, "Error: Connection error");
         }

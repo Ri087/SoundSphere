@@ -86,11 +86,18 @@ class Room {
   }
 
   static Future<List<Room>?> getPublicRooms() async {
-    final snap = await getCollectionRef().where("is_private", isEqualTo: false).get();
-    final rooms = snap.docs.map((e) => e.data()).toList();
-    // Trie desc du nombre de user dans une room
-    rooms.sort((previous, next) => next.members.length.compareTo(previous.members.length));
-    return rooms;
+    bool hasDelete = false;
+    final snap = await getCollectionRef().where("is_private", isEqualTo: false).orderBy("members", descending: true).limit(20).get();
+    final rooms = await Future.wait(snap.docs.map((e) async {
+      Room data = e.data();
+      if(data.members.length == 1 && data.members.keys.first == FirebaseAuth.instance.currentUser!.uid) {
+        hasDelete = true;
+        await getCollectionRef().doc(data.id).delete();
+      }
+      return data;
+    }));
+    List<Room>? roomsList = (hasDelete ? await getPublicRooms() : rooms.toList());
+    return roomsList;
   }
 
   static Future<List<Widget>> getPublicRoomWidgets(void Function() onReturn) async {
