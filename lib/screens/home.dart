@@ -136,7 +136,7 @@ class _Home extends State<Home> {
                           } else {
                             listItems = [
                               SizedBox(
-                                height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
+                                height: _widgetSize,
                                 child: const Center(
                                   child: SizedBox(
                                     width: 60,
