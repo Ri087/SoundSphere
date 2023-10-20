@@ -1,7 +1,9 @@
 import 'package:SoundSphere/models/room.dart';
 import 'package:SoundSphere/widgets/music_queue_widget.dart';
 import 'package:SoundSphere/widgets/music_search_widget.dart';
+import 'package:SoundSphere/widgets/toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/app_firebase.dart';
@@ -41,13 +43,17 @@ class Music {
     return returnMap;
   }
 
-  static Future<List<Widget>> getMusicQueueWidgets(Room room) async {
+  static Future<List<Widget>> getMusicQueueWidgets(Room room, context) async {
     List<Widget> widgets = [];
     Map<String, Music?>? musicQueue = await Music.getMusicQueue(room);
     if (musicQueue == null) return [];
     room.musicQueue.forEach((key, value) {
       widgets.add(MusicQueueWidget(music: musicQueue[value]!, onClick: () {
-        room.removeMusic(key);
+        if (room.members[FirebaseAuth.instance.currentUser!.uid]["player"]["remove_music"]) {
+          room.removeMusic(key);
+        } else {
+          ToastUtil.showShortErrorToast(context, "Not permitted");
+        }
       },));
     });
     return widgets;

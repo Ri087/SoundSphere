@@ -1,4 +1,5 @@
 import 'package:SoundSphere/widgets/room_user_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/room.dart';
@@ -62,8 +63,10 @@ class _RoomUsersPage extends State<RoomUsersPage> {
         backgroundColor: const Color(0xFFFFE681),
         foregroundColor: Colors.black,
         onPressed: () {
-          _room.action = "change_permissions";
-          _room.update();
+          if (_room.members[FirebaseAuth.instance.currentUser!.uid]["users"]["change_permissions"]) {
+            _room.action = "change_permissions";
+            _room.update();
+          }
         },
         child: const Icon(Icons.save,),
       ),

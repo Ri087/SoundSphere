@@ -1,3 +1,5 @@
+import 'package:SoundSphere/widgets/permission_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/app_user.dart';
@@ -52,6 +54,34 @@ class _RoomUserWidget extends State<RoomUserWidget> {
               );
             }
 
+            // Row différente si host
+            List<Widget> userRow = [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Container(
+                    height: 40, width: 40,
+                    decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(50)),
+                    child: photo
+                ),
+              ),
+            ];
+
+            if (widget.userID == _room.host) {
+              userRow.add(const Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Icon(Icons.star_outline_rounded, color: Colors.black,),
+              ));
+            }
+
+            if (widget.userID == FirebaseAuth.instance.currentUser!.uid) {
+              userRow.add(const Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Icon(Icons.person_outline_rounded, color: Colors.black,),
+              ));
+            }
+
+            userRow.add(Text(user.displayName, style: const TextStyle(color: Colors.black, fontSize: 18),));
+
             return Column(
               children: [
                 Material(
@@ -76,17 +106,7 @@ class _RoomUserWidget extends State<RoomUserWidget> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
-                          children: [
-                            Container(
-                              height: 40, width: 40,
-                              decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(50)),
-                              child: photo
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(user.displayName, style: const TextStyle(color: Colors.black, fontSize: 18),),
-                            ),
-                          ]
+                            children: userRow
                         ),
                       ),
                     ),
@@ -128,110 +148,35 @@ class _RoomUserWidget extends State<RoomUserWidget> {
                                   decoration: const BoxDecoration(color: Color(0xFFFFF9E0)),
                                   child: Column(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Access music queue", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["room"]["queue"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["room"]["queue"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["room", "queue"],
+                                        userID: widget.userID,
+                                        text: "Access music queue",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Access chat page", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["room"]["chat"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["room"]["chat"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["room", "chat"],
+                                        userID: widget.userID,
+                                        text: "Access chat page",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Access users page", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["room"]["users"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["room"]["users"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["room", "users"],
+                                        userID: widget.userID,
+                                        text: "Access users page",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Change room settings", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["room"]["settings"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["room"]["settings"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["room", "settings"],
+                                        userID: widget.userID,
+                                        text: "Access settings page",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Delete room", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["room"]["delete_room"],
-                                              onChanged: (value) {
-                                               setState(() {
-                                                 _room.members[widget.userID]["room"]["delete_room"] = value;
-                                               });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["room", "delete_room"],
+                                        userID: widget.userID,
+                                        text: "Delete room",
+                                        room: _room,
                                       ),
                                     ],
                                   ),
@@ -271,68 +216,23 @@ class _RoomUserWidget extends State<RoomUserWidget> {
                                   decoration: const BoxDecoration(color: Color(0xFFFFF9E0)),
                                   child: Column(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Change permissions", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["users"]["change_permissions"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["users"]["change_permissions"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["users", "change_permissions"],
+                                        userID: widget.userID,
+                                        text: "Change permissions",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Kick users", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["users"]["kick_user"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["users"]["kick_user"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["users", "kick_user"],
+                                        userID: widget.userID,
+                                        text: "Kick users",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Ban users", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["users"]["ban_user"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["users"]["ban_user"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["users", "ban_user"],
+                                        userID: widget.userID,
+                                        text: "Ban users",
+                                        room: _room,
                                       ),
                                     ],
                                   ),
@@ -377,152 +277,47 @@ class _RoomUserWidget extends State<RoomUserWidget> {
                                   decoration: const BoxDecoration(color: Color(0xFFFFF9E0), borderRadius: BorderRadius.vertical(bottom: Radius.circular(7.0))),
                                   child: Column(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Add music", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["player"]["add_music"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["player"]["add_music"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["player", "add_music"],
+                                        userID: widget.userID,
+                                        text: "Add music",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Remove music", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["player"]["remove_music"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["player"]["remove_music"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["player", "remove_music"],
+                                        userID: widget.userID,
+                                        text: "Remove music",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Change music order", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["player"]["change_music_order"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["player"]["change_music_order"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["player", "change_music_order"],
+                                        userID: widget.userID,
+                                        text: "Change music order",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Restart music", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["player"]["restart_music"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["player"]["restart_music"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["player", "restart_music"],
+                                        userID: widget.userID,
+                                        text: "Restart music",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Next music", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["player"]["next_music"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["player"]["next_music"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["player", "next_music"],
+                                        userID: widget.userID,
+                                        text: "Next music",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Resume/Pause music", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["player"]["pause_play_music"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["player"]["pause_play_music"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["player", "pause_play_music"],
+                                        userID: widget.userID,
+                                        text: "Resume/Pause music",
+                                        room: _room,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 16.0),
-                                              child: Text("Change music position", style: TextStyle(color: Colors.black, fontSize: 16),),
-                                            ),
-                                            Switch(
-                                              value: _room.members[widget.userID]["player"]["change_position"],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _room.members[widget.userID]["player"]["change_position"] = value;
-                                                });
-                                              }
-                                            )
-                                          ],
-                                        ),
+                                      PermissionWidget(
+                                        permissions: const ["player", "change_position"],
+                                        userID: widget.userID,
+                                        text: "Change music position",
+                                        room: _room,
                                       ),
                                     ],
                                   ),

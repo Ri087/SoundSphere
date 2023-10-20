@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:SoundSphere/screens/search_music.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/music.dart';
 import '../models/room.dart';
+import '../widgets/toast.dart';
 
 class Queue extends StatefulWidget {
-  const Queue({super.key, required this.room});
+  const Queue({super.key, required this.room, required this.roomStream});
   final Room room;
+  final StreamSubscription roomStream;
 
   @override
   State<StatefulWidget> createState() => _Queue();
@@ -17,7 +19,7 @@ class Queue extends StatefulWidget {
 
 class _Queue extends State<Queue> {
   late Room _room;
-  late final StreamSubscription<DocumentSnapshot> _roomStream;
+  late final StreamSubscription _roomStream;
   late Future<List<Widget>> _queueWidgets;
   TextEditingController searchController = TextEditingController();
   bool typing = false;
@@ -26,15 +28,16 @@ class _Queue extends State<Queue> {
   void initState() {
     super.initState();
     _room = widget.room;
-    _queueWidgets = Music.getMusicQueueWidgets(_room);
+    _queueWidgets = Music.getMusicQueueWidgets(_room, context);
 
-    _roomStream = Room.getCollectionRef().doc(_room.id).snapshots(includeMetadataChanges: true).listen((event) {
-      if (event.data() != null && !event.metadata.hasPendingWrites && !event.metadata.isFromCache) {
-        Room newRoom = event.data()!;
+    _roomStream = widget.roomStream;
+    _roomStream.onData((event) {
+      if (event.data() != null && !event.metadata.hasPendingWrites && !event.metadata.isFromCache && event.data() is Room) {
+        Room newRoom = event.data()! as Room;
         if (newRoom.musicQueue != _room.musicQueue) {
           setState(() {
-            _room = event.data()!;
-            _queueWidgets = Music.getMusicQueueWidgets(_room);
+            _room = event.data()! as Room;
+            _queueWidgets = Music.getMusicQueueWidgets(_room, context);
           });
         }
       }
@@ -79,7 +82,7 @@ class _Queue extends State<Queue> {
         color: Colors.white,
         onRefresh: () async {
           setState(() {
-            _queueWidgets = Music.getMusicQueueWidgets(_room);
+            _queueWidgets = Music.getMusicQueueWidgets(_room, context);
           });
         },
         child: Padding(
@@ -147,14 +150,17 @@ class _Queue extends State<Queue> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          //_isUpdater = true;
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SearchMusic(room: _room)))
-              .whenComplete(() {
-            setState(() {
-              _queueWidgets = Music.getMusicQueueWidgets(_room);
+          if (_room.members[FirebaseAuth.instance.currentUser!.uid]["player"]["add_music"]) {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SearchMusic(room: _room)))
+                .whenComplete(() {
+              setState(() {
+                _queueWidgets = Music.getMusicQueueWidgets(_room, context);
+              });
             });
-          });
+          } else {
+            ToastUtil.showShortErrorToast(context, "Not permitted");
+          }
         },
         child: const Icon(Icons.add),
       ),

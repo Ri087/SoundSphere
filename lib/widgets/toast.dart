@@ -14,6 +14,18 @@ class ToastUtil {
         fontSize: 18);
   }
 
+  static void showShortErrorToast(BuildContext context, String errorMessage) {
+    Fluttertoast.showToast(
+        msg: errorMessage,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        webShowClose: true,
+        timeInSecForIosWeb: 3,
+        backgroundColor: const Color(0xFFD62732),
+        textColor: Colors.white,
+        fontSize: 18);
+  }
+
   static void showSuccessToast(BuildContext context, String succesMessage) {
     Fluttertoast.showToast(
         msg: succesMessage,
