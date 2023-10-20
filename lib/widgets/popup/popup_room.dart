@@ -46,7 +46,7 @@ class PopupRoom extends StatelessWidget {
                             Navigator.pop(context);
                             Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage(room: room)));
                           } else {
-                            ToastUtil.showErrorToast(context, "Not permitted");
+                            ToastUtil.showShortErrorToast(context, "Not permitted");
                           }
                         },
                         child: Container(
@@ -72,7 +72,7 @@ class PopupRoom extends StatelessWidget {
                           if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["delete_room"]) {
                             openPopupDeleteRoom();
                           } else {
-                            ToastUtil.showErrorToast(context, "Not permitted");
+                            ToastUtil.showShortErrorToast(context, "Not permitted");
                           }
                         },
                         child: Container(
@@ -110,7 +110,7 @@ class PopupRoom extends StatelessWidget {
                             Navigator.pop(context);
                             Navigator.push(context, MaterialPageRoute(builder: (context) => RoomUsersPage(room: room)));
                           } else {
-                            ToastUtil.showErrorToast(context, "Not permitted");
+                            ToastUtil.showShortErrorToast(context, "Not permitted");
                           }
                         },
                         child: Container(
@@ -135,7 +135,7 @@ class PopupRoom extends StatelessWidget {
                         onTap: () {
                           if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["chat"]) {
                           } else {
-                            ToastUtil.showErrorToast(context, "Not permitted");
+                            ToastUtil.showShortErrorToast(context, "Not permitted");
                           }
                         },
                         child: Container(

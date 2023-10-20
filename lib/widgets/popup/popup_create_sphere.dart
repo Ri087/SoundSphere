@@ -25,8 +25,15 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
     Future<void> navigateToRoom(Room room) async {
       final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
       if (hasJoined && mounted) {
-        Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,)));
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+        Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,)));
+        });
+
       } else if (mounted) {
         ToastUtil.showErrorToast(context, "Error: Connection error");
       }

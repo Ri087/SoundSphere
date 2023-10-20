@@ -11,9 +11,9 @@ class AppUser {
   late String? uid;
   late String email;
   late String displayName;
-  late bool state; // Connecté ou non
+  late String photoUrl;
 
-  AppUser({this.uid, required this.email, required this.displayName, this.state = false});
+  AppUser({this.uid, required this.email, required this.displayName, this.photoUrl = ""});
 
   static CollectionReference<AppUser> collectionRef = AppFirebase.db.collection("users").withConverter(
     fromFirestore: AppUser.fromFirestore,
@@ -30,7 +30,6 @@ class AppUser {
       await collectionRef.doc(user.uid).set(user);
       return user;
     } on FirebaseAuthException {
-      // Utilisateur existe déjà ou format du mail invalide
       return false;
     }
   }
@@ -86,7 +85,8 @@ class AppUser {
     final data = snapshot.data();
     return AppUser(
       email: data?["email"],
-      displayName: data?["display_name"]
+      displayName: data?["display_name"],
+      photoUrl: data?["photo_url"]
     );
   }
 
@@ -94,6 +94,7 @@ class AppUser {
     return {
       "email": email,
       "display_name": displayName,
+      "photo_url": photoUrl,
     };
   }
 }

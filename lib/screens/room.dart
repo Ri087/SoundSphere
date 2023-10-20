@@ -149,6 +149,10 @@ class _RoomPage extends State<RoomPage> {
              if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater remove a music in queue");
              _isUpdater = false;
              break;
+           case "change_permissions":
+             if (mounted && _notified) ToastUtil.showShortInfoToast(context, "$updater change permissions");
+             _userPermissions = _room.members[FirebaseAuth.instance.currentUser!.uid];
+             break;
          }
        }
      }, onError: (error) {});
@@ -242,7 +246,7 @@ class _RoomPage extends State<RoomPage> {
     });
   }
 
-  Future openPopupSettings() => showDialog(
+  Future openPopupRoom() => showDialog(
     context: context,
     builder:(context)=> PopupRoom(room: _room,),
   );
@@ -264,7 +268,7 @@ class _RoomPage extends State<RoomPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: IconButton(
-              onPressed: () => openPopupSettings(),
+              onPressed: () => openPopupRoom(),
               icon: const Icon(Icons.settings),),
           )
         ],
@@ -371,7 +375,7 @@ class _RoomPage extends State<RoomPage> {
                                   if (_userPermissions["player"]["change_position"]) {
                                     _isPositionChanged = true;
                                   } else if (mounted) {
-                                    ToastUtil.showErrorToast(context, "Not permitted");
+                                    ToastUtil.showShortErrorToast(context, "Not permitted");
                                   }
                                 },
                                 onChanged: (value) {
@@ -423,7 +427,7 @@ class _RoomPage extends State<RoomPage> {
                                 _room.action = "restart_music";
                                 _room.update();
                               } else if (mounted) {
-                                ToastUtil.showErrorToast(context, "Not permitted");
+                                ToastUtil.showShortErrorToast(context, "Not permitted");
                               }
                             },
                           ),
@@ -444,7 +448,7 @@ class _RoomPage extends State<RoomPage> {
                                   _room.update();
                                 }
                               } : () {
-                                if (mounted) ToastUtil.showErrorToast(context, "Not permitted");
+                                if (mounted) ToastUtil.showShortErrorToast(context, "Not permitted");
                               },
                             ),
                           ),
@@ -458,10 +462,10 @@ class _RoomPage extends State<RoomPage> {
                                   _room.action = "next_music";
                                   _room.update();
                                 } else {
-                                  if (mounted) ToastUtil.showErrorToast(context, "Music queue is empty");
+                                  if (mounted) ToastUtil.showShortErrorToast(context, "Music queue is empty");
                                 }
                               } else {
-                                if (mounted) ToastUtil.showErrorToast(context, "Not permitted");
+                                if (mounted) ToastUtil.showShortErrorToast(context, "Not permitted");
                               }
                             },
                           ),
@@ -553,15 +557,17 @@ class _RoomPage extends State<RoomPage> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _isUpdater = true;
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => Queue(room: _room)))
-              .whenComplete(() {
-                setState(() {
-                  _actualMusic = _room.getMusic();
-                  _nextMusic = _room.getNextMusic();
-                });
+          if (_userPermissions["room"]["queue"]) {
+            _isUpdater = true;
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => Queue(room: _room, roomStream: _roomStream,)))
+                .whenComplete(() {
+              setState(() {
+                _actualMusic = _room.getMusic();
+                _nextMusic = _room.getNextMusic();
               });
+            });
+          }
         },
         child: const Icon(Icons.format_list_bulleted),
       ),
