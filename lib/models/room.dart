@@ -121,6 +121,7 @@ class Room {
       title: title.toUpperCase(),
       isPrivate: isPrivate,
       maxMembers: maxMembers,
+      musicCounter: 0
     );
     await getCollectionRef().doc(room.id).set(room);
     return room;

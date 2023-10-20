@@ -19,7 +19,6 @@ class Queue extends StatefulWidget {
 
 class _Queue extends State<Queue> {
   late Room _room;
-  late final StreamSubscription _roomStream;
   late Future<List<Widget>> _queueWidgets;
   TextEditingController searchController = TextEditingController();
   bool typing = false;
@@ -29,37 +28,13 @@ class _Queue extends State<Queue> {
     super.initState();
     _room = widget.room;
     _queueWidgets = Music.getMusicQueueWidgets(_room, context);
+  }
 
-    _roomStream = widget.roomStream;
-    _roomStream.onData((event) {
-      if (event.data() != null && !event.metadata.hasPendingWrites && !event.metadata.isFromCache && event.data() is Room) {
-        Room newRoom = event.data()! as Room;
-        if (newRoom.musicQueue != _room.musicQueue) {
-          setState(() {
-            _room = event.data()! as Room;
-            _queueWidgets = Music.getMusicQueueWidgets(_room, context);
-          });
-        }
-      }
+  void reloadData() {
+    setState(() {
+      _room = widget.room;
+      _queueWidgets = Music.getMusicQueueWidgets(_room, context);
     });
-  }
-
-  @override
-  void activate() {
-    super.activate();
-    _roomStream.resume();
-  }
-
-  @override
-  void deactivate() {
-    super.deactivate();
-    _roomStream.pause();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _roomStream.cancel();
   }
 
   @override
