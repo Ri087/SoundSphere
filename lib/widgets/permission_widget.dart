@@ -45,7 +45,7 @@ class _PermissionWidget extends State<PermissionWidget> {
           Switch(
             value: _room.members[userID][permissions[0]][permissions[1]],
             onChanged: (value) {
-              if (userID == FirebaseAuth.instance.currentUser!.uid || userID == _room.host || !_room.members[userID]["users"]["change_permissions"] || !_room.members[userID][permissions[0]][permissions[1]]) {
+              if (userID == FirebaseAuth.instance.currentUser!.uid || userID == _room.host || !_room.members[FirebaseAuth.instance.currentUser!.uid]["users"]["change_permissions"] || !_room.members[FirebaseAuth.instance.currentUser!.uid][permissions[0]][permissions[1]]) {
                 ToastUtil.showShortErrorToast(context, "Not permitted");
               } else {
                 setState(() {
