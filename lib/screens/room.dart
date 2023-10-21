@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:SoundSphere/models/app_user.dart';
 import 'package:SoundSphere/models/music.dart';
-import 'package:SoundSphere/screens/queue.dart';
+import 'package:SoundSphere/screens/room_queue.dart';
 import 'package:SoundSphere/widgets/popup/popup_room.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:SoundSphere/widgets/toast.dart';
@@ -584,7 +584,7 @@ class _RoomPage extends State<RoomPage> {
           if (_userPermissions["room"]["queue"]) {
             _isUpdater = true;
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => Queue(room: _room)))
+                MaterialPageRoute(builder: (context) => RoomQueue(room: _room)))
                 .whenComplete(() {
               setState(() {
                 _actualMusic = _room.getMusic();

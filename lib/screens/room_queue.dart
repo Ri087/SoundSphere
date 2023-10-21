@@ -8,15 +8,15 @@ import '../models/music.dart';
 import '../models/room.dart';
 import '../widgets/toast.dart';
 
-class Queue extends StatefulWidget {
-  const Queue({super.key, required this.room});
+class RoomQueue extends StatefulWidget {
+  const RoomQueue({super.key, required this.room});
   final Room room;
 
   @override
   State<StatefulWidget> createState() => _Queue();
 }
 
-class _Queue extends State<Queue> {
+class _Queue extends State<RoomQueue> {
   late Room _room;
   late Future<List<Widget>> _queueWidgets;
   TextEditingController searchController = TextEditingController();
