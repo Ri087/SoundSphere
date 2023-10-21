@@ -131,12 +131,17 @@ class _Home extends State<Home> {
                           onTap: () {
                             setState(() {
                               searchPrivateRoom = !searchPrivateRoom;
-                              searchController.text = searchPrivateRoom ? searchController.text.replaceFirst(searchController.text.isEmpty ? "" : searchController.text[0], "#${searchController.text}") : searchController.text.replaceFirst("#", "");
+                              String searchText = searchController.text;
+
                               if (searchPrivateRoom) {
-                                roomWidgets = Room.getPrivateRoomWidgets(reloadData, searchController.text);
+                                searchText = searchText.startsWith("#") ? searchText : "#$searchText";
+                                roomWidgets = Room.getPrivateRoomWidgets(reloadData, searchText);
                               } else {
-                                roomWidgets = Room.getPublicRoomWidgets(reloadData, searchController.text);
+                                searchText = searchText.replaceAll("#", "");
+                                roomWidgets = Room.getPublicRoomWidgets(reloadData, searchText);
                               }
+
+                              searchController.text = searchText;
                             });
                           },
                           child: searchPrivateRoom ? const Icon(Icons.lock_outline, color: Color(0xFFFFE681), size: 20) : const Icon(Icons.lock_open_outlined, color: Color(0xFFFFE681), size: 20),
