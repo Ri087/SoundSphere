@@ -15,7 +15,7 @@ class AppUser {
 
   AppUser({this.uid, required this.email, required this.displayName, this.photoUrl = ""});
 
-  static CollectionReference<AppUser> collectionRef = AppFirebase.db.collection("users").withConverter(
+  static CollectionReference<AppUser> collectionRef = AppFirebase.database.collection("users").withConverter(
     fromFirestore: AppUser.fromFirestore,
     toFirestore: (AppUser user, _) => user.toFirestore(),);
 
@@ -34,6 +34,7 @@ class AppUser {
   }
 
   static Future<dynamic> login(String email, String password) async {
+    email = email.toLowerCase().trim();
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);

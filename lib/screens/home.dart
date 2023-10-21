@@ -1,6 +1,8 @@
 import 'package:SoundSphere/models/room.dart';
+import 'package:SoundSphere/screens/login/email_page.dart';
 import 'package:SoundSphere/widgets/popup/popup_create_sphere.dart';
 import 'package:SoundSphere/widgets/popup/popup_profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -19,6 +21,10 @@ class _Home extends State<Home> {
   @override
   void initState() {
     super.initState();
+    if (FirebaseAuth.instance.currentUser == null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) => const LoginEmail()));
+    }
     roomWidgets = Room.getPublicRoomWidgets(reloadData, "");
   }
 
@@ -57,7 +63,6 @@ class _Home extends State<Home> {
       },
       child: Scaffold(
         appBar: AppBar(
-          elevation: 10,
           backgroundColor: const Color(0xFF02203A),
           leading: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -99,7 +104,7 @@ class _Home extends State<Home> {
                     controller: searchController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: 'Search a sphere with his title or code',
+                      hintText: 'Search a sphere here',
                       filled: true,
                       fillColor: const Color(0xFF02203A),
                       hintStyle: const TextStyle(color: Colors.grey),

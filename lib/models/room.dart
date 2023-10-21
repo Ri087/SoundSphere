@@ -34,7 +34,7 @@ class Room {
     this.musicCounter = 0
   });
 
-  static CollectionReference<Room> getCollectionRef() => AppFirebase.db.collection("rooms")
+  static CollectionReference<Room> getCollectionRef() => AppFirebase.database.collection("rooms")
       .withConverter(fromFirestore: Room.fromFirestore, toFirestore:
   (Room room, _) => room.toFirestore(),);
 

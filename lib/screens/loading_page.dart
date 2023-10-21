@@ -12,17 +12,16 @@ class LoadingPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox.square(
-              dimension: 50,
+              dimension: 75,
               child: CircularProgressIndicator(color: Color(0xFF0EE6F1)),
             ),
             Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("Room loading ...", style: TextStyle(fontSize: 18),),
+              padding: EdgeInsets.all(16.0),
+              child: Text("Room loading ...", style: TextStyle(fontSize: 20),),
             )
           ],
         ),
       ),
     );
   }
-
 }

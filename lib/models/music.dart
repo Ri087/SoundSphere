@@ -27,7 +27,7 @@ class Music {
     required this.cover
   });
 
-  static final collectionRef = AppFirebase.db.collection("musics").withConverter(
+  static final collectionRef = AppFirebase.database.collection("musics").withConverter(
     fromFirestore: Music.fromFirestore,
     toFirestore: (Music music, _) => music.toFirestore(),);
 

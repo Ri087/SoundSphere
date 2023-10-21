@@ -31,7 +31,7 @@ class _RoomUserWidget extends State<RoomUserWidget> {
   }
 
   Future<AppUser> getUser(String uid) async {
-    final snapshot = await AppUser.collectionRef.doc(widget.userID).get();
+    final snapshot = await AppUser.collectionRef.doc(uid).get();
     return snapshot.data()!;
   }
 

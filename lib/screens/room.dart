@@ -221,6 +221,7 @@ class _RoomPage extends State<RoomPage> {
   @override
   void dispose() {
     super.dispose();
+    print("dispose");
     _roomStream.cancel().whenComplete(() {
       _audioPlayer.dispose();
       _room.removeMember(FirebaseAuth.instance.currentUser!.uid).whenComplete(() {

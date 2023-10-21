@@ -1,5 +1,5 @@
-import 'package:SoundSphere/screens/room_users.dart';
 import 'package:SoundSphere/screens/room_settings.dart';
+import 'package:SoundSphere/screens/room_users.dart';
 import 'package:SoundSphere/widgets/popup/popup_warning_delete_room.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +41,7 @@ class PopupRoom extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
+                        borderRadius: BorderRadius.circular(7),
                         onTap: () {
                           if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["settings"]) {
                             Navigator.pop(context);
@@ -68,6 +69,7 @@ class PopupRoom extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
+                        borderRadius: BorderRadius.circular(7),
                         onTap: () {
                           if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["delete_room"]) {
                             openPopupDeleteRoom();
@@ -105,6 +107,7 @@ class PopupRoom extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
+                        borderRadius: BorderRadius.circular(7),
                         onTap: () {
                           if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["users"]) {
                             Navigator.pop(context);
@@ -132,6 +135,7 @@ class PopupRoom extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
+                        borderRadius: BorderRadius.circular(7),
                         onTap: () {
                           if (room.members[FirebaseAuth.instance.currentUser!.uid]["room"]["chat"]) {
                           } else {

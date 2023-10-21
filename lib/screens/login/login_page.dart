@@ -1,7 +1,7 @@
 import 'package:SoundSphere/widgets/app_button_widget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/app_user.dart';
 import '../../widgets/toast.dart';
 import '../home.dart';
 import 'email_page.dart';
@@ -88,17 +88,16 @@ class _LoginPassword extends State<LoginPassword> {
                     buttonText: "LOGIN",
                     buttonIcon: const Icon(Icons.login),
                     onPressed: () {
-                      try {
-                        FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailController.text.toLowerCase(), password: _passwordController.text).whenComplete(
-                            () {
-                              _emailController.clear();
-                              _passwordController.clear();
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
-                            });
-                      } catch (e) {
-                        ToastUtil.showErrorToast(context, "Error: Invalid password");
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginEmail()));
-                      }
+                      AppUser.login(_emailController.text, _passwordController.text).then((value) {
+                        if (value != false) {
+                          _emailController.clear();
+                          _passwordController.clear();
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
+                        } else {
+                          ToastUtil.showErrorToast(context, "Error: Invalid password");
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginEmail()));
+                        }
+                      });
                     }
                   )
                 ),

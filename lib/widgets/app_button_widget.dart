@@ -43,16 +43,17 @@ class _AppButtonWidget extends State<AppButtonWidget> {
       ),
       onPressed: () {
         setState(() {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+
           if (clicked) {
             return;
           }
           clicked = true;
           buttonColor = Colors.blueGrey;
-          rowChildren = [
-            const CircularProgressIndicator(
-              color: Colors.white,
-            )
-          ];
+          rowChildren = [const CircularProgressIndicator(color: Colors.white,)];
         });
         onPressed();
         setState(() {

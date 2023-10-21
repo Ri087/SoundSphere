@@ -87,9 +87,9 @@ class _LoginEmail extends State<LoginEmail> {
                       if (_controllerEmail.text.replaceAll(" ", "") == "") {
                         ToastUtil.showErrorToast(context, "Error: Please enter a valid email");
                       } else {
-                        String mail = _controllerEmail.text.toLowerCase().replaceAll(" ", "");
-                        AppUser.userExist(mail).then((value) {
-                          _controllerEmail.text = mail;
+                        String email = _controllerEmail.text.toLowerCase().trim();
+                        AppUser.userExist(email).then((value) {
+                          _controllerEmail.text = email;
                           navigate(context, value);
                         }).onError((error, stackTrace) {ToastUtil.showErrorToast(context, "Error: Connection error");});
                       }
