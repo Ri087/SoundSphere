@@ -88,7 +88,12 @@ class _Home extends State<Home> {
                     },
                     onChanged: (value) {
                       setState(() {
-                        roomWidgets = value.startsWith("#") ? Room.getPrivateRoomWidgets(reloadData, value) : Room.getPublicRoomWidgets(reloadData, value);
+                        searchPrivateRoom = value.startsWith("#");
+                        if (searchPrivateRoom) {
+                          roomWidgets = Room.getPrivateRoomWidgets(reloadData, value);
+                        } else {
+                          roomWidgets = Room.getPublicRoomWidgets(reloadData, value);
+                        }
                       });
                     },
                     style: const TextStyle(color: Colors.white),

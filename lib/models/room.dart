@@ -87,7 +87,7 @@ class Room {
 
   static Future<List<Room>?> getPublicRooms(String search) async {
     bool hasDelete = false;
-    final snap = await getCollectionRef().where("is_private", isEqualTo: false).orderBy("members", descending: true).limit(20).get();
+    final snap = await getCollectionRef().where(Filter.and(Filter("is_private", isEqualTo: false), Filter.and(Filter("title", isGreaterThanOrEqualTo: search.toUpperCase()), Filter("title", isLessThanOrEqualTo: '${search.toUpperCase()}\uf8ff')))).orderBy("title").orderBy("members", descending: true).limit(20).get();
     final rooms = await Future.wait(snap.docs.map((e) async {
       Room data = e.data();
       if(data.members.length == 1 && data.members.keys.first == FirebaseAuth.instance.currentUser!.uid) {
@@ -96,13 +96,7 @@ class Room {
       }
       return data;
     }));
-    List<Room>? roomsList = (hasDelete ? await getPublicRooms(search) : rooms.where((element) {
-      if (search != "") {
-        return element.title.startsWith(search.toUpperCase());
-      } else {
-        return true;
-      }
-    }).toList());
+    List<Room>? roomsList = hasDelete ? await getPublicRooms(search) : rooms;
     return roomsList;
   }
 
@@ -119,7 +113,7 @@ class Room {
 
   static Future<List<Room>?> getPrivateRooms(String search) async {
     bool hasDelete = false;
-    final snap = await getCollectionRef().orderBy("members", descending: true).limit(20).get();
+    final snap = await getCollectionRef().where(Filter.and(Filter("title", isGreaterThanOrEqualTo: search.toUpperCase()), Filter("title", isLessThanOrEqualTo: '${search.toUpperCase()}\uf8ff'))).orderBy("title").orderBy("members", descending: true).limit(20).get();
     final rooms = await Future.wait(snap.docs.map((e) async {
       Room data = e.data();
       if(data.members.length == 1 && data.members.keys.first == FirebaseAuth.instance.currentUser!.uid) {
@@ -128,14 +122,7 @@ class Room {
       }
       return data;
     }));
-    List<Room>? roomsList = (hasDelete ? await getPublicRooms(search) : rooms.where((element) {
-      if (search != "") {
-        search = search.replaceFirst("#", "");
-        return element.id==search;
-      } else {
-        return true;
-      }
-    }).toList());
+    List<Room>? roomsList = hasDelete ? await getPrivateRooms(search) : rooms;
     return roomsList;
   }
 
