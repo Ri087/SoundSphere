@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 
 import '../models/room.dart';
 
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, required this.room});
+class RoomSettings extends StatefulWidget {
+  const RoomSettings({super.key, required this.room});
   final Room room;
 
   @override
   State<StatefulWidget> createState() => _SettingsPage();
 }
 
-class _SettingsPage extends State<SettingsPage> {
+class _SettingsPage extends State<RoomSettings> {
   late Room _room;
   late StreamSubscription<DocumentSnapshot> _roomStream;
   late Future<List<Widget>> _queueWidgets;
