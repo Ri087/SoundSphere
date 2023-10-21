@@ -85,7 +85,7 @@ class Room {
     return docSnap.data();
   }
 
-  static Future<List<Room>?> getPublicRooms(String search) async {
+  static Future<List<Room>> getPublicRooms(String search) async {
     bool hasDelete = false;
     final snap = await getCollectionRef().where(Filter.and(Filter("is_private", isEqualTo: false), Filter.and(Filter("title", isGreaterThanOrEqualTo: search.toUpperCase()), Filter("title", isLessThanOrEqualTo: '${search.toUpperCase()}\uf8ff')))).orderBy("title").orderBy("members", descending: true).limit(20).get();
     final rooms = await Future.wait(snap.docs.map((e) async {
@@ -96,43 +96,37 @@ class Room {
       }
       return data;
     }));
-    List<Room>? roomsList = hasDelete ? await getPublicRooms(search) : rooms;
+    List<Room> roomsList = hasDelete ? await getPublicRooms(search) : rooms;
     return roomsList;
   }
 
   static Future<List<Widget>> getPublicRoomWidgets(void Function() onReturn, String search) async {
     List<Widget> widgets = [];
     List<Room>? rooms = await Room.getPublicRooms(search);
-    if (rooms != null) {
-      for (var room in rooms) {
-        widgets.add(RoomWidget(room: room, onReturn: onReturn,));
-      }
+    for (var room in rooms) {
+      widgets.add(RoomWidget(room: room, onReturn: onReturn,));
     }
     return widgets;
   }
 
-  static Future<List<Room>?> getPrivateRooms(String search) async {
+  static Future<List<Room>> getPrivateRoom(String search) async {
     bool hasDelete = false;
-    final snap = await getCollectionRef().where(Filter.and(Filter("title", isGreaterThanOrEqualTo: search.toUpperCase()), Filter("title", isLessThanOrEqualTo: '${search.toUpperCase()}\uf8ff'))).orderBy("title").orderBy("members", descending: true).limit(20).get();
-    final rooms = await Future.wait(snap.docs.map((e) async {
-      Room data = e.data();
-      if(data.members.length == 1 && data.members.keys.first == FirebaseAuth.instance.currentUser!.uid) {
-        hasDelete = true;
-        await getCollectionRef().doc(data.id).delete();
-      }
-      return data;
-    }));
-    List<Room>? roomsList = hasDelete ? await getPrivateRooms(search) : rooms;
+    if (search.replaceFirst("#", "").toUpperCase() == "") return [];
+    final docSnap = await getCollectionRef().doc(search.replaceFirst("#", "").toUpperCase()).get();
+    Room room = docSnap.data()!;
+    if(room.members.length == 1 && room.members.keys.first == FirebaseAuth.instance.currentUser!.uid) {
+      hasDelete = true;
+      await getCollectionRef().doc(room.id).delete();
+    }
+    List<Room> roomsList = hasDelete ? await getPrivateRoom(search) : [room];
     return roomsList;
   }
 
   static Future<List<Widget>> getPrivateRoomWidgets(void Function() onReturn, String search) async {
     List<Widget> widgets = [];
-    List<Room>? rooms = await Room.getPrivateRooms(search);
-    if (rooms != null) {
-      for (var room in rooms) {
-        widgets.add(RoomWidget(room: room, onReturn: onReturn,));
-      }
+    List<Room>? rooms = await Room.getPrivateRoom(search);
+    for (var room in rooms) {
+      widgets.add(RoomWidget(room: room, onReturn: onReturn,));
     }
     return widgets;
   }

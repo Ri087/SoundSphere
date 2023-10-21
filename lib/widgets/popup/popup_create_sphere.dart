@@ -8,13 +8,15 @@ import '../../screens/room.dart';
 import '../toast.dart';
 
 class PopupCreateSphere extends StatefulWidget {
-  const PopupCreateSphere({super.key});
+  const PopupCreateSphere({super.key, required this.onReturn});
+  final void Function() onReturn;
 
   @override
   State<StatefulWidget> createState() => _PopupCreateSphere();
 }
 
 class _PopupCreateSphere extends State<PopupCreateSphere> {
+  late void Function() _onReturn;
   final TextEditingController controllerTitle = TextEditingController();
   final TextEditingController controllerDescription = TextEditingController();
   late void Function() onLeave;
@@ -24,29 +26,27 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
   @override
   void initState() {
     super.initState();
+    _onReturn = widget.onReturn;
   }
 
   @override
   Widget build(BuildContext context) {
 
-    Future<void> navigateToRoom(Room room) async {
-      Navigator.push(context, MaterialPageRoute(
+    void navigateToRoom(Room room) {
+      Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (context) => const LoadingPage()));
 
-      final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
-      if (hasJoined && mounted) {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.unfocus();
-        }
-        Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
+      Future.delayed(const Duration(seconds: 1), () async {
+        final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
+        if (hasJoined && mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,))).whenComplete(() {
+            Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
+          });
+        } else if (mounted) {
           Navigator.pop(context);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,)));
-        });
-
-      } else if (mounted) {
-        ToastUtil.showErrorToast(context, "Error: Connection error");
-      }
+          ToastUtil.showErrorToast(context, "Error: Connection error");
+        }
+      });
     }
 
     return AlertDialog(

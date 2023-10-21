@@ -35,7 +35,7 @@ class _Home extends State<Home> {
 
   Future openPopUpCreateSphere(BuildContext context) => showDialog(
     context: context,
-    builder: (BuildContext context) => const PopupCreateSphere(),
+    builder: (BuildContext context) => PopupCreateSphere(onReturn: reloadData),
   );
 
   @override

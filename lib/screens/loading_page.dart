@@ -17,7 +17,7 @@ class LoadingPage extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text("Loading room ...", style: TextStyle(fontSize: 18),),
+              child: Text("Room loading ...", style: TextStyle(fontSize: 18),),
             )
           ],
         ),

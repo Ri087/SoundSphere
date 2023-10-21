@@ -79,24 +79,27 @@ class _RoomWidget extends State<RoomWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> navigateToRoom() async {
-      Navigator.push(context, MaterialPageRoute(
+    void navigateToRoom() {
+      Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (context) => const LoadingPage()));
 
-      Room? room = await Room.getRoom(_room.id);
-      if (room != null) {
-        final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
-        if (hasJoined && mounted) {
-          Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) => RoomPage(room: _room,))).whenComplete(() {
+      Future.delayed(const Duration(seconds: 1), () async {
+        Room? room = await Room.getRoom(_room.id);
+        if (room != null) {
+          final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
+          if (hasJoined && mounted) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,))).whenComplete(() {
               Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
             });
+          } else if (mounted) {
+            Navigator.pop(context);
+            ToastUtil.showErrorToast(context, "Error: Connection error");
+          }
         } else if (mounted) {
+          Navigator.pop(context);
           ToastUtil.showErrorToast(context, "Error: Connection error");
         }
-      } else if (mounted) {
-        ToastUtil.showErrorToast(context, "Error: Connection error");
-      }
+      });
     }
 
     return Padding(
