@@ -1,8 +1,6 @@
 import 'package:SoundSphere/models/room.dart';
-import 'package:SoundSphere/screens/login/email_page.dart';
 import 'package:SoundSphere/widgets/popup/popup_create_sphere.dart';
 import 'package:SoundSphere/widgets/popup/popup_profile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -19,11 +17,6 @@ class _Home extends State<Home> {
   @override
   void initState() {
     super.initState();
-    if (FirebaseAuth.instance.currentUser == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginEmail())));
-    }
     publicRoomWidgetList = Room.getPublicRoomWidgets(reloadData);
   }
 

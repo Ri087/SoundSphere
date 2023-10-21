@@ -58,8 +58,8 @@ class PopupProfile extends StatelessWidget {
                     child: InkWell(
                       onTap: () {
                         try {
-                          FirebaseAuth.instance.signOut().then((value) =>
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginEmail())));
+                          FirebaseAuth.instance.signOut().whenComplete(() =>
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginEmail())));
                         } catch (e) {
                           print(e);
                         }

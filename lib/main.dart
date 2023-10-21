@@ -1,4 +1,6 @@
 import 'package:SoundSphere/screens/home.dart';
+import 'package:SoundSphere/screens/login/email_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,7 @@ class SoundSphere extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget nextPage = FirebaseAuth.instance.currentUser == null ? const LoginEmail() : const Home();
     return MaterialApp(
       title: "SoundSphere",
       theme: ThemeData(
@@ -41,7 +44,7 @@ class SoundSphere extends StatelessWidget {
         dialogTheme: const DialogTheme(backgroundColor: Color(0xFF02203A),)
       ),
       debugShowCheckedModeBanner: false,
-      home: const Home(),
+      home: nextPage,
     );
   }
 }

@@ -89,8 +89,12 @@ class _LoginPassword extends State<LoginPassword> {
                     buttonIcon: const Icon(Icons.login),
                     onPressed: () {
                       try {
-                        FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailController.text.toLowerCase(), password: _passwordController.text).then(
-                            (value) => Navigator.push(context, MaterialPageRoute(builder: (context) => const Home())));
+                        FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailController.text.toLowerCase(), password: _passwordController.text).whenComplete(
+                            () {
+                              _emailController.clear();
+                              _passwordController.clear();
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
+                            });
                       } catch (e) {
                         ToastUtil.showErrorToast(context, "Error: Invalid password");
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginEmail()));
