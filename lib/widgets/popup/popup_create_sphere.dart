@@ -33,12 +33,10 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
   Widget build(BuildContext context) {
 
     void navigateToRoom(Room room) {
-      Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) => const LoadingPage()));
-
       Future.delayed(const Duration(seconds: 1), () async {
         final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
+          Navigator.pop(context);
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,))).whenComplete(() {
             Future.delayed(const Duration(seconds: 1), () => _onReturn());
           });
@@ -149,9 +147,10 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: AppButtonWidget(
-                onPressed: () async {
-                  final Room room = await Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers);
-                  navigateToRoom(room);
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => const LoadingPage()));
+                  Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers).then((room) => navigateToRoom(room));
                 },
                 buttonText: 'CREATE',
                 buttonIcon: const Icon(Icons.add),
