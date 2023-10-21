@@ -40,7 +40,7 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
         final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,))).whenComplete(() {
-            Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
+            Future.delayed(const Duration(seconds: 1), () => _onReturn());
           });
         } else if (mounted) {
           Navigator.pop(context);

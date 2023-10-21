@@ -162,16 +162,18 @@ class _RoomPage extends State<RoomPage> {
      }, onError: (_) {});
 
     _audioPlayer.onDurationChanged.listen((Duration duration) {
-      setState(() {
-        _duration = duration;
-        _actualMusic = _room.getMusic();
-      });
+      if (mounted) {
+        setState(() {
+          _duration = duration;
+          _actualMusic = _room.getMusic();
+        });
+      }
     });
 
     // mise à jour progress bar
     _audioPlayer.onPositionChanged.listen((Duration duration) {
       if (_isPositionChanged == false) {
-        setState(() => _position = duration);
+        if (mounted) setState(() => _position = duration);
       }
     });
 
@@ -182,9 +184,11 @@ class _RoomPage extends State<RoomPage> {
 
     // Event quand la musique se termine (hors pause ou stop par user)
     _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() {
-        _position = const Duration(seconds: 0);
-      });
+      if (mounted) {
+        setState(() {
+          _position = const Duration(seconds: 0);
+        });
+      }
       _room.actualMusic["position"] = 0;
 
       if (_room.musicQueue.isNotEmpty) {
@@ -195,10 +199,12 @@ class _RoomPage extends State<RoomPage> {
       } else {
         _room.actualMusic["id"] = "";
         _room.actualMusic["state"] = PlayerState.completed.toString();
-        setState(() {
-          _duration = const Duration(seconds: 0);
-          _actualMusic = _room.getMusic();
-        });
+        if (mounted) {
+          setState(() {
+            _duration = const Duration(seconds: 0);
+            _actualMusic = _room.getMusic();
+          });
+        }
       }
 
       // Seulement l'host fait l'update pour éviter des mises à jours en masse inutiles

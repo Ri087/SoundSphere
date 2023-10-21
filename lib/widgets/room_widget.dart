@@ -80,16 +80,16 @@ class _RoomWidget extends State<RoomWidget> {
   @override
   Widget build(BuildContext context) {
     void navigateToRoom() {
-      Navigator.pushReplacement(context, MaterialPageRoute(
+      Navigator.push(context, MaterialPageRoute(
           builder: (context) => const LoadingPage()));
 
       Future.delayed(const Duration(seconds: 1), () async {
         Room? room = await Room.getRoom(_room.id);
         if (room != null) {
-          final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
+          final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
           if (hasJoined && mounted) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,))).whenComplete(() {
-              Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
+              Future.delayed(const Duration(seconds: 1), () => _onReturn());
             });
           } else if (mounted) {
             Navigator.pop(context);
