@@ -113,7 +113,8 @@ class Room {
     bool hasDelete = false;
     if (search.replaceFirst("#", "").toUpperCase() == "") return [];
     final docSnap = await getCollectionRef().doc(search.replaceFirst("#", "").toUpperCase()).get();
-    Room room = docSnap.data()!;
+    Room? room = docSnap.data();
+    if (room == null) return [];
     if(room.members.length == 1 && room.members.keys.first == FirebaseAuth.instance.currentUser!.uid) {
       hasDelete = true;
       await getCollectionRef().doc(room.id).delete();

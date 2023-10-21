@@ -96,6 +96,7 @@ class _Home extends State<Home> {
                         }
                       });
                     },
+                    controller: searchController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Search a sphere with his title or code',
@@ -107,15 +108,40 @@ class _Home extends State<Home> {
                       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(7.0), borderSide: const BorderSide(width: 2.0, color: Color(0xFFFFE681))),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 15.0),
                       suffixIcon: Material(
-                        borderRadius: const BorderRadius.only(topRight: Radius.circular(7)),
                         color: Colors.transparent,
-                        child: IconButton(
-                          onPressed: () {
+                        child: InkWell(
+                          borderRadius: const BorderRadius.horizontal(right: Radius.circular(7)),
+                          onTap: () {
+                            setState(() {
+                              searchPrivateRoom = searchController.text.startsWith("#");
+                              if (searchPrivateRoom) {
+                                roomWidgets = Room.getPrivateRoomWidgets(reloadData, searchController.text);
+                              } else {
+                                roomWidgets = Room.getPublicRoomWidgets(reloadData, searchController.text);
+                              }
+                            });
                           },
-                          icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)
+                          child: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)
                         ),
                       ),
-                      prefixIcon: searchPrivateRoom ? const Icon(Icons.lock_outline, color: Color(0xFFFFE681), size: 20) : const Icon(Icons.lock_open_outlined, color: Color(0xFFFFE681), size: 20)
+                      prefixIcon: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: const BorderRadius.horizontal(left: Radius.circular(7)),
+                          onTap: () {
+                            setState(() {
+                              searchPrivateRoom = !searchPrivateRoom;
+                              searchController.text = searchPrivateRoom ? searchController.text.replaceFirst(searchController.text.isEmpty ? "" : searchController.text[0], "#${searchController.text}") : searchController.text.replaceFirst("#", "");
+                              if (searchPrivateRoom) {
+                                roomWidgets = Room.getPrivateRoomWidgets(reloadData, searchController.text);
+                              } else {
+                                roomWidgets = Room.getPublicRoomWidgets(reloadData, searchController.text);
+                              }
+                            });
+                          },
+                          child: searchPrivateRoom ? const Icon(Icons.lock_outline, color: Color(0xFFFFE681), size: 20) : const Icon(Icons.lock_open_outlined, color: Color(0xFFFFE681), size: 20),
+                        ),
+                      )
                     ),
                   ),
                 ),
