@@ -1,4 +1,5 @@
 import 'package:SoundSphere/models/app_user.dart';
+import 'package:SoundSphere/utils/app_firebase.dart';
 import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class _PopupWarningDeleteAccount extends State<PopupWarningDeleteAccount> {
         children: [
           const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Text("This action is irreversible! Confirm your identity to delete your account", style: TextStyle(color: Colors.white),),
+            child: Text("All your data will be delete. This action is irreversible! Confirm your identity to delete your account", style: TextStyle(color: Colors.white),),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -74,7 +75,9 @@ class _PopupWarningDeleteAccount extends State<PopupWarningDeleteAccount> {
                         Navigator.pop(context);
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginEmail()));
                         AppUser.collectionRef.doc(FirebaseAuth.instance.currentUser!.uid).delete().whenComplete(() {
-                          FirebaseAuth.instance.currentUser!.delete().whenComplete(() => ToastUtil.showSuccessToast(context, "Account deleted"));
+                          FirebaseAuth.instance.currentUser!.delete().whenComplete(() {
+                            AppFirebase.usersImagesRef.child("${FirebaseAuth.instance.currentUser!.uid}.png").delete().whenComplete(() => ToastUtil.showSuccessToast(context, "Account deleted"));
+                          });
                         });
                       } else {
                         ToastUtil.showShortErrorToast(context, "Error: Invalid password");
