@@ -9,9 +9,8 @@ import '../models/room.dart';
 import '../widgets/toast.dart';
 
 class Queue extends StatefulWidget {
-  const Queue({super.key, required this.room, required this.roomStream});
+  const Queue({super.key, required this.room});
   final Room room;
-  final StreamSubscription roomStream;
 
   @override
   State<StatefulWidget> createState() => _Queue();

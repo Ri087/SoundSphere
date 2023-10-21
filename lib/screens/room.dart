@@ -57,7 +57,11 @@ class _RoomPage extends State<RoomPage> {
       if (event.data() != null && !event.metadata.hasPendingWrites && !event.metadata.isFromCache) {
         Room newRoom = event.data()!;
 
-        setState(() => _room = newRoom);
+        if (mounted) {
+          setState(() {
+            _room = newRoom;
+          });
+        }
         if (_isFirstBuild) return;
 
         String updater = _room.updater;
@@ -155,7 +159,7 @@ class _RoomPage extends State<RoomPage> {
              break;
          }
        }
-     }, onError: (error) {print(error);});
+     }, onError: (_) {});
 
     _audioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
@@ -568,7 +572,7 @@ class _RoomPage extends State<RoomPage> {
           if (_userPermissions["room"]["queue"]) {
             _isUpdater = true;
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => Queue(room: _room, roomStream: _roomStream,)))
+                MaterialPageRoute(builder: (context) => Queue(room: _room)))
                 .whenComplete(() {
               setState(() {
                 _actualMusic = _room.getMusic();

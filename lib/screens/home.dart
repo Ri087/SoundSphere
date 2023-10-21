@@ -11,18 +11,20 @@ class Home extends StatefulWidget {
 }
 
 class _Home extends State<Home> {
-  late Future<List<Widget>> publicRoomWidgetList;
+  late Future<List<Widget>> roomWidgets;
   late double _widgetSize;
+  final searchController = TextEditingController();
+  bool searchPrivateRoom = false;
 
   @override
   void initState() {
     super.initState();
-    publicRoomWidgetList = Room.getPublicRoomWidgets(reloadData);
+    roomWidgets = Room.getPublicRoomWidgets(reloadData, "");
   }
 
   void reloadData() {
     setState(() {
-      publicRoomWidgetList = Room.getPublicRoomWidgets(reloadData);
+      roomWidgets = Room.getPublicRoomWidgets(reloadData, "");
     });
   }
 
@@ -39,7 +41,7 @@ class _Home extends State<Home> {
   @override
   void didUpdateWidget(covariant Home oldWidget) {
     super.didUpdateWidget(oldWidget);
-    publicRoomWidgetList = Room.getPublicRoomWidgets(reloadData);
+    roomWidgets = Room.getPublicRoomWidgets(reloadData, "");
   }
 
   @override
@@ -84,9 +86,14 @@ class _Home extends State<Home> {
                         _widgetSize = MediaQuery.of(context).size.height - AppBar().preferredSize.height - 140 - MediaQuery.of(context).viewInsets.bottom;
                       });
                     },
+                    onChanged: (value) {
+                      setState(() {
+                        roomWidgets = value.startsWith("#") ? Room.getPrivateRoomWidgets(reloadData, value) : Room.getPublicRoomWidgets(reloadData, value);
+                      });
+                    },
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: 'Search a sphere',
+                      hintText: 'Search a sphere with his title or code',
                       filled: true,
                       fillColor: const Color(0xFF02203A),
                       hintStyle: const TextStyle(color: Colors.grey),
@@ -103,6 +110,7 @@ class _Home extends State<Home> {
                           icon: const Icon(Icons.search, color: Color(0xFFFFE681), size: 20)
                         ),
                       ),
+                      prefixIcon: searchPrivateRoom ? const Icon(Icons.lock_outline, color: Color(0xFFFFE681), size: 20) : const Icon(Icons.lock_open_outlined, color: Color(0xFFFFE681), size: 20)
                     ),
                   ),
                 ),
@@ -119,7 +127,7 @@ class _Home extends State<Home> {
                         reloadData();
                       },
                       child: FutureBuilder(
-                        future: publicRoomWidgetList,
+                        future: roomWidgets,
                         builder: (context, snapshot) {
                           List<Widget> listItems;
                           if (snapshot.hasData) {

@@ -85,7 +85,7 @@ class Room {
     return docSnap.data();
   }
 
-  static Future<List<Room>?> getPublicRooms() async {
+  static Future<List<Room>?> getPublicRooms(String search) async {
     bool hasDelete = false;
     final snap = await getCollectionRef().where("is_private", isEqualTo: false).orderBy("members", descending: true).limit(20).get();
     final rooms = await Future.wait(snap.docs.map((e) async {
@@ -96,13 +96,52 @@ class Room {
       }
       return data;
     }));
-    List<Room>? roomsList = (hasDelete ? await getPublicRooms() : rooms.toList());
+    List<Room>? roomsList = (hasDelete ? await getPublicRooms(search) : rooms.where((element) {
+      if (search != "") {
+        return element.title.startsWith(search.toUpperCase());
+      } else {
+        return true;
+      }
+    }).toList());
     return roomsList;
   }
 
-  static Future<List<Widget>> getPublicRoomWidgets(void Function() onReturn) async {
+  static Future<List<Widget>> getPublicRoomWidgets(void Function() onReturn, String search) async {
     List<Widget> widgets = [];
-    List<Room>? rooms = await Room.getPublicRooms();
+    List<Room>? rooms = await Room.getPublicRooms(search);
+    if (rooms != null) {
+      for (var room in rooms) {
+        widgets.add(RoomWidget(room: room, onReturn: onReturn,));
+      }
+    }
+    return widgets;
+  }
+
+  static Future<List<Room>?> getPrivateRooms(String search) async {
+    bool hasDelete = false;
+    final snap = await getCollectionRef().orderBy("members", descending: true).limit(20).get();
+    final rooms = await Future.wait(snap.docs.map((e) async {
+      Room data = e.data();
+      if(data.members.length == 1 && data.members.keys.first == FirebaseAuth.instance.currentUser!.uid) {
+        hasDelete = true;
+        await getCollectionRef().doc(data.id).delete();
+      }
+      return data;
+    }));
+    List<Room>? roomsList = (hasDelete ? await getPublicRooms(search) : rooms.where((element) {
+      if (search != "") {
+        search = search.replaceFirst("#", "");
+        return element.id==search;
+      } else {
+        return true;
+      }
+    }).toList());
+    return roomsList;
+  }
+
+  static Future<List<Widget>> getPrivateRoomWidgets(void Function() onReturn, String search) async {
+    List<Widget> widgets = [];
+    List<Room>? rooms = await Room.getPrivateRooms(search);
     if (rooms != null) {
       for (var room in rooms) {
         widgets.add(RoomWidget(room: room, onReturn: onReturn,));

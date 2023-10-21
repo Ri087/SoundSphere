@@ -38,15 +38,16 @@ class _RoomWidget extends State<RoomWidget> {
       if (event.data() != null && !event.metadata.hasPendingWrites) {
         Room newRoom = event.data()!;
 
-        if (_lastActualMusic == newRoom.actualMusic["id"].toString()) {
-          _lastActualMusic = newRoom.actualMusic["id"].toString();
+        setState(() {
+          _room = newRoom;
+        });
+
+        if (_lastActualMusic == _room.actualMusic["id"].toString()) {
+          _lastActualMusic = _room.actualMusic["id"].toString();
           setState(() {
             music = _room.getMusic();
           });
         }
-        setState(() {
-          _room = newRoom;
-        });
       }
     });
   }
@@ -83,9 +84,9 @@ class _RoomWidget extends State<RoomWidget> {
         final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
           Navigator.push(context, MaterialPageRoute(
-              builder: (context) => RoomPage(room: _room,))).whenComplete(() {
-                Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
-              });
+            builder: (context) => RoomPage(room: _room,))).whenComplete(() {
+              Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
+            });
         } else if (mounted) {
           ToastUtil.showErrorToast(context, "Error: Connection error");
         }

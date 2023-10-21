@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:SoundSphere/screens/search_music.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../models/music.dart';
 import '../models/room.dart';
 
 class SettingsPage extends StatefulWidget {
