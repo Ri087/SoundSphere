@@ -49,7 +49,7 @@ class _RoomUserWidget extends State<RoomUserWidget> {
             if (user.photoUrl != "") {
               photo = ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.asset(user.photoUrl),
+                child: Image.network(user.photoUrl),
               );
             }
 
