@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:SoundSphere/screens/loading_page.dart';
 import 'package:SoundSphere/screens/room.dart';
 import 'package:SoundSphere/utils/app_utilities.dart';
 import 'package:SoundSphere/widgets/toast.dart';
@@ -79,11 +80,14 @@ class _RoomWidget extends State<RoomWidget> {
   @override
   Widget build(BuildContext context) {
     Future<void> navigateToRoom() async {
+      Navigator.push(context, MaterialPageRoute(
+          builder: (context) => const LoadingPage()));
+
       Room? room = await Room.getRoom(_room.id);
       if (room != null) {
         final bool hasJoined = await _room.addMember(FirebaseAuth.instance.currentUser!.uid);
         if (hasJoined && mounted) {
-          Navigator.push(context, MaterialPageRoute(
+          Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) => RoomPage(room: _room,))).whenComplete(() {
               Future.delayed(const Duration(seconds: 1)).whenComplete(() => _onReturn());
             });

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/room.dart';
+import '../../screens/loading_page.dart';
 import '../../screens/room.dart';
 import '../toast.dart';
 
@@ -29,6 +30,9 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
   Widget build(BuildContext context) {
 
     Future<void> navigateToRoom(Room room) async {
+      Navigator.push(context, MaterialPageRoute(
+          builder: (context) => const LoadingPage()));
+
       final bool hasJoined = await room.addMember(FirebaseAuth.instance.currentUser!.uid);
       if (hasJoined && mounted) {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -37,7 +41,7 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
         }
         Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
           Navigator.pop(context);
-          Navigator.push(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RoomPage(room: room,)));
         });
 
       } else if (mounted) {

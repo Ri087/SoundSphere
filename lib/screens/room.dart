@@ -266,7 +266,13 @@ class _RoomPage extends State<RoomPage> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFF02203A),
-        leading: BackButton(onPressed: () => openPopupWarningDelete(),),
+        leading: BackButton(onPressed: () {
+          if (_room.host == FirebaseAuth.instance.currentUser!.uid) {
+            openPopupWarningDelete();
+          } else {
+            Navigator.pop(context);
+          }
+        },),
         title: Text(_room.title, style: const TextStyle(fontFamily: 'ZenDots', fontSize: 20,),),
         actions: [
           Padding(
