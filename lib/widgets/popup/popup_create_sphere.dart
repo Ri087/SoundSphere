@@ -149,7 +149,7 @@ class _PopupCreateSphere extends State<PopupCreateSphere> {
               child: AppButtonWidget(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => const LoadingPage()));
+                      builder: (context) => const LoadingPage(text: "Room loading...",)));
                   Room.createSphere(controllerTitle.text, controllerDescription.text, stateSwitch, countMaxMembers).then((room) => navigateToRoom(room));
                 },
                 buttonText: 'CREATE',

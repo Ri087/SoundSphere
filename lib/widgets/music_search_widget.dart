@@ -1,6 +1,10 @@
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/models/room.dart';
+import 'package:SoundSphere/screens/loading_page.dart';
+import 'package:SoundSphere/utils/youtube_download.dart';
 import 'package:flutter/material.dart';
+
+import '../utils/app_firebase.dart';
 
 class MusicSearchWidget extends StatelessWidget {
   final Music music;
@@ -26,13 +30,13 @@ class MusicSearchWidget extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 3.0),
-                    child: Text(music.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                    child: Text(music.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(music.album!),
+                      Text(music.artists!.join(", ")),
                     ],
                   ),
                 ],
@@ -42,7 +46,16 @@ class MusicSearchWidget extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {
+              onTap: () async {
+                Navigator.push(context, MaterialPageRoute(builder: (builder) => const LoadingPage(text: "Loading music...")));
+                if (music.url == null) {
+                  try {
+                    music.url = await AppFirebase.musicsStorageRef.child('${music.id}.mp3').getDownloadURL();
+                  } catch (e) {
+                    music.url = await YoutubeDownload.addMusicInDb(music, context);
+                  }
+                }
+                Navigator.pop(context);
                 room.addMusic(music);
               },
               child: const Icon(Icons.add, color: Color(0xFF0EE6F1), size: 30,),

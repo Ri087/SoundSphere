@@ -1,4 +1,5 @@
 import 'package:SoundSphere/models/room.dart';
+import 'package:SoundSphere/utils/youtube_download.dart';
 import 'package:SoundSphere/widgets/music_queue_widget.dart';
 import 'package:SoundSphere/widgets/music_search_widget.dart';
 import 'package:SoundSphere/widgets/toast.dart';
@@ -11,19 +12,17 @@ import '../utils/app_firebase.dart';
 class Music {
   final String? id;
   final String title;
-  final String url;
+  late final String? url;
   final int duration;
   final List<dynamic>? artists;
-  final String? album;
   final String? cover;
 
   Music({
     this.id,
-    required this.url,
+    this.url,
     required this.duration,
     required this.artists,
     required this.title,
-    required this.album,
     required this.cover
   });
 
@@ -61,9 +60,14 @@ class Music {
   
   static Future<List<Widget>> getMusicsSearchWidgets(String search, Room room) async {
     List<Widget> widgets = [];
-    List<Music?> musics = await Music.getDbMusics(search);
+    List<Music> musics = [];
+    if (search.isNotEmpty) {
+      musics = await YoutubeDownload.getVideosResult(search);
+    } else {
+      musics = await YoutubeDownload.getMusicTrending();
+    }
     for (var music in musics) {
-      widgets.add(MusicSearchWidget(music: music!, room: room));
+      widgets.add(MusicSearchWidget(music: music, room: room));
     }
     return widgets;
   }
@@ -77,23 +81,22 @@ class Music {
     final data = snapshot.data();
     return Music(
       id: snapshot.id,
-      title: data?["Titre"],
-      url: data?["Url"],
-      duration: data?["Duration"],
-      artists: data?["Artists"],
-      album: data?["Album"],
-      cover: data?["Cover"],
+      title: data?["title"],
+      url: data?["url"],
+      duration: data?["duration"],
+      artists: data?["artists"],
+      cover: data?["cover"],
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
-      "Titre": title,
-      "Url": url,
-      "Duration": duration,
-      if (artists != null) "Artists": artists,
-      if (album != null) "Album": album,
-      if (cover != null) "Cover": cover,
+      if (url != null) "id": id,
+      "title": title,
+      if (url != null) "url": url,
+      "duration": duration,
+      if (artists != null) "artists": artists,
+      if (cover != null) "cover": cover,
     };
   }
 }

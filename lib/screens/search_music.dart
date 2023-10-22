@@ -39,7 +39,7 @@ class _SearchMusic extends State<SearchMusic> {
           style: const TextStyle(fontSize: 16),
           onChanged: (value) {
             setState(() {
-              searchMusicWidgets = Music.getMusicsSearchWidgets(searchController.value.toString(), room);
+              searchMusicWidgets = Music.getMusicsSearchWidgets(value, room);
             });
           },
           decoration: InputDecoration(
@@ -71,9 +71,9 @@ class _SearchMusic extends State<SearchMusic> {
             musicsWidgets = [const Text("An error has occured")];
           } else {
             musicsWidgets = [
-              const SizedBox(
-                height: 500,
-                child: Center(
+              SizedBox(
+                height: MediaQuery.of(context).size.height - AppBar().preferredSize.height-50,
+                child: const Center(
                   child: SizedBox(
                     width: 75, height: 75,
                     child: CircularProgressIndicator(
@@ -85,9 +85,9 @@ class _SearchMusic extends State<SearchMusic> {
             ];
           }
           return SizedBox(
-            height: MediaQuery.of(context).size.height - 200,
+            height: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16),
               child: ListView.builder(
                 itemCount: musicsWidgets.length,
                 itemBuilder: (ctxt, ind) {

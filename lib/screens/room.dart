@@ -249,7 +249,7 @@ class _RoomPage extends State<RoomPage> {
       await _audioPlayer.pause();
     }
 
-    await _audioPlayer.setSource(UrlSource(music.url));
+    await _audioPlayer.setSource(UrlSource(music.url!));
     await _audioPlayer.seek(Duration.zero);
     await _audioPlayer.resume();
     setState(() {
@@ -313,8 +313,8 @@ class _RoomPage extends State<RoomPage> {
                       artists = music.artists!.join(", ");
                       // Permet de synchro l'utilisateur qui join la room
                       if (_isFirstBuild || _audioPlayer.state == PlayerState.stopped) {
-                        if (music.url.isNotEmpty) {
-                          _audioPlayer.setSourceUrl(music.url);
+                        if (music.url!.isNotEmpty) {
+                          _audioPlayer.setSourceUrl(music.url!);
                           Duration songPosition = Duration(seconds: _room.actualMusic["position"] as int);
                           _audioPlayer.seek(songPosition);
                           if (_room.actualMusic["state"] == PlayerState.playing.toString()) {

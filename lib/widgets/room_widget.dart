@@ -81,7 +81,7 @@ class _RoomWidget extends State<RoomWidget> {
   Widget build(BuildContext context) {
     void navigateToRoom() {
       Navigator.push(context, MaterialPageRoute(
-          builder: (context) => const LoadingPage()));
+          builder: (context) => const LoadingPage(text: "Room loading...",)));
 
       Future.delayed(const Duration(seconds: 1), () async {
         Room? room = await Room.getRoom(_room.id);
