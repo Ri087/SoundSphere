@@ -245,11 +245,13 @@ class _RoomPage extends State<RoomPage> {
   Future<void> nextMusic() async {
     Music music = await _room.getMusic();
 
+    if (music.url.isEmpty) return;
+
     if (_audioPlayer.state == PlayerState.playing) {
       await _audioPlayer.pause();
     }
 
-    await _audioPlayer.setSource(UrlSource(music.url!));
+    await _audioPlayer.setSource(UrlSource("https://firebasestorage.googleapis.com/v0/b/soundsphere-2023.appspot.com/o/musics%2FBRplezB_bYs.mp3?alt=media&token=7e513454-275b-469f-96cb-007cba4bcf3d"));
     await _audioPlayer.seek(Duration.zero);
     await _audioPlayer.resume();
     setState(() {
@@ -304,7 +306,7 @@ class _RoomPage extends State<RoomPage> {
                   Widget cover = const Icon(Icons.music_note, size: 60);
                   if (snapshot.hasData) {
                     Music? music = snapshot.data;
-                    if (music == null || music.id == null || music.id == "") {
+                    if (music == null || music.url.isEmpty) {
                       title = "No music in queue...";
                       artists = "";
                     } else {
@@ -313,8 +315,8 @@ class _RoomPage extends State<RoomPage> {
                       artists = music.artists!.join(", ");
                       // Permet de synchro l'utilisateur qui join la room
                       if (_isFirstBuild || _audioPlayer.state == PlayerState.stopped) {
-                        if (music.url!.isNotEmpty) {
-                          _audioPlayer.setSourceUrl(music.url!);
+                        if (music.url.isNotEmpty) {
+                          _audioPlayer.setSourceUrl(music.url);
                           Duration songPosition = Duration(seconds: _room.actualMusic["position"] as int);
                           _audioPlayer.seek(songPosition);
                           if (_room.actualMusic["state"] == PlayerState.playing.toString()) {
@@ -540,7 +542,7 @@ class _RoomPage extends State<RoomPage> {
                       ],
                     );
                   }
-                  if (music == null || music.id == null || music.id == "") {
+                  if (music == null || music.id.isEmpty) {
                     return const Padding(
                       padding: EdgeInsets.only(top : 20),
                       child: Text("Tap the button below to add a music", style: TextStyle(fontSize: 16),),

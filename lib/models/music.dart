@@ -10,16 +10,16 @@ import 'package:flutter/material.dart';
 import '../utils/app_firebase.dart';
 
 class Music {
-  final String? id;
+  final String id;
   final String title;
-  late final String? url;
+  late String url;
   final int duration;
   final List<dynamic>? artists;
   final String? cover;
 
   Music({
-    this.id,
-    this.url,
+    this.id = "",
+    this.url = "",
     required this.duration,
     required this.artists,
     required this.title,
@@ -37,7 +37,7 @@ class Music {
     final docSnap = await collectionRef.where("id",whereIn: room.musicQueue.values).get();
     Map<String, Music?> returnMap = {};
     for (var doc in docSnap.docs) {
-      returnMap[doc.data().id!] = doc.data();
+      returnMap[doc.data().id] = doc.data();
     }
     return returnMap;
   }
@@ -91,12 +91,12 @@ class Music {
 
   Map<String, dynamic> toFirestore() {
     return {
-      if (url != null) "id": id,
+      "id": id,
       "title": title,
-      if (url != null) "url": url,
+      "url": url,
       "duration": duration,
-      if (artists != null) "artists": artists,
-      if (cover != null) "cover": cover,
+      "artists": artists,
+      "cover": cover,
     };
   }
 }

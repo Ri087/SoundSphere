@@ -2,18 +2,14 @@ import 'dart:io';
 
 import 'package:SoundSphere/models/music.dart';
 import 'package:SoundSphere/utils/app_firebase.dart';
-import 'package:SoundSphere/widgets/toast.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:youtube_data_api/models/video.dart' as api_video;
-import 'package:youtube_data_api/youtube_data_api.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class YoutubeDownload {
   static FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
-  static YoutubeDataApi youtubeDataApi = YoutubeDataApi();
 
   static Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
@@ -23,25 +19,32 @@ class YoutubeDownload {
 
   static Future<List<Music>> getMusicTrending() async {
     List<Music> resultMusics = [];
-    List<api_video.Video> trendingMusicVideos = await youtubeDataApi.fetchTrendingMusic();
-    for (var element in trendingMusicVideos) {
-      api_video.Video video = element;
-      Music music = Music(id: video.videoId!, duration: int.parse(video.duration!.replaceAll(":", "")), artists: [video.channelName!], title: video.title!, cover: video.thumbnails != null ? video.thumbnails![0].url! : "");
-      resultMusics.add(music);
+    try {
+      YoutubeExplode youtubeExplode = YoutubeExplode();
+      List<Video> trendingMusicVideos = await youtubeExplode.search("Partenaire Particulier");
+      for (var element in trendingMusicVideos) {
+        Video video = element;
+        Music music = Music(id: video.id.value, duration: video.duration != null ? video.duration!.inSeconds : 0, artists: [video.author], title: video.title.replaceAll(video.author, "").replaceAll("-", "").trim(), cover: video.thumbnails.standardResUrl);
+        resultMusics.add(music);
+      }
+      youtubeExplode.close();
+    } catch (e) {
+      print(e);
     }
+
     return resultMusics;
   }
 
   static Future<List<Music>> getVideosResult(String search) async {
+    YoutubeExplode youtubeExplode = YoutubeExplode();
     List<Music> videosResult = [];
     try {
-      List videoResultApi = await youtubeDataApi.fetchSearchVideo(search, "AIzaSyDYjqk2HfLh4sDLsD0-S5u1vfcGjl3Hhhs");
+      List videoResultApi = await youtubeExplode.search(search);
       for (var element in videoResultApi) {
-        print(element);
-        if(element is api_video.Video) {
-          api_video.Video video = element;
-          if (int.parse(video.duration!.replaceAll(":", "")) <= 480) {
-            Music music = Music(id: video.videoId!, duration: int.parse(video.duration!.replaceAll(":", "")), artists: [video.channelName!], title: video.title!, cover: video.thumbnails != null ? video.thumbnails![0].url ?? "" : "");
+        if(element is Video) {
+          Video video = element;
+          if (video.duration!.inSeconds <= 480) {
+            Music music = Music(id: video.id.value, duration: video.duration!.inSeconds, artists: [video.author], title: video.title.replaceAll(video.author, "").replaceAll("-", "").trim(), cover: video.thumbnails.standardResUrl);
             videosResult.add(music);
           }
         }
@@ -54,16 +57,20 @@ class YoutubeDownload {
   }
 
   static Future<String> addMusicInDb(Music music, context) async {
-    String downloadUrl = await downloadMusic(music.id!);
-    await Music.collectionRef.doc(music.id!).set(music);
-    ToastUtil.showInfoToast(context, "infoMessage");
+    String downloadUrl = "";
+    try {
+      downloadUrl = await AppFirebase.musicsStorageRef.child('${music.id}.mp3').getDownloadURL();
+    } catch (_) {
+      downloadUrl = await downloadMusic(music.id);
+      await Music.collectionRef.doc(music.id).set(music);
+    }
+
     return downloadUrl;
   }
 
   static Future<String> downloadMusic(String videoId) async {
     YoutubeExplode youtubeExplode = YoutubeExplode();
-    VideoId videoIdObj = VideoId.fromString(videoId);
-    StreamManifest streamManifest = await youtubeExplode.videos.streamsClient.getManifest(videoIdObj);
+    StreamManifest streamManifest = await youtubeExplode.videos.streamsClient.getManifest(videoId);
     AudioOnlyStreamInfo streamInfo = streamManifest.audioOnly.withHighestBitrate();
 
     String downloadPath = path.join(await _localPath, "$videoId.${streamInfo.container.name}");
@@ -73,14 +80,11 @@ class YoutubeDownload {
 
     File file = File(downloadPath);
     IOSink fileStream = file.openWrite();
-
     await youtubeExplode.videos.streamsClient.get(streamInfo).pipe(fileStream);
     await fileStream.flush();
     await fileStream.close();
 
-    youtubeExplode.close();
-
-    var arguments = [];
+    /*var arguments = [];
     if (downloadPath.endsWith('.mp4')) {
       arguments = ["-i", downloadPath, downloadPath.replaceAll('.mp4', '.mp3')];
     } else if (downloadPath.endsWith('.webm')) {
@@ -90,10 +94,18 @@ class YoutubeDownload {
 
     if (downloadPath.endsWith('.webm') || downloadPath.endsWith('.mp4')) {
       file.delete();
-    }
+    }*/
+
+    var argumentsb = ["-codecs"];
+    await flutterFFmpeg.executeWithArguments(argumentsb).then((rc) => print("FFmpeg process exited with rc $rc"));
 
     Reference musicRef = AppFirebase.musicsStorageRef.child('$videoId.mp3');
     await musicRef.putFile(file);
-    return await AppFirebase.musicsStorageRef.child('$videoId.mp3').getDownloadURL();
+    youtubeExplode.close();
+    try {
+      return await musicRef.getDownloadURL();
+    } catch (_) {
+      return "";
+    }
   }
 }

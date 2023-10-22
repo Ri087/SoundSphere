@@ -20,7 +20,9 @@ class MusicSearchWidget extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(10),
-            child: Image.network(music.cover!, height: 50, width: 50,),
+            child: Image.network(music.cover!, height: 50, width: 50,errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.music_note, size: 25);
+            },),
           ),
           Expanded(
             child: Padding(
@@ -36,7 +38,10 @@ class MusicSearchWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(music.artists!.join(", ")),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(music.artists!.join(", "), maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: true),
+                      ),
                     ],
                   ),
                 ],
@@ -48,17 +53,23 @@ class MusicSearchWidget extends StatelessWidget {
             child: InkWell(
               onTap: () async {
                 Navigator.push(context, MaterialPageRoute(builder: (builder) => const LoadingPage(text: "Loading music...")));
-                if (music.url == null) {
-                  try {
-                    music.url = await AppFirebase.musicsStorageRef.child('${music.id}.mp3').getDownloadURL();
-                  } catch (e) {
-                    music.url = await YoutubeDownload.addMusicInDb(music, context);
-                  }
+                if (music.url == "") {
+                  await AppFirebase.musicsStorageRef.child('${music.id}.mp3').getDownloadURL().then((value) {
+                    music.url = value;
+                  }).onError((error, stackTrace) async {
+                    await YoutubeDownload.addMusicInDb(music, context).then((value) {
+                      music.url = value;
+                    });
+                  });
+                  await Music.collectionRef.doc(music.id).set(music);
                 }
                 Navigator.pop(context);
                 room.addMusic(music);
               },
-              child: const Icon(Icons.add, color: Color(0xFF0EE6F1), size: 30,),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Icons.add, color: Color(0xFF0EE6F1), size: 30,),
+              ),
             ),
           )
         ],
