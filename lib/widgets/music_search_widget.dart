@@ -32,7 +32,7 @@ class MusicSearchWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(music.album!),
+                      Text(music.artists!.join(", ")),
                     ],
                   ),
                 ],

@@ -14,7 +14,6 @@ class Music {
   final String url;
   final int duration;
   final List<dynamic>? artists;
-  final String? album;
   final String? cover;
 
   Music({
@@ -23,7 +22,6 @@ class Music {
     required this.duration,
     required this.artists,
     required this.title,
-    required this.album,
     required this.cover
   });
 
@@ -77,23 +75,22 @@ class Music {
     final data = snapshot.data();
     return Music(
       id: snapshot.id,
-      title: data?["Titre"],
-      url: data?["Url"],
-      duration: data?["Duration"],
-      artists: data?["Artists"],
-      album: data?["Album"],
-      cover: data?["Cover"],
+      title: data?["title"],
+      url: data?["url"],
+      duration: data?["duration"],
+      artists: data?["artists"],
+      cover: data?["cover"],
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
-      "Titre": title,
-      "Url": url,
-      "Duration": duration,
-      if (artists != null) "Artists": artists,
-      if (album != null) "Album": album,
-      if (cover != null) "Cover": cover,
+      "id": id,
+      "title": title,
+      "url": url,
+      "duration": duration,
+      if (artists != null) "artists": artists,
+      if (cover != null) "cover": cover,
     };
   }
 }
