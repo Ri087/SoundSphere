@@ -1,4 +1,4 @@
-import 'package:SoundSphere/screens/home.dart';
+ import 'package:SoundSphere/screens/home.dart';
 import 'package:SoundSphere/screens/login/email_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';

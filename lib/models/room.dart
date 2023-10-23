@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 
 class Room {
   final String id;
-  final String title;
-  final String host;
-  final bool isPrivate;
-  final int maxMembers;
+  String title;
+  String host;
+  bool isPrivate;
+  int maxMembers;
   Map<String, dynamic> members;
   Map<String, dynamic> musicQueue;
   Map<String, dynamic> actualMusic;
